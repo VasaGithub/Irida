@@ -29,9 +29,9 @@ val mockItinerary = listOf(
     ItineraryItem(
         id = "1",
         time = "08:00",
-        title = "Flight BCN → NRT",
+        title = "Vuelo BCN → NRT",
         description = "Vueling VY7182 · Terminal 1",
-        location = "Aeroport Barcelona",
+        location = "Aeropuerto Barcelona",
         cost = 420.0,
         emoji = "✈️",
         isBooked = true
@@ -39,7 +39,7 @@ val mockItinerary = listOf(
     ItineraryItem(
         id = "2",
         time = "22:30",
-        title = "Check-in · Shinjuku Hotel",
+        title = "Check-in · Hotel Shinjuku",
         description = "Shinjuku, Tokyo · 4★",
         location = "Shinjuku, Tokyo",
         cost = 95.0,
@@ -49,7 +49,7 @@ val mockItinerary = listOf(
     ItineraryItem(
         id = "3",
         time = "09:00",
-        title = "Senso-ji Temple",
+        title = "Templo Senso-ji",
         description = "Asakusa · 2h visita",
         location = "Asakusa, Tokyo",
         cost = 0.0,
@@ -69,8 +69,8 @@ val mockItinerary = listOf(
     ItineraryItem(
         id = "5",
         time = "15:30",
-        title = "Shibuya Crossing",
-        description = "Icònic creuament · 1h",
+        title = "Cruce de Shibuya",
+        description = "Cruce icónico · 1h",
         location = "Shibuya, Tokyo",
         cost = 0.0,
         emoji = "🏙️",
@@ -80,7 +80,7 @@ val mockItinerary = listOf(
         id = "6",
         time = "20:00",
         title = "Sushi Saito",
-        description = "Restaurant omakase · Reserva obligatoria",
+        description = "Restaurante omakase · Reserva obligatoria",
         location = "Roppongi, Tokyo",
         cost = 85.0,
         emoji = "🍣",
@@ -90,8 +90,8 @@ val mockItinerary = listOf(
 
 val mockTripTokyo = Trip(
     id = "1",
-    title = "Tokyo Adventure",
-    destination = "Tokyo, Japan",
+    title = "Aventura en Tokyo",
+    destination = "Tokyo, Japón",
     startDate = "Mar 10",
     endDate = "Mar 18",
     nights = 8,
@@ -104,15 +104,23 @@ val mockTripTokyo = Trip(
 @Composable
 fun TripDetailScreen(
     trip: Trip = mockTripTokyo,
-    onBack: () -> Unit = {}
+    onBack: () -> Unit = {},
+    onNavigate: (String) -> Unit = {}
 ) {
     var selectedTab by remember { mutableIntStateOf(0) }
-    val tabs = listOf("Itinerary", "Gallery", "Budget", "Notes")
+    val tabs = listOf("Itinerario", "Galería", "Presupuesto", "Notas")
 
     Scaffold(
         containerColor = NavyDeep,
         bottomBar = {
-            BottomNavBar(selectedTab = 1, onTabSelected = {})
+            BottomNavBar(selectedTab = 1, onTabSelected = { tab ->
+                when (tab) {
+                    0 -> onNavigate("home")
+                    1 -> onNavigate("trips")
+                    2 -> onNavigate("gallery")
+                    3 -> onNavigate("settings")
+                }
+            })
         }
     ) { paddingValues ->
         LazyColumn(
@@ -121,17 +129,14 @@ fun TripDetailScreen(
                 .background(NavyDeep)
                 .padding(paddingValues)
         ) {
-            // Hero header
             item {
                 TripDetailHeader(trip = trip, onBack = onBack)
             }
 
-            // Stats row
             item {
                 TripStatsRow(trip = trip)
             }
 
-            // Tabs
             item {
                 ScrollableTabRow(
                     selectedTabIndex = selectedTab,
@@ -161,40 +166,32 @@ fun TripDetailScreen(
                 }
             }
 
-            // Tab content
             when (selectedTab) {
                 0 -> {
-                    // Group by day
                     val day1 = mockItinerary.take(2)
                     val day2 = mockItinerary.drop(2)
 
                     item {
-                        DayHeader(day = "DAY 1 · MAR 10")
+                        DayHeader(day = "DÍA 1 · MAR 10")
                     }
                     items(day1) { item ->
                         ItineraryItemCard(item = item)
                     }
                     item {
-                        DayHeader(day = "DAY 2 · MAR 11")
+                        DayHeader(day = "DÍA 2 · MAR 11")
                     }
                     items(day2) { item ->
                         ItineraryItemCard(item = item)
                     }
                 }
                 1 -> {
-                    item {
-                        GalleryTabPlaceholder()
-                    }
+                    item { GalleryTabPlaceholder() }
                 }
                 2 -> {
-                    item {
-                        BudgetTabContent(trip = trip)
-                    }
+                    item { BudgetTabContent(trip = trip) }
                 }
                 3 -> {
-                    item {
-                        NotesTabPlaceholder()
-                    }
+                    item { NotesTabPlaceholder() }
                 }
             }
 
@@ -215,7 +212,6 @@ fun TripDetailHeader(trip: Trip, onBack: () -> Unit) {
                 )
             )
     ) {
-        // Back button
         IconButton(
             onClick = onBack,
             modifier = Modifier
@@ -224,7 +220,7 @@ fun TripDetailHeader(trip: Trip, onBack: () -> Unit) {
         ) {
             Icon(
                 imageVector = Icons.Default.ArrowBack,
-                contentDescription = "Back",
+                contentDescription = "Volver",
                 tint = White
             )
         }
@@ -244,7 +240,7 @@ fun TripDetailHeader(trip: Trip, onBack: () -> Unit) {
                 fontWeight = FontWeight.ExtraBold
             )
             Text(
-                text = "📅 ${trip.startDate} – ${trip.endDate} · ${trip.nights} nights",
+                text = "📅 ${trip.startDate} – ${trip.endDate} · ${trip.nights} noches",
                 style = MaterialTheme.typography.bodyMedium,
                 color = GrayMid
             )
@@ -260,11 +256,11 @@ fun TripStatsRow(trip: Trip) {
             .padding(horizontal = 20.dp, vertical = 16.dp),
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
-        StatItem(value = "${trip.nights}", label = "NIGHTS", emoji = "🌙")
+        StatItem(value = "${trip.nights}", label = "NOCHES", emoji = "🌙")
         StatDivider()
-        StatItem(value = "€${trip.budget.toInt()}", label = "BUDGET", emoji = "💰")
+        StatItem(value = "€${trip.budget.toInt()}", label = "PRESUPUESTO", emoji = "💰")
         StatDivider()
-        StatItem(value = "${trip.activities.size}", label = "ACTIVITIES", emoji = "📍")
+        StatItem(value = "${trip.activities.size}", label = "ACTIVIDADES", emoji = "📍")
     }
 }
 
@@ -317,7 +313,6 @@ fun ItineraryItemCard(item: ItineraryItem) {
             .padding(horizontal = 20.dp, vertical = 6.dp),
         verticalAlignment = Alignment.Top
     ) {
-        // Time column
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.width(52.dp)
@@ -337,7 +332,6 @@ fun ItineraryItemCard(item: ItineraryItem) {
 
         Spacer(modifier = Modifier.width(12.dp))
 
-        // Card
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(16.dp),
@@ -379,7 +373,7 @@ fun ItineraryItemCard(item: ItineraryItem) {
                     )
                     if (item.isBooked) {
                         Text(
-                            text = "✓ booked",
+                            text = "✓ reservado",
                             style = MaterialTheme.typography.labelSmall,
                             color = TurquoisePrimary
                         )
@@ -403,11 +397,16 @@ fun BudgetTabContent(trip: Trip) {
             colors = CardDefaults.cardColors(containerColor = NavyLight)
         ) {
             Column(modifier = Modifier.padding(20.dp)) {
-                Text("Budget Overview", style = MaterialTheme.typography.titleMedium, color = White, fontWeight = FontWeight.Bold)
+                Text(
+                    "Resumen de presupuesto",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = White,
+                    fontWeight = FontWeight.Bold
+                )
                 Spacer(modifier = Modifier.height(16.dp))
-                BudgetRow("Total Budget", "€${trip.budget.toInt()}", GoldAccent)
-                BudgetRow("Spent", "€${trip.budgetSpent.toInt()}", ErrorRed)
-                BudgetRow("Remaining", "€${trip.getRemainingBudget().toInt()}", SuccessGreen)
+                BudgetRow("Presupuesto total", "€${trip.budget.toInt()}", GoldAccent)
+                BudgetRow("Gastado", "€${trip.budgetSpent.toInt()}", ErrorRed)
+                BudgetRow("Restante", "€${trip.getRemainingBudget().toInt()}", SuccessGreen)
                 Spacer(modifier = Modifier.height(12.dp))
                 LinearProgressIndicator(
                     progress = { (trip.budgetSpent / trip.budget).toFloat() },
@@ -417,7 +416,7 @@ fun BudgetTabContent(trip: Trip) {
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    "${trip.getBudgetProgressPercent()}% spent",
+                    "${trip.getBudgetProgressPercent()}% gastado",
                     style = MaterialTheme.typography.labelSmall,
                     color = GrayMid
                 )
@@ -446,7 +445,11 @@ fun GalleryTabPlaceholder() {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text("🖼️", fontSize = 48.sp)
             Spacer(modifier = Modifier.height(8.dp))
-            Text("Gallery available in Trip Gallery screen", style = MaterialTheme.typography.bodyMedium, color = GrayMid)
+            Text(
+                "Galería disponible en la pantalla de Galería",
+                style = MaterialTheme.typography.bodyMedium,
+                color = GrayMid
+            )
         }
     }
 }
@@ -460,7 +463,11 @@ fun NotesTabPlaceholder() {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text("📝", fontSize = 48.sp)
             Spacer(modifier = Modifier.height(8.dp))
-            Text("No notes yet for this trip", style = MaterialTheme.typography.bodyMedium, color = GrayMid)
+            Text(
+                "No hay notas para este viaje",
+                style = MaterialTheme.typography.bodyMedium,
+                color = GrayMid
+            )
         }
     }
 }
