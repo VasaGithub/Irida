@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import com.travelplanner.irida.ui.screens.AboutScreen
 import com.travelplanner.irida.ui.screens.HomeScreen
 import com.travelplanner.irida.ui.screens.PreferencesScreen
 import com.travelplanner.irida.ui.screens.SplashScreen
@@ -17,7 +18,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             IridaTheme {
-                PreferencesScreen()
+                AboutScreen()
             }
         }
     }
