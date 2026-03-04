@@ -26,26 +26,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.travelplanner.irida.ui.theme.*
-
-data class GalleryImage(
-    val id: String,
-    val emoji: String,
-    val label: String,
-    val isTop: Boolean = false
-)
-
-val mockGalleryImages = listOf(
-    GalleryImage("1", "🗼", "Torre de Tokio", isTop = true),
-    GalleryImage("2", "⛩️", "Senso-ji", isTop = false),
-    GalleryImage("3", "🌸", "Ueno Park", isTop = true),
-    GalleryImage("4", "🍜", "Ramen Ippudo", isTop = false),
-    GalleryImage("5", "🏯", "Castillo de Osaka", isTop = false),
-    GalleryImage("6", "🌃", "Noche de Shibuya", isTop = true),
-    GalleryImage("7", "🍣", "Sushi Saito", isTop = false),
-    GalleryImage("8", "🚄", "Shinkansen", isTop = false),
-    GalleryImage("9", "🌿", "Arashiyama", isTop = false)
-)
-
+import com.travelplanner.irida.data.mockGalleryImages
+import com.travelplanner.irida.domain.GalleryImage
 @Composable
 fun TripGalleryScreen(
     onNavigate: (String) -> Unit = {}
