@@ -411,11 +411,11 @@ fun BudgetTabContent(trip: Trip) {
             colors = CardDefaults.cardColors(containerColor = NavyLight)
         ) {
             Column(modifier = Modifier.padding(20.dp)) {
-                Text("Budget Overview", style = MaterialTheme.typography.titleMedium, color = White, fontWeight = FontWeight.Bold)
+                Text("Resumen del presupuesto", style = MaterialTheme.typography.titleMedium, color = White, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(16.dp))
-                BudgetRow("Total Budget", "€${trip.budget.toInt()}", GoldAccent)
-                BudgetRow("Spent", "€${trip.budgetSpent.toInt()}", ErrorRed)
-                BudgetRow("Remaining", "€${trip.getRemainingBudget().toInt()}", SuccessGreen)
+                BudgetRow("Presupuesto total", "€${trip.budget.toInt()}", GoldAccent)
+                BudgetRow("Gastado", "€${trip.budgetSpent.toInt()}", ErrorRed)
+                BudgetRow("Restante", "€${trip.getRemainingBudget().toInt()}", SuccessGreen)
                 Spacer(modifier = Modifier.height(12.dp))
                 LinearProgressIndicator(
                     progress = { (trip.budgetSpent / trip.budget).toFloat() },
@@ -425,7 +425,7 @@ fun BudgetTabContent(trip: Trip) {
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    "${trip.getBudgetProgressPercent()}% spent",
+                    "${trip.getBudgetProgressPercent()}% gastado",
                     style = MaterialTheme.typography.labelSmall,
                     color = GrayMid
                 )
@@ -454,7 +454,7 @@ fun GalleryTabPlaceholder() {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text("🖼️", fontSize = 48.sp)
             Spacer(modifier = Modifier.height(8.dp))
-            Text("Gallery available in Trip Gallery screen", style = MaterialTheme.typography.bodyMedium, color = GrayMid)
+            Text("Galería disponible en la pantalla Galería de viaje", style = MaterialTheme.typography.bodyMedium, color = GrayMid)
         }
     }
 }
@@ -468,7 +468,7 @@ fun NotesTabPlaceholder() {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text("📝", fontSize = 48.sp)
             Spacer(modifier = Modifier.height(8.dp))
-            Text("No notes yet for this trip", style = MaterialTheme.typography.bodyMedium, color = GrayMid)
+            Text("Aún no hay notas para este viaje.", style = MaterialTheme.typography.bodyMedium, color = GrayMid)
         }
     }
 }
