@@ -39,9 +39,9 @@ val mockItinerary = listOf(
     ItineraryItem(
         id = "2",
         time = "22:30",
-        title = "Check-in · Hotel Shinjuku",
-        description = "Shinjuku, Tokyo · 4★",
-        location = "Shinjuku, Tokyo",
+        title = "Check-in · Shinjuku Hotel",
+        description = "Shinjuku, Tokio · 4★",
+        location = "Shinjuku, Tokio",
         cost = 95.0,
         emoji = "🏨",
         isBooked = true
@@ -61,7 +61,7 @@ val mockItinerary = listOf(
         time = "13:00",
         title = "Ramen Ippudo",
         description = "Shibuya · Reserva hecha",
-        location = "Shibuya, Tokyo",
+        location = "Shibuya, Tokio",
         cost = 18.0,
         emoji = "🍜",
         isBooked = true
@@ -69,8 +69,8 @@ val mockItinerary = listOf(
     ItineraryItem(
         id = "5",
         time = "15:30",
-        title = "Cruce de Shibuya",
-        description = "Cruce icónico · 1h",
+        title = "Shibuya Crossing",
+        description = "Icònic creuament · 1h",
         location = "Shibuya, Tokyo",
         cost = 0.0,
         emoji = "🏙️",
@@ -80,8 +80,8 @@ val mockItinerary = listOf(
         id = "6",
         time = "20:00",
         title = "Sushi Saito",
-        description = "Restaurante omakase · Reserva obligatoria",
-        location = "Roppongi, Tokyo",
+        description = "Restaurant omakase · Reserva obligatoria",
+        location = "Roppongi, Tokio",
         cost = 85.0,
         emoji = "🍣",
         isBooked = true
@@ -90,8 +90,8 @@ val mockItinerary = listOf(
 
 val mockTripTokyo = Trip(
     id = "1",
-    title = "Aventura en Tokyo",
-    destination = "Tokyo, Japón",
+    title = "Aventura en Tokio",
+    destination = "Tokio, Japón",
     startDate = "Mar 10",
     endDate = "Mar 18",
     nights = 8,
@@ -129,14 +129,17 @@ fun TripDetailScreen(
                 .background(NavyDeep)
                 .padding(paddingValues)
         ) {
+            // Hero header
             item {
                 TripDetailHeader(trip = trip, onBack = onBack)
             }
 
+            // Stats row
             item {
                 TripStatsRow(trip = trip)
             }
 
+            // Tabs
             item {
                 ScrollableTabRow(
                     selectedTabIndex = selectedTab,
@@ -166,8 +169,10 @@ fun TripDetailScreen(
                 }
             }
 
+            // Tab content
             when (selectedTab) {
                 0 -> {
+                    // Group by day
                     val day1 = mockItinerary.take(2)
                     val day2 = mockItinerary.drop(2)
 
@@ -185,13 +190,19 @@ fun TripDetailScreen(
                     }
                 }
                 1 -> {
-                    item { GalleryTabPlaceholder() }
+                    item {
+                        GalleryTabPlaceholder()
+                    }
                 }
                 2 -> {
-                    item { BudgetTabContent(trip = trip) }
+                    item {
+                        BudgetTabContent(trip = trip)
+                    }
                 }
                 3 -> {
-                    item { NotesTabPlaceholder() }
+                    item {
+                        NotesTabPlaceholder()
+                    }
                 }
             }
 
@@ -212,6 +223,7 @@ fun TripDetailHeader(trip: Trip, onBack: () -> Unit) {
                 )
             )
     ) {
+        // Back button
         IconButton(
             onClick = onBack,
             modifier = Modifier
@@ -220,7 +232,7 @@ fun TripDetailHeader(trip: Trip, onBack: () -> Unit) {
         ) {
             Icon(
                 imageVector = Icons.Default.ArrowBack,
-                contentDescription = "Volver",
+                contentDescription = "Back",
                 tint = White
             )
         }
@@ -313,6 +325,7 @@ fun ItineraryItemCard(item: ItineraryItem) {
             .padding(horizontal = 20.dp, vertical = 6.dp),
         verticalAlignment = Alignment.Top
     ) {
+        // Time column
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.width(52.dp)
@@ -332,6 +345,7 @@ fun ItineraryItemCard(item: ItineraryItem) {
 
         Spacer(modifier = Modifier.width(12.dp))
 
+        // Card
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(16.dp),
@@ -397,12 +411,7 @@ fun BudgetTabContent(trip: Trip) {
             colors = CardDefaults.cardColors(containerColor = NavyLight)
         ) {
             Column(modifier = Modifier.padding(20.dp)) {
-                Text(
-                    "Resumen de presupuesto",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = White,
-                    fontWeight = FontWeight.Bold
-                )
+                Text("Resumen del presupuesto", style = MaterialTheme.typography.titleMedium, color = White, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(16.dp))
                 BudgetRow("Presupuesto total", "€${trip.budget.toInt()}", GoldAccent)
                 BudgetRow("Gastado", "€${trip.budgetSpent.toInt()}", ErrorRed)
@@ -445,11 +454,7 @@ fun GalleryTabPlaceholder() {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text("🖼️", fontSize = 48.sp)
             Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                "Galería disponible en la pantalla de Galería",
-                style = MaterialTheme.typography.bodyMedium,
-                color = GrayMid
-            )
+            Text("Galería disponible en la pantalla Galería de viaje", style = MaterialTheme.typography.bodyMedium, color = GrayMid)
         }
     }
 }
@@ -463,11 +468,7 @@ fun NotesTabPlaceholder() {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text("📝", fontSize = 48.sp)
             Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                "No hay notas para este viaje",
-                style = MaterialTheme.typography.bodyMedium,
-                color = GrayMid
-            )
+            Text("Aún no hay notas para este viaje.", style = MaterialTheme.typography.bodyMedium, color = GrayMid)
         }
     }
 }
