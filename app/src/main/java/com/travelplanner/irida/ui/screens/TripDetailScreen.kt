@@ -29,9 +29,9 @@ val mockItinerary = listOf(
     ItineraryItem(
         id = "1",
         time = "08:00",
-        title = "Flight BCN → NRT",
+        title = "Vuelo BCN → NRT",
         description = "Vueling VY7182 · Terminal 1",
-        location = "Aeroport Barcelona",
+        location = "Aeropuerto Barcelona",
         cost = 420.0,
         emoji = "✈️",
         isBooked = true
@@ -40,8 +40,8 @@ val mockItinerary = listOf(
         id = "2",
         time = "22:30",
         title = "Check-in · Shinjuku Hotel",
-        description = "Shinjuku, Tokyo · 4★",
-        location = "Shinjuku, Tokyo",
+        description = "Shinjuku, Tokio · 4★",
+        location = "Shinjuku, Tokio",
         cost = 95.0,
         emoji = "🏨",
         isBooked = true
@@ -49,7 +49,7 @@ val mockItinerary = listOf(
     ItineraryItem(
         id = "3",
         time = "09:00",
-        title = "Senso-ji Temple",
+        title = "Templo Senso-ji",
         description = "Asakusa · 2h visita",
         location = "Asakusa, Tokyo",
         cost = 0.0,
@@ -61,7 +61,7 @@ val mockItinerary = listOf(
         time = "13:00",
         title = "Ramen Ippudo",
         description = "Shibuya · Reserva hecha",
-        location = "Shibuya, Tokyo",
+        location = "Shibuya, Tokio",
         cost = 18.0,
         emoji = "🍜",
         isBooked = true
@@ -81,7 +81,7 @@ val mockItinerary = listOf(
         time = "20:00",
         title = "Sushi Saito",
         description = "Restaurant omakase · Reserva obligatoria",
-        location = "Roppongi, Tokyo",
+        location = "Roppongi, Tokio",
         cost = 85.0,
         emoji = "🍣",
         isBooked = true
@@ -90,8 +90,8 @@ val mockItinerary = listOf(
 
 val mockTripTokyo = Trip(
     id = "1",
-    title = "Tokyo Adventure",
-    destination = "Tokyo, Japan",
+    title = "Aventura en Tokio",
+    destination = "Tokio, Japón",
     startDate = "Mar 10",
     endDate = "Mar 18",
     nights = 8,
@@ -107,7 +107,7 @@ fun TripDetailScreen(
     onBack: () -> Unit = {}
 ) {
     var selectedTab by remember { mutableIntStateOf(0) }
-    val tabs = listOf("Itinerary", "Gallery", "Budget", "Notes")
+    val tabs = listOf("Itinerario", "Galería", "Presupuesto", "Notas")
 
     Scaffold(
         containerColor = NavyDeep,
@@ -169,13 +169,13 @@ fun TripDetailScreen(
                     val day2 = mockItinerary.drop(2)
 
                     item {
-                        DayHeader(day = "DAY 1 · MAR 10")
+                        DayHeader(day = "DÍA 1 · MAR 10")
                     }
                     items(day1) { item ->
                         ItineraryItemCard(item = item)
                     }
                     item {
-                        DayHeader(day = "DAY 2 · MAR 11")
+                        DayHeader(day = "DÍA 2 · MAR 11")
                     }
                     items(day2) { item ->
                         ItineraryItemCard(item = item)
@@ -244,7 +244,7 @@ fun TripDetailHeader(trip: Trip, onBack: () -> Unit) {
                 fontWeight = FontWeight.ExtraBold
             )
             Text(
-                text = "📅 ${trip.startDate} – ${trip.endDate} · ${trip.nights} nights",
+                text = "📅 ${trip.startDate} – ${trip.endDate} · ${trip.nights} noches",
                 style = MaterialTheme.typography.bodyMedium,
                 color = GrayMid
             )
@@ -260,11 +260,11 @@ fun TripStatsRow(trip: Trip) {
             .padding(horizontal = 20.dp, vertical = 16.dp),
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
-        StatItem(value = "${trip.nights}", label = "NIGHTS", emoji = "🌙")
+        StatItem(value = "${trip.nights}", label = "NOCHES", emoji = "🌙")
         StatDivider()
-        StatItem(value = "€${trip.budget.toInt()}", label = "BUDGET", emoji = "💰")
+        StatItem(value = "€${trip.budget.toInt()}", label = "PRESUPUESTO", emoji = "💰")
         StatDivider()
-        StatItem(value = "${trip.activities.size}", label = "ACTIVITIES", emoji = "📍")
+        StatItem(value = "${trip.activities.size}", label = "ACTIVIDADES", emoji = "📍")
     }
 }
 
@@ -379,7 +379,7 @@ fun ItineraryItemCard(item: ItineraryItem) {
                     )
                     if (item.isBooked) {
                         Text(
-                            text = "✓ booked",
+                            text = "✓ reservado",
                             style = MaterialTheme.typography.labelSmall,
                             color = TurquoisePrimary
                         )
