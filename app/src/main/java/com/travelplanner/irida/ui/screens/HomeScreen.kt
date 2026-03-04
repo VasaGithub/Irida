@@ -53,7 +53,7 @@ val mockTrips = listOf(
     ),
     Trip(
         id = "3",
-        title = "Evasión en Bali",
+        title = "Escapada a Bali",
         destination = "Bali, Indonesia",
         startDate = "May 20",
         endDate = "May 30",
@@ -177,7 +177,7 @@ fun HomeHeader() {
             ) {
                 Column {
                     Text(
-                        text = "Buenos días, Iker 👋",
+                        text = "Buenos días, Alex 👋",
                         style = MaterialTheme.typography.bodyMedium,
                         color = GrayMid
                     )
@@ -200,7 +200,7 @@ fun HomeHeader() {
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "IV",
+                        text = "A",
                         color = NavyDeep,
                         fontWeight = FontWeight.Bold,
                         fontSize = 14.sp
