@@ -1,5 +1,6 @@
 package com.travelplanner.irida.ui.screens
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -10,13 +11,14 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.travelplanner.irida.ui.theme.*
-
+import com.travelplanner.irida.R
 data class TeamMember(
     val initials: String,
     val name: String,
@@ -162,19 +164,11 @@ fun AboutHero() {
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             // Logo
-            Box(
-                modifier = Modifier
-                    .size(90.dp)
-                    .background(
-                        Brush.linearGradient(
-                            colors = listOf(TurquoisePrimary, TurquoiseLight)
-                        ),
-                        shape = CircleShape
-                    ),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(text = "✈", fontSize = 40.sp, color = NavyDeep)
-            }
+            Image(
+                painter = painterResource(id = R.drawable.logo),
+                contentDescription = "Logo Irida",
+                modifier = Modifier.size(90.dp)
+            )
 
             Text(
                 text = "Irida",

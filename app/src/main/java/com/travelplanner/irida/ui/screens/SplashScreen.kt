@@ -22,7 +22,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.travelplanner.irida.ui.theme.*
 import kotlinx.coroutines.delay
-
+import androidx.compose.foundation.Image
+import androidx.compose.ui.res.painterResource
+import com.travelplanner.irida.R
 @Composable
 fun SplashScreen(onSplashFinished: () -> Unit = {}) {
 
@@ -113,24 +115,13 @@ fun SplashScreen(onSplashFinished: () -> Unit = {}) {
         ) {
 
             // Logo placeholder
-            Box(
+            Image(
+                painter = painterResource(id = R.drawable.logo),
+                contentDescription = "Logo Irida",
                 modifier = Modifier
                     .size(110.dp)
                     .scale(logoScale.value)
-                    .background(
-                        Brush.linearGradient(
-                            colors = listOf(TurquoisePrimary, TurquoiseLight)
-                        ),
-                        shape = CircleShape
-                    ),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "✈",
-                    fontSize = 48.sp,
-                    color = NavyDeep
-                )
-            }
+            )
 
             Spacer(modifier = Modifier.height(28.dp))
 
