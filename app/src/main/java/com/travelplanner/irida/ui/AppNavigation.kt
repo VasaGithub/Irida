@@ -1,6 +1,7 @@
 package com.travelplanner.irida.ui
 
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -9,14 +10,17 @@ import com.travelplanner.irida.ui.screens.*
 
 object Routes {
     const val SPLASH = "splash"
+    const val TERMS = "terms"
     const val HOME = "home"
     const val TRIP_DETAIL = "trip_detail"
     const val GALLERY = "gallery"
     const val PREFERENCES = "preferences"
     const val ABOUT = "about"
-    const val TERMS = "terms"
 }
 
+var termsAccepted = false
+
+@Preview
 @Composable
 fun AppNavigation(navController: NavHostController = rememberNavController()) {
     NavHost(
@@ -26,10 +30,31 @@ fun AppNavigation(navController: NavHostController = rememberNavController()) {
         composable(Routes.SPLASH) {
             SplashScreen(
                 onSplashFinished = {
-                    navController.navigate(Routes.HOME) {
-                        popUpTo(Routes.SPLASH) { inclusive = true }
+                    if (termsAccepted) {
+                        navController.navigate(Routes.HOME) {
+                            popUpTo(Routes.SPLASH) { inclusive = true }
+                        }
+                    } else {
+                        navController.navigate(Routes.TERMS) {
+                            popUpTo(Routes.SPLASH) { inclusive = true }
+                        }
                     }
                 }
+            )
+        }
+
+        composable(Routes.TERMS) {
+            TermsAndConditionsScreen(
+                onAccept = {
+                    termsAccepted = true
+                    navController.navigate(Routes.HOME) {
+                        popUpTo(Routes.TERMS) { inclusive = true }
+                    }
+                },
+                onReject = {
+                    termsAccepted = false
+                },
+                onBack = { navController.popBackStack() }
             )
         }
 
@@ -62,14 +87,6 @@ fun AppNavigation(navController: NavHostController = rememberNavController()) {
         composable(Routes.ABOUT) {
             AboutScreen(
                 onNavigate = { route -> handleBottomNav(route, navController) }
-            )
-        }
-
-        composable(Routes.TERMS) {
-            TermsAndConditionsScreen(
-                onAccept = { navController.popBackStack() },
-                onReject = { navController.popBackStack() },
-                onBack = { navController.popBackStack() }
             )
         }
     }
