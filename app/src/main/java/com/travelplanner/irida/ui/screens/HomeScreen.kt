@@ -29,8 +29,8 @@ import com.travelplanner.irida.ui.theme.*
 val mockTrips = listOf(
     Trip(
         id = "1",
-        title = "Tokyo Adventure",
-        destination = "Tokyo, Japan",
+        title = "Aventura en Tokio",
+        destination = "Tokio, Japón",
         startDate = "Mar 10",
         endDate = "Mar 18",
         nights = 8,
@@ -41,10 +41,10 @@ val mockTrips = listOf(
     ),
     Trip(
         id = "2",
-        title = "Paris Getaway",
-        destination = "Paris, France",
-        startDate = "Apr 5",
-        endDate = "Apr 9",
+        title = "Escapada a París",
+        destination = "París, Francia",
+        startDate = "Abr 5",
+        endDate = "Abr 9",
         nights = 4,
         budget = 890.0,
         budgetSpent = 267.0,
@@ -53,7 +53,7 @@ val mockTrips = listOf(
     ),
     Trip(
         id = "3",
-        title = "Bali Escape",
+        title = "Escapada a Bali",
         destination = "Bali, Indonesia",
         startDate = "May 20",
         endDate = "May 30",
@@ -111,13 +111,13 @@ fun HomeScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Upcoming Trips",
+                        text = "Próximos viajes",
                         style = MaterialTheme.typography.titleLarge,
                         color = White,
                         fontWeight = FontWeight.Bold
                     )
                     Text(
-                        text = "See all →",
+                        text = "Ver todo →",
                         style = MaterialTheme.typography.bodyMedium,
                         color = TurquoisePrimary
                     )
@@ -153,7 +153,7 @@ fun HomeScreen(
                     ) {
                         Icon(Icons.Default.Add, contentDescription = null)
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Add New Trip")
+                        Text("Agregar nuevo viaje")
                     }
                 }
             }
@@ -181,12 +181,12 @@ fun HomeHeader() {
             ) {
                 Column {
                     Text(
-                        text = "Bon dia, Alex 👋",
+                        text = "Buenos días, Alex 👋",
                         style = MaterialTheme.typography.bodyMedium,
                         color = GrayMid
                     )
                     Text(
-                        text = "My Trips",
+                        text = "Mis viajes",
                         style = MaterialTheme.typography.headlineLarge,
                         color = White,
                         fontWeight = FontWeight.ExtraBold
@@ -205,7 +205,7 @@ fun HomeHeader() {
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "AJ",
+                        text = "A",
                         color = NavyDeep,
                         fontWeight = FontWeight.Bold,
                         fontSize = 14.sp
@@ -255,7 +255,7 @@ fun TripCard(trip: Trip, onClick: () -> Unit) {
                                 overflow = TextOverflow.Ellipsis
                             )
                             Text(
-                                text = "📅 ${trip.startDate} – ${trip.endDate} · ${trip.nights} nights",
+                                text = "📅 ${trip.startDate} – ${trip.endDate} · ${trip.nights} noches",
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = GrayMid
                             )
@@ -307,10 +307,10 @@ fun BottomNavBar(selectedTab: Int, onTabSelected: (Int) -> Unit) {
         tonalElevation = 0.dp
     ) {
         val items = listOf(
-            Triple("Home", Icons.Default.Home, "home"),
-            Triple("Trips", Icons.Default.List, "trips"),
-            Triple("Gallery", Icons.Default.DateRange, "gallery"),
-            Triple("Settings", Icons.Default.Settings, "settings")
+            Triple("Inicio", Icons.Default.Home, "home"),
+            Triple("Viajes", Icons.Default.List, "trips"),
+            Triple("Galería", Icons.Default.DateRange, "gallery"),
+            Triple("Ajustes", Icons.Default.Settings, "settings")
         )
         items.forEachIndexed { index, (label, icon, _) ->
             NavigationBarItem(

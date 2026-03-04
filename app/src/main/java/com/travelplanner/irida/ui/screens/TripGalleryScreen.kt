@@ -35,12 +35,12 @@ data class GalleryImage(
 )
 
 val mockGalleryImages = listOf(
-    GalleryImage("1", "🗼", "Tokyo Tower", isTop = true),
+    GalleryImage("1", "🗼", "Torre de Tokio", isTop = true),
     GalleryImage("2", "⛩️", "Senso-ji", isTop = false),
     GalleryImage("3", "🌸", "Ueno Park", isTop = true),
     GalleryImage("4", "🍜", "Ramen Ippudo", isTop = false),
-    GalleryImage("5", "🏯", "Osaka Castle", isTop = false),
-    GalleryImage("6", "🌃", "Shibuya Night", isTop = true),
+    GalleryImage("5", "🏯", "Castillo de Osaka", isTop = false),
+    GalleryImage("6", "🌃", "Noche de Shibuya", isTop = true),
     GalleryImage("7", "🍣", "Sushi Saito", isTop = false),
     GalleryImage("8", "🚄", "Shinkansen", isTop = false),
     GalleryImage("9", "🌿", "Arashiyama", isTop = false)
@@ -211,7 +211,7 @@ fun GalleryHeader(imageCount: Int) {
     ) {
         Column {
             Text(
-                text = "Tokyo Adventure",
+                text = "Aventura en Tokio",
                 style = MaterialTheme.typography.headlineMedium,
                 color = White,
                 fontWeight = FontWeight.ExtraBold
