@@ -29,8 +29,8 @@ import com.travelplanner.irida.ui.theme.*
 val mockTrips = listOf(
     Trip(
         id = "1",
-        title = "Aventura en Tokio",
-        destination = "Tokio, Japón",
+        title = "Aventura en Tokyo",
+        destination = "Tokyo, Japón",
         startDate = "Mar 10",
         endDate = "Mar 18",
         nights = 8,
@@ -96,12 +96,10 @@ fun HomeScreen(
                 .padding(paddingValues),
             contentPadding = PaddingValues(bottom = 16.dp)
         ) {
-            // Header
             item {
                 HomeHeader()
             }
 
-            // Section title
             item {
                 Row(
                     modifier = Modifier
@@ -111,20 +109,19 @@ fun HomeScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Próximos viajes",
+                        text = "Próximos Viajes",
                         style = MaterialTheme.typography.titleLarge,
                         color = White,
                         fontWeight = FontWeight.Bold
                     )
                     Text(
-                        text = "Ver todo →",
+                        text = "Ver todos →",
                         style = MaterialTheme.typography.bodyMedium,
                         color = TurquoisePrimary
                     )
                 }
             }
 
-            // Trip cards
             items(mockTrips) { trip ->
                 TripCard(
                     trip = trip,
@@ -132,7 +129,6 @@ fun HomeScreen(
                 )
             }
 
-            // Add trip button
             item {
                 Spacer(modifier = Modifier.height(8.dp))
                 Box(
@@ -153,7 +149,7 @@ fun HomeScreen(
                     ) {
                         Icon(Icons.Default.Add, contentDescription = null)
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Agregar nuevo viaje")
+                        Text("Añadir nuevo viaje")
                     }
                 }
             }
@@ -186,13 +182,12 @@ fun HomeHeader() {
                         color = GrayMid
                     )
                     Text(
-                        text = "Mis viajes",
+                        text = "Mis Viajes",
                         style = MaterialTheme.typography.headlineLarge,
                         color = White,
                         fontWeight = FontWeight.ExtraBold
                     )
                 }
-                // Avatar
                 Box(
                     modifier = Modifier
                         .size(44.dp)
