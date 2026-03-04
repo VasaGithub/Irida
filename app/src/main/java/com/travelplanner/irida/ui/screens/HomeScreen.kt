@@ -24,47 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.travelplanner.irida.domain.Trip
 import com.travelplanner.irida.ui.theme.*
-
-// Mock data
-val mockTrips = listOf(
-    Trip(
-        id = "1",
-        title = "Tokyo Adventure",
-        destination = "Tokyo, Japan",
-        startDate = "Mar 10",
-        endDate = "Mar 18",
-        nights = 8,
-        budget = 1240.0,
-        budgetSpent = 806.0,
-        emoji = "🗼",
-        activities = emptyList()
-    ),
-    Trip(
-        id = "2",
-        title = "Paris Getaway",
-        destination = "Paris, France",
-        startDate = "Apr 5",
-        endDate = "Apr 9",
-        nights = 4,
-        budget = 890.0,
-        budgetSpent = 267.0,
-        emoji = "🗽",
-        activities = emptyList()
-    ),
-    Trip(
-        id = "3",
-        title = "Bali Escape",
-        destination = "Bali, Indonesia",
-        startDate = "May 20",
-        endDate = "May 30",
-        nights = 10,
-        budget = 1500.0,
-        budgetSpent = 0.0,
-        emoji = "🌴",
-        activities = emptyList()
-    )
-)
-
+import com.travelplanner.irida.data.mockTrips
 @Composable
 fun HomeScreen(
     onTripClick: (Trip) -> Unit = {},
@@ -96,12 +56,10 @@ fun HomeScreen(
                 .padding(paddingValues),
             contentPadding = PaddingValues(bottom = 16.dp)
         ) {
-            // Header
             item {
                 HomeHeader()
             }
 
-            // Section title
             item {
                 Row(
                     modifier = Modifier
@@ -111,20 +69,19 @@ fun HomeScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Upcoming Trips",
+                        text = "Próximos Viajes",
                         style = MaterialTheme.typography.titleLarge,
                         color = White,
                         fontWeight = FontWeight.Bold
                     )
                     Text(
-                        text = "See all →",
+                        text = "Ver todos →",
                         style = MaterialTheme.typography.bodyMedium,
                         color = TurquoisePrimary
                     )
                 }
             }
 
-            // Trip cards
             items(mockTrips) { trip ->
                 TripCard(
                     trip = trip,
@@ -132,7 +89,6 @@ fun HomeScreen(
                 )
             }
 
-            // Add trip button
             item {
                 Spacer(modifier = Modifier.height(8.dp))
                 Box(
@@ -153,7 +109,7 @@ fun HomeScreen(
                     ) {
                         Icon(Icons.Default.Add, contentDescription = null)
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Add New Trip")
+                        Text("Añadir nuevo viaje")
                     }
                 }
             }
@@ -181,18 +137,17 @@ fun HomeHeader() {
             ) {
                 Column {
                     Text(
-                        text = "Bon dia, Alex 👋",
+                        text = "Buenos días, Iker 👋",
                         style = MaterialTheme.typography.bodyMedium,
                         color = GrayMid
                     )
                     Text(
-                        text = "My Trips",
+                        text = "Mis Viajes",
                         style = MaterialTheme.typography.headlineLarge,
                         color = White,
                         fontWeight = FontWeight.ExtraBold
                     )
                 }
-                // Avatar
                 Box(
                     modifier = Modifier
                         .size(44.dp)
@@ -205,7 +160,7 @@ fun HomeHeader() {
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "AJ",
+                        text = "IV",
                         color = NavyDeep,
                         fontWeight = FontWeight.Bold,
                         fontSize = 14.sp
@@ -255,7 +210,7 @@ fun TripCard(trip: Trip, onClick: () -> Unit) {
                                 overflow = TextOverflow.Ellipsis
                             )
                             Text(
-                                text = "📅 ${trip.startDate} – ${trip.endDate} · ${trip.nights} nights",
+                                text = "📅 ${trip.startDate} – ${trip.endDate} · ${trip.nights} noches",
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = GrayMid
                             )
@@ -307,10 +262,10 @@ fun BottomNavBar(selectedTab: Int, onTabSelected: (Int) -> Unit) {
         tonalElevation = 0.dp
     ) {
         val items = listOf(
-            Triple("Home", Icons.Default.Home, "home"),
-            Triple("Trips", Icons.Default.List, "trips"),
-            Triple("Gallery", Icons.Default.DateRange, "gallery"),
-            Triple("Settings", Icons.Default.Settings, "settings")
+            Triple("Inicio", Icons.Default.Home, "home"),
+            Triple("Viajes", Icons.Default.List, "trips"),
+            Triple("Galería", Icons.Default.DateRange, "gallery"),
+            Triple("Ajustes", Icons.Default.Settings, "settings")
         )
         items.forEachIndexed { index, (label, icon, _) ->
             NavigationBarItem(
