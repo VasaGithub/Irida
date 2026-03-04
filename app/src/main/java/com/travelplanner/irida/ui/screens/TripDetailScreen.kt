@@ -104,7 +104,8 @@ val mockTripTokyo = Trip(
 @Composable
 fun TripDetailScreen(
     trip: Trip = mockTripTokyo,
-    onBack: () -> Unit = {}
+    onBack: () -> Unit = {},
+    onNavigate: (String) -> Unit = {}
 ) {
     var selectedTab by remember { mutableIntStateOf(0) }
     val tabs = listOf("Itinerario", "Galería", "Presupuesto", "Notas")
@@ -112,7 +113,14 @@ fun TripDetailScreen(
     Scaffold(
         containerColor = NavyDeep,
         bottomBar = {
-            BottomNavBar(selectedTab = 1, onTabSelected = {})
+            BottomNavBar(selectedTab = 1, onTabSelected = { tab ->
+                when (tab) {
+                    0 -> onNavigate("home")
+                    1 -> onNavigate("trips")
+                    2 -> onNavigate("gallery")
+                    3 -> onNavigate("settings")
+                }
+            })
         }
     ) { paddingValues ->
         LazyColumn(
