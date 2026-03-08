@@ -1,5 +1,4 @@
 package com.travelplanner.irida.data
-
 import com.travelplanner.irida.domain.ItineraryItem
 import com.travelplanner.irida.domain.Trip
 
