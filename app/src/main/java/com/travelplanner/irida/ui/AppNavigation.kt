@@ -98,6 +98,8 @@ private fun handleBottomNav(route: String, navController: NavHostController) {
         "trips" -> Routes.TRIP_DETAIL
         "gallery" -> Routes.GALLERY
         "settings" -> Routes.PREFERENCES
+        "about" -> Routes.ABOUT
+        "terms" -> Routes.TERMS
         else -> return
     }
     navController.navigate(destination) {
