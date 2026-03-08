@@ -1,6 +1,7 @@
 package com.travelplanner.irida.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -18,7 +19,6 @@ import com.travelplanner.irida.ui.theme.*
 fun PreferencesScreen(
     onNavigate: (String) -> Unit = {}
 ) {
-    // Mock states - only UI, no real logic
     var selectedLanguage by remember { mutableStateOf("Español") }
     var selectedCurrency by remember { mutableStateOf("EUR (€)") }
     var selectedDateFormat by remember { mutableStateOf("DD/MM/AAAA") }
@@ -33,7 +33,6 @@ fun PreferencesScreen(
     var showDateFormatDialog by remember { mutableStateOf(false) }
     var showTextSizeDialog by remember { mutableStateOf(false) }
 
-    // Dialogs
     if (showLanguageDialog) {
         OptionsDialog(
             title = "Idioma",
@@ -113,9 +112,7 @@ fun PreferencesScreen(
             }
 
             // Language & Region section
-            item {
-                PreferenceSectionHeader(emoji = "🌐", title = "IDIOMA Y REGIÓN")
-            }
+            item { PreferenceSectionHeader(emoji = "🌐", title = "IDIOMA Y REGIÓN") }
             item {
                 PreferenceCard {
                     PreferenceDropdownItem(
@@ -145,9 +142,7 @@ fun PreferencesScreen(
             }
 
             // Appearance section
-            item {
-                PreferenceSectionHeader(emoji = "🎨", title = "APARIENCIA")
-            }
+            item { PreferenceSectionHeader(emoji = "🎨", title = "APARIENCIA") }
             item {
                 PreferenceCard {
                     PreferenceToggleItem(
@@ -169,9 +164,7 @@ fun PreferencesScreen(
             }
 
             // Notifications section
-            item {
-                PreferenceSectionHeader(emoji = "🔔", title = "NOTIFICACIONES")
-            }
+            item { PreferenceSectionHeader(emoji = "🔔", title = "NOTIFICACIONES") }
             item {
                 PreferenceCard {
                     PreferenceToggleItem(
@@ -197,6 +190,74 @@ fun PreferencesScreen(
                         checked = aiSuggestionsEnabled,
                         onCheckedChange = { aiSuggestionsEnabled = it }
                     )
+                }
+            }
+
+            // About section
+            item { PreferenceSectionHeader(emoji = "ℹ️", title = "ACERCA DE") }
+            item {
+                PreferenceCard {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { onNavigate("about") }
+                            .padding(horizontal = 16.dp, vertical = 14.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Text(text = "ℹ️", fontSize = 20.sp)
+                            Column {
+                                Text(
+                                    text = "Acerca de Irida",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    color = White,
+                                    fontWeight = FontWeight.Medium
+                                )
+                                Text(
+                                    text = "Equipo, versión e información",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = GrayMid
+                                )
+                            }
+                        }
+                        Text(text = "›", color = GrayMid, fontSize = 20.sp)
+                    }
+
+                    PreferenceDivider()
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { onNavigate("terms") }
+                            .padding(horizontal = 16.dp, vertical = 14.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Text(text = "📄", fontSize = 20.sp)
+                            Column {
+                                Text(
+                                    text = "Términos y Condiciones",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    color = White,
+                                    fontWeight = FontWeight.Medium
+                                )
+                                Text(
+                                    text = "Política de uso de la app",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = GrayMid
+                                )
+                            }
+                        }
+                        Text(text = "›", color = GrayMid, fontSize = 20.sp)
+                    }
                 }
             }
         }
