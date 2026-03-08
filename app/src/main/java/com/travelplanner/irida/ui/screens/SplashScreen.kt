@@ -150,7 +150,7 @@ fun SplashScreen(onSplashFinished: () -> Unit = {}) {
             Spacer(modifier = Modifier.height(12.dp))
 
             Text(
-                text = "Plan your adventures, your way",
+                text = "Planifica tus aventuras a tu manera.",
                 style = MaterialTheme.typography.bodyMedium,
                 color = GrayMid.copy(alpha = subtitleAlpha.value),
                 textAlign = TextAlign.Center
