@@ -8,9 +8,9 @@ val NavyMid = Color(0xFF0F1F3D)
 val NavyLight = Color(0xFF1A2E52)
 
 // Logo blues - extracted from logo gradient
-val LogoBlueDark = Color(0xFF1A3A6B)
+val LogoBlueDark  = Color(0xFF1A3A6B)
+val LogoBlueMid   = Color(0xFF1E6FA8)
 val LogoBlueLight = Color(0xFF2D9CDB)
-val LogoBlueMid = Color(0xFF1E6FA8)
 
 // Primary accent - logo sky blue
 val TurquoisePrimary = Color(0xFF2D9CDB)
