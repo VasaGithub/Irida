@@ -26,7 +26,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.travelplanner.irida.ui.theme.*
-import com.travelplanner.irida.data.mockGalleryImages
+import com.travelplanner.irida.data.mocks.mockGalleryImages
 import com.travelplanner.irida.domain.GalleryImage
 @Composable
 fun TripGalleryScreen(

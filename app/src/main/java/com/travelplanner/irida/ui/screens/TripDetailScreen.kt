@@ -12,94 +12,23 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.travelplanner.irida.domain.ItineraryItem
+import com.travelplanner.irida.domain.Activity
 import com.travelplanner.irida.domain.Trip
+import com.travelplanner.irida.data.mocks.mockTripTokyo
 import com.travelplanner.irida.ui.theme.*
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
+import java.time.format.DateTimeFormatter
 
-// Mock itinerary data for Tokyo
-val mockItinerary = listOf(
-    ItineraryItem(
-        id = "1",
-        time = "08:00",
-        title = "Vuelo BCN → NRT",
-        description = "Vueling VY7182 · Terminal 1",
-        location = "Aeropuerto Barcelona",
-        cost = 420.0,
-        emoji = "✈️",
-        isBooked = true
-    ),
-    ItineraryItem(
-        id = "2",
-        time = "22:30",
-        title = "Check-in · Shinjuku Hotel",
-        description = "Shinjuku, Tokio · 4★",
-        location = "Shinjuku, Tokio",
-        cost = 95.0,
-        emoji = "🏨",
-        isBooked = true
-    ),
-    ItineraryItem(
-        id = "3",
-        time = "09:00",
-        title = "Templo Senso-ji",
-        description = "Asakusa · 2h visita",
-        location = "Asakusa, Tokyo",
-        cost = 0.0,
-        emoji = "⛩️",
-        isBooked = false
-    ),
-    ItineraryItem(
-        id = "4",
-        time = "13:00",
-        title = "Ramen Ippudo",
-        description = "Shibuya · Reserva hecha",
-        location = "Shibuya, Tokio",
-        cost = 18.0,
-        emoji = "🍜",
-        isBooked = true
-    ),
-    ItineraryItem(
-        id = "5",
-        time = "15:30",
-        title = "Shibuya Crossing",
-        description = "Icònic creuament · 1h",
-        location = "Shibuya, Tokyo",
-        cost = 0.0,
-        emoji = "🏙️",
-        isBooked = false
-    ),
-    ItineraryItem(
-        id = "6",
-        time = "20:00",
-        title = "Sushi Saito",
-        description = "Restaurant omakase · Reserva obligatoria",
-        location = "Roppongi, Tokio",
-        cost = 85.0,
-        emoji = "🍣",
-        isBooked = true
-    )
-)
-
-val mockTripTokyo = Trip(
-    id = "1",
-    title = "Aventura en Tokio",
-    destination = "Tokio, Japón",
-    startDate = "Mar 10",
-    endDate = "Mar 18",
-    nights = 8,
-    budget = 1240.0,
-    budgetSpent = 806.0,
-    emoji = "🗼",
-    activities = mockItinerary
-)
+// Formateador de fechas para mostrar en UI
+private val dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+// Formateador de horas para mostrar en UI
+private val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
 
 @Composable
 fun TripDetailScreen(
@@ -108,7 +37,7 @@ fun TripDetailScreen(
     onNavigate: (String) -> Unit = {}
 ) {
     var selectedTab by remember { mutableIntStateOf(0) }
-    val tabs = listOf("Itinerario", "Galería", "Presupuesto", "Notas")
+    val tabs = listOf("Itinerario", "Galería", "Notas")
 
     Scaffold(
         containerColor = NavyDeep,
@@ -129,17 +58,14 @@ fun TripDetailScreen(
                 .background(NavyDeep)
                 .padding(paddingValues)
         ) {
-            // Hero header
             item {
                 TripDetailHeader(trip = trip, onBack = onBack)
             }
 
-            // Stats row
             item {
                 TripStatsRow(trip = trip)
             }
 
-            // Tabs
             item {
                 ScrollableTabRow(
                     selectedTabIndex = selectedTab,
@@ -169,41 +95,28 @@ fun TripDetailScreen(
                 }
             }
 
-            // Tab content
             when (selectedTab) {
                 0 -> {
-                    // Group by day
-                    val day1 = mockItinerary.take(2)
-                    val day2 = mockItinerary.drop(2)
+                    if (trip.activities.isEmpty()) {
+                        item { ActivityEmptyState() }
+                    } else {
+                        // Agrupa las actividades por fecha para mostrar cabeceras de día
+                        val grouped = trip.activities
+                            .sortedWith(compareBy({ it.date }, { it.time }))
+                            .groupBy { it.date }
 
-                    item {
-                        DayHeader(day = "DÍA 1 · MAR 10")
-                    }
-                    items(day1) { item ->
-                        ItineraryItemCard(item = item)
-                    }
-                    item {
-                        DayHeader(day = "DÍA 2 · MAR 11")
-                    }
-                    items(day2) { item ->
-                        ItineraryItemCard(item = item)
+                        grouped.forEach { (date, activitiesOfDay) ->
+                            item {
+                                DayHeader(day = date.format(DateTimeFormatter.ofPattern("EEE dd MMM").withLocale(java.util.Locale("es"))))
+                            }
+                            items(activitiesOfDay) { activity ->
+                                ActivityCard(activity = activity)
+                            }
+                        }
                     }
                 }
-                1 -> {
-                    item {
-                        GalleryTabPlaceholder()
-                    }
-                }
-                2 -> {
-                    item {
-                        BudgetTabContent(trip = trip)
-                    }
-                }
-                3 -> {
-                    item {
-                        NotesTabPlaceholder()
-                    }
-                }
+                1 -> item { GalleryTabPlaceholder() }
+                2 -> item { NotesTabPlaceholder() }
             }
 
             item { Spacer(modifier = Modifier.height(16.dp)) }
@@ -223,7 +136,6 @@ fun TripDetailHeader(trip: Trip, onBack: () -> Unit) {
                 )
             )
     ) {
-        // Back button
         IconButton(
             onClick = onBack,
             modifier = Modifier
@@ -232,7 +144,7 @@ fun TripDetailHeader(trip: Trip, onBack: () -> Unit) {
         ) {
             Icon(
                 imageVector = Icons.Default.ArrowBack,
-                contentDescription = "Back",
+                contentDescription = "Volver",
                 tint = White
             )
         }
@@ -243,7 +155,8 @@ fun TripDetailHeader(trip: Trip, onBack: () -> Unit) {
                 .padding(horizontal = 20.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(text = trip.emoji, fontSize = 48.sp)
+            // Sprint 02: emoji eliminado del dominio — se usa un icono genérico de viaje
+            Text(text = "✈️", fontSize = 48.sp)
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = trip.title,
@@ -252,7 +165,7 @@ fun TripDetailHeader(trip: Trip, onBack: () -> Unit) {
                 fontWeight = FontWeight.ExtraBold
             )
             Text(
-                text = "📅 ${trip.startDate} – ${trip.endDate} · ${trip.nights} noches",
+                text = "📅 ${trip.startDate.format(dateFormatter)} – ${trip.endDate.format(dateFormatter)} · ${trip.getNights()} noches",
                 style = MaterialTheme.typography.bodyMedium,
                 color = GrayMid
             )
@@ -268,11 +181,16 @@ fun TripStatsRow(trip: Trip) {
             .padding(horizontal = 20.dp, vertical = 16.dp),
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
-        StatItem(value = "${trip.nights}", label = "NOCHES", emoji = "🌙")
-        StatDivider()
-        StatItem(value = "€${trip.budget.toInt()}", label = "PRESUPUESTO", emoji = "💰")
+        StatItem(value = "${trip.getNights()}", label = "NOCHES", emoji = "🌙")
         StatDivider()
         StatItem(value = "${trip.activities.size}", label = "ACTIVIDADES", emoji = "📍")
+        StatDivider()
+        // Descripción truncada como tercer stat
+        StatItem(
+            value = if (trip.description.length > 12) trip.description.take(12) + "…" else trip.description,
+            label = "DESCRIPCIÓN",
+            emoji = "📝"
+        )
     }
 }
 
@@ -309,7 +227,7 @@ fun StatDivider() {
 @Composable
 fun DayHeader(day: String) {
     Text(
-        text = day,
+        text = day.uppercase(),
         style = MaterialTheme.typography.labelSmall,
         color = TurquoisePrimary,
         letterSpacing = 2.sp,
@@ -317,21 +235,25 @@ fun DayHeader(day: String) {
     )
 }
 
+/**
+ * Tarjeta de actividad adaptada al nuevo modelo [Activity] del Sprint 02.
+ * Ya no usa ItineraryItem (Sprint 01).
+ */
 @Composable
-fun ItineraryItemCard(item: ItineraryItem) {
+fun ActivityCard(activity: Activity) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 20.dp, vertical = 6.dp),
         verticalAlignment = Alignment.Top
     ) {
-        // Time column
+        // Columna de hora
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.width(52.dp)
         ) {
             Text(
-                text = item.time,
+                text = activity.time.format(timeFormatter),
                 style = MaterialTheme.typography.labelSmall,
                 color = GrayMid
             )
@@ -345,53 +267,29 @@ fun ItineraryItemCard(item: ItineraryItem) {
 
         Spacer(modifier = Modifier.width(12.dp))
 
-        // Card
         Card(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(containerColor = NavyLight)
         ) {
-            Row(
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                    .padding(16.dp)
             ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text(text = item.emoji, fontSize = 24.sp)
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Column {
-                        Text(
-                            text = item.title,
-                            style = MaterialTheme.typography.titleMedium,
-                            color = White,
-                            fontWeight = FontWeight.SemiBold
-                        )
-                        Text(
-                            text = item.description,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = GrayMid
-                        )
-                    }
-                }
-                Column(horizontalAlignment = Alignment.End) {
+                Text(
+                    text = activity.title,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = White,
+                    fontWeight = FontWeight.SemiBold
+                )
+                if (activity.description.isNotBlank()) {
+                    Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = item.getFormattedCost(),
-                        style = MaterialTheme.typography.titleMedium,
-                        color = if (item.cost == 0.0) SuccessGreen else GoldAccent,
-                        fontWeight = FontWeight.Bold
+                        text = activity.description,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = GrayMid
                     )
-                    if (item.isBooked) {
-                        Text(
-                            text = "✓ reservado",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = TurquoisePrimary
-                        )
-                    }
                 }
             }
         }
@@ -399,49 +297,27 @@ fun ItineraryItemCard(item: ItineraryItem) {
 }
 
 @Composable
-fun BudgetTabContent(trip: Trip) {
-    Column(
+fun ActivityEmptyState() {
+    Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(20.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+            .padding(40.dp),
+        contentAlignment = Alignment.Center
     ) {
-        Card(
-            shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(containerColor = NavyLight)
-        ) {
-            Column(modifier = Modifier.padding(20.dp)) {
-                Text("Resumen del presupuesto", style = MaterialTheme.typography.titleMedium, color = White, fontWeight = FontWeight.Bold)
-                Spacer(modifier = Modifier.height(16.dp))
-                BudgetRow("Presupuesto total", "€${trip.budget.toInt()}", GoldAccent)
-                BudgetRow("Gastado", "€${trip.budgetSpent.toInt()}", ErrorRed)
-                BudgetRow("Restante", "€${trip.getRemainingBudget().toInt()}", SuccessGreen)
-                Spacer(modifier = Modifier.height(12.dp))
-                LinearProgressIndicator(
-                    progress = { (trip.budgetSpent / trip.budget).toFloat() },
-                    modifier = Modifier.fillMaxWidth().height(6.dp).clip(CircleShape),
-                    color = TurquoisePrimary,
-                    trackColor = GrayDark
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    "${trip.getBudgetProgressPercent()}% gastado",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = GrayMid
-                )
-            }
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text("🗺️", fontSize = 48.sp)
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                "No hay actividades para este viaje.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = GrayMid
+            )
+            Text(
+                "Añade la primera actividad con el botón +",
+                style = MaterialTheme.typography.bodySmall,
+                color = GrayDark
+            )
         }
-    }
-}
-
-@Composable
-fun BudgetRow(label: String, value: String, valueColor: Color) {
-    Row(
-        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        Text(label, style = MaterialTheme.typography.bodyMedium, color = GrayMid)
-        Text(value, style = MaterialTheme.typography.bodyMedium, color = valueColor, fontWeight = FontWeight.Bold)
     }
 }
 
@@ -454,7 +330,11 @@ fun GalleryTabPlaceholder() {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text("🖼️", fontSize = 48.sp)
             Spacer(modifier = Modifier.height(8.dp))
-            Text("Galería disponible en la pantalla Galería de viaje", style = MaterialTheme.typography.bodyMedium, color = GrayMid)
+            Text(
+                "Galería disponible en la pantalla Galería de viaje",
+                style = MaterialTheme.typography.bodyMedium,
+                color = GrayMid
+            )
         }
     }
 }
@@ -468,7 +348,11 @@ fun NotesTabPlaceholder() {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text("📝", fontSize = 48.sp)
             Spacer(modifier = Modifier.height(8.dp))
-            Text("Aún no hay notas para este viaje.", style = MaterialTheme.typography.bodyMedium, color = GrayMid)
+            Text(
+                "Aún no hay notas para este viaje.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = GrayMid
+            )
         }
     }
 }

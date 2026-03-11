@@ -16,7 +16,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -24,7 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.travelplanner.irida.domain.Trip
 import com.travelplanner.irida.ui.theme.*
-import com.travelplanner.irida.data.mockTrips
+import com.travelplanner.irida.data.mocks.mockTrips
 @Composable
 fun HomeScreen(
     onTripClick: (Trip) -> Unit = {},
