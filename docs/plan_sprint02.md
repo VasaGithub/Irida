@@ -139,7 +139,7 @@ docs/
 
 ---
 
-## 🗓️ Orden de implementación recomendado
+## 🗓️ Orden de implementación
 
 1. Modelos de dominio (`Trip`, `Activity`, `TripRepository`)
 2. DataSource + RepositoryImpl
