@@ -1,4 +1,6 @@
 # 📋 Plan Sprint 02 – Irida Travel Planner
+**Release objetivo:** v2.0.0  
+**Equipo:** Iker Vázquez (IV) · Raul Rubio (RR)
 
 ---
 
@@ -72,42 +74,42 @@ docs/
 
 ### T1 – Lógica de gestión de viajes (4 pts)
 
-| ID | Tarea | Responsable | Estado |
-|----|-------|-------------|--------|
-| T1.1 | Refactorizar modelo `Trip.kt` con `startDate: LocalDate`, `endDate: LocalDate`, `description: String` | IV | ⬜ |
-| T1.2 | Crear modelo `Activity.kt` con `title`, `description`, `date: LocalDate`, `time: LocalTime` | IV | ⬜ |
-| T1.3 | Crear interfaz `TripRepository.kt` en domain/ con métodos CRUD para trips y activities | IV | ⬜ |
-| T1.4 | Implementar `FakeTripDataSource.kt` con lista mutable y dataset de ejemplo | IV | ⬜ |
-| T1.5 | Implementar `TripRepositoryImpl.kt` delegando en FakeTripDataSource | IV | ⬜ |
-| T1.6 | Implementar `TripListViewModel.kt` con addTrip, editTrip, deleteTrip y StateFlow | IV | ⬜ |
-| T1.7 | Implementar `TripDetailViewModel.kt` con addActivity, updateActivity, deleteActivity | IV | ⬜ |
-| T1.8 | Implementar validación en ViewModels (fechas futuras, startDate < endDate, actividad dentro del rango) | IV | ⬜ |
-| T1.9 | Implementar SharedPreferences en PreferencesScreen (username, fecha nacimiento, dark mode, idioma) | IV | ⬜ |
-| T1.10 | Implementar multiidioma ES / EN / CA con strings.xml por locale | RR | ⬜ |
+| ID | Tarea | Responsable |
+|----|-------|-------------|
+| T1.1 | Refactorizar modelo `Trip.kt` con `startDate: LocalDate`, `endDate: LocalDate`, `description: String` | IV |
+| T1.2 | Crear modelo `Activity.kt` con `title`, `description`, `date: LocalDate`, `time: LocalTime` | IV |
+| T1.3 | Crear interfaz `TripRepository.kt` en domain/ con métodos CRUD para trips y activities | IV |
+| T1.4 | Implementar `FakeTripDataSource.kt` con lista mutable y dataset de ejemplo | IV |
+| T1.5 | Implementar `TripRepositoryImpl.kt` delegando en FakeTripDataSource | IV |
+| T1.6 | Implementar `TripListViewModel.kt` con addTrip, editTrip, deleteTrip y StateFlow | IV |
+| T1.7 | Implementar `TripDetailViewModel.kt` con addActivity, updateActivity, deleteActivity | IV |
+| T1.8 | Implementar validación en ViewModels (fechas futuras, startDate < endDate, actividad dentro del rango) | IV |
+| T1.9 | Implementar SharedPreferences en PreferencesScreen (username, fecha nacimiento, dark mode, idioma) | IV |
+| T1.10 | Implementar multiidioma ES / EN / CA con strings.xml por locale | RR |
 
 ### T2 – Flujo de itinerario (3 pts)
 
-| ID | Tarea | Responsable | Estado |
-|----|-------|-------------|--------|
-| T2.1 | Crear `AddTripScreen.kt` con formulario y DatePickers | IV | ⬜ |
-| T2.2 | Crear `EditTripScreen.kt` prellenado con datos del viaje seleccionado | IV | ⬜ |
-| T2.3 | Refactorizar `HomeScreen.kt` para consumir ViewModel y mostrar lista dinámica | IV | ⬜ |
-| T2.4 | Refactorizar `TripDetailScreen.kt` para mostrar actividades del ViewModel | IV | ⬜ |
-| T2.5 | Crear `AddActivityScreen.kt` con DatePicker y TimePicker | IV | ⬜ |
-| T2.6 | Crear `EditActivityScreen.kt` prellenado con datos de la actividad | IV | ⬜ |
-| T2.7 | Actualizar `AppNavigation.kt` con todas las rutas nuevas y paso de parámetros | IV | ⬜ |
-| T2.8 | Asegurar que los cambios se reflejan dinámicamente en HomeScreen y TripDetail | IV | ⬜ |
+| ID | Tarea | Responsable |
+|----|-------|-------------|
+| T2.1 | Crear `AddTripScreen.kt` con formulario y DatePickers | IV |
+| T2.2 | Crear `EditTripScreen.kt` prellenado con datos del viaje seleccionado | IV |
+| T2.3 | Refactorizar `HomeScreen.kt` para consumir ViewModel y mostrar lista dinámica | IV |
+| T2.4 | Refactorizar `TripDetailScreen.kt` para mostrar actividades del ViewModel | IV |
+| T2.5 | Crear `AddActivityScreen.kt` con DatePicker y TimePicker | IV |
+| T2.6 | Crear `EditActivityScreen.kt` prellenado con datos de la actividad | IV |
+| T2.7 | Actualizar `AppNavigation.kt` con todas las rutas nuevas y paso de parámetros | IV |
+| T2.8 | Asegurar que los cambios se reflejan dinámicamente en HomeScreen y TripDetail | IV |
 
 ### T3 – Validación, tests y documentación (3 pts)
 
-| ID | Tarea | Responsable | Estado |
-|----|-------|-------------|--------|
-| T3.1 | Mostrar mensajes de error claros en UI cuando: campo vacío, fecha incorrecta, actividad fuera de rango | IV | ⬜ |
-| T3.2 | Escribir tests unitarios para CRUD de trips en `TripRepositoryImplTest.kt` | IV | ⬜ |
-| T3.3 | Escribir tests unitarios para CRUD de actividades | IV | ⬜ |
-| T3.4 | Añadir logs Logcat con niveles DEBUG/INFO/ERROR en todas las operaciones CRUD | IV | ⬜ |
-| T3.5 | Grabar vídeo de demostración y guardar en `docs/evidence/v2.0.0/` | RR | ⬜ |
-| T3.6 | Redactar `final_sprint02.md` con resultados de tests y fixes aplicados | IV | ⬜ |
+| ID | Tarea | Responsable |
+|----|-------|-------------|
+| T3.1 | Mostrar mensajes de error claros en UI cuando: campo vacío, fecha incorrecta, actividad fuera de rango | IV |
+| T3.2 | Escribir tests unitarios para CRUD de trips en `TripRepositoryImplTest.kt` | IV |
+| T3.3 | Escribir tests unitarios para CRUD de actividades | IV |
+| T3.4 | Añadir logs Logcat con niveles DEBUG/INFO/ERROR en todas las operaciones CRUD | IV |
+| T3.5 | Grabar vídeo de demostración y guardar en `docs/evidence/v2.0.0/` | RR |
+| T3.6 | Redactar `final_sprint02.md` con resultados de tests y fixes aplicados | IV |
 
 ---
 
