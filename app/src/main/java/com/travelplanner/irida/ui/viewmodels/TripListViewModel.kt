@@ -8,7 +8,6 @@ import com.travelplanner.irida.data.repository.TripRepositoryImpl
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import java.time.LocalDate
 import java.util.UUID
 
@@ -38,11 +37,9 @@ class TripListViewModel(
 
     private val TAG = "TripListViewModel"
 
-    // Estado principal: lista de viajes
     private val _uiState = MutableStateFlow<TripListUiState>(TripListUiState.Loading)
     val uiState: StateFlow<TripListUiState> = _uiState.asStateFlow()
 
-    // Errores de validación por campo — la UI los muestra debajo de cada campo
     private val _validationErrors = MutableStateFlow<Map<String, String>>(emptyMap())
     val validationErrors: StateFlow<Map<String, String>> = _validationErrors.asStateFlow()
 
@@ -61,10 +58,6 @@ class TripListViewModel(
 
     // ── CRUD ───────────────────────────────────────────────────────────────
 
-    /**
-     * Añade un nuevo viaje tras validar los campos.
-     * Devuelve true si se añadió correctamente, false si hay errores de validación.
-     */
     fun addTrip(
         title: String,
         description: String,
@@ -75,7 +68,6 @@ class TripListViewModel(
         budget: Double = 0.0
     ): Boolean {
         Log.d(TAG, "addTrip: validando datos para nuevo viaje '$title'")
-
         if (!validate(title, description, startDate, endDate)) return false
 
         val trip = Trip(
@@ -97,10 +89,6 @@ class TripListViewModel(
         return true
     }
 
-    /**
-     * Edita un viaje existente tras validar los campos.
-     * Devuelve true si se editó correctamente, false si hay errores de validación.
-     */
     fun editTrip(
         id: String,
         title: String,
@@ -113,7 +101,6 @@ class TripListViewModel(
         budgetSpent: Double
     ): Boolean {
         Log.d(TAG, "editTrip: validando datos para viaje id=$id")
-
         if (!validate(title, description, startDate, endDate)) return false
 
         val existing = repository.getTripById(id)
@@ -141,9 +128,6 @@ class TripListViewModel(
         return true
     }
 
-    /**
-     * Elimina un viaje y todas sus actividades.
-     */
     fun deleteTrip(tripId: String) {
         Log.d(TAG, "deleteTrip: eliminando viaje id=$tripId")
         repository.deleteTrip(tripId)
@@ -153,11 +137,6 @@ class TripListViewModel(
 
     // ── Validación ─────────────────────────────────────────────────────────
 
-    /**
-     * Valida los campos del formulario de viaje.
-     * Emite los errores en [validationErrors] para que la UI los muestre.
-     * Devuelve true si todos los campos son válidos.
-     */
     private fun validate(
         title: String,
         description: String,
@@ -191,9 +170,6 @@ class TripListViewModel(
         return errors.isEmpty()
     }
 
-    /**
-     * Limpia los errores de validación — llamar al abrir el formulario.
-     */
     fun clearValidationErrors() {
         _validationErrors.value = emptyMap()
     }
