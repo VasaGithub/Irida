@@ -38,7 +38,7 @@ sealed class TripDetailUiState {
  * Arquitectura: UI → TripDetailViewModel → TripRepository → FakeTripDataSource
  */
 class TripDetailViewModel(
-    private val repository: TripRepository = TripRepositoryImpl()
+    private val repository: TripRepository = TripRepositoryImpl.instance
 ) : ViewModel() {
 
     private val TAG = "TripDetailViewModel"

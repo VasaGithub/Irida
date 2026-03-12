@@ -83,7 +83,7 @@ fun TripGalleryScreen(
             BottomNavBar(selectedTab = 2, onTabSelected = { tab ->
                 when (tab) {
                     0 -> onNavigate("home")
-                    1 -> onNavigate("trips")
+                    1 -> onNavigate("activities")
                     2 -> onNavigate("gallery")
                     3 -> onNavigate("settings")
                 }
