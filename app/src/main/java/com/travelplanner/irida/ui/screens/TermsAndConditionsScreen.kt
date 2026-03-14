@@ -1,57 +1,62 @@
 package com.travelplanner.irida.ui.screens
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.travelplanner.irida.R
 import com.travelplanner.irida.ui.theme.*
 
+// Modificado para guardar el ID de los strings en lugar de texto plano
 data class TermsSection(
     val emoji: String,
-    val title: String,
-    val content: String
+    @param: StringRes val titleRes: Int,
+    @param: StringRes val contentRes: Int
 )
 
 val termsSections = listOf(
     TermsSection(
         emoji = "📋",
-        title = "Aceptación de los términos",
-        content = "Al utilizar Irida Travel Planner aceptas estos términos y condiciones. Si no estás de acuerdo con alguna de estas condiciones, no debes usar la aplicación."
+        titleRes = R.string.terms_title_1,
+        contentRes = R.string.terms_content_1
     ),
     TermsSection(
         emoji = "🔒",
-        title = "Privacidad y datos",
-        content = "Irida recopila únicamente los datos necesarios para el funcionamiento de la app: nombre de usuario, destinos guardados e itinerarios. No compartimos tus datos con terceros sin tu consentimiento explícito."
+        titleRes = R.string.terms_title_2,
+        contentRes = R.string.terms_content_2
     ),
     TermsSection(
         emoji = "✈️",
-        title = "Uso de la aplicación",
-        content = "Irida es una herramienta de planificación personal. La información mostrada es orientativa. Verifica siempre los datos con los proveedores oficiales antes de realizar reservas."
+        titleRes = R.string.terms_title_3,
+        contentRes = R.string.terms_content_3
     ),
     TermsSection(
         emoji = "🌐",
-        title = "Servicios de terceros",
-        content = "La aplicación puede integrar servicios externos como Google Maps o APIs de vuelos. El uso de estos servicios está sujeto a sus propias políticas de privacidad y términos de uso."
+        titleRes = R.string.terms_title_4,
+        contentRes = R.string.terms_content_4
     ),
     TermsSection(
         emoji = "📝",
-        title = "Modificaciones",
-        content = "Nos reservamos el derecho de modificar estos términos en cualquier momento. Los cambios entrarán en vigor al publicar la versión actualizada en la aplicación."
+        titleRes = R.string.terms_title_5,
+        contentRes = R.string.terms_content_5
     ),
     TermsSection(
         emoji = "⚠️",
-        title = "Limitación de responsabilidad",
-        content = "El equipo de desarrollo no se hace responsable de errores en la información de vuelos, hoteles o actividades mostrada en la app. Siempre confirma con los proveedores oficiales."
+        titleRes = R.string.terms_title_6,
+        contentRes = R.string.terms_content_6
     )
 )
 
@@ -69,11 +74,11 @@ fun TermsAndConditionsScreen(
             onDismissRequest = { showRejectDialog = false },
             containerColor = NavyLight,
             title = {
-                Text("¿Rechazar términos?", color = White, fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.dialog_title_rechazar), color = White, fontWeight = FontWeight.Bold)
             },
             text = {
                 Text(
-                    "Si rechazas los términos y condiciones no podrás usar la aplicación.",
+                    text = stringResource(R.string.dialog_desc_rechazar),
                     color = GrayMid,
                     style = MaterialTheme.typography.bodyMedium
                 )
@@ -86,7 +91,7 @@ fun TermsAndConditionsScreen(
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = ErrorRed)
                 ) {
-                    Text("Sí, rechazar", color = White)
+                    Text(stringResource(R.string.btn_si_rechazar), color = White)
                 }
             },
             dismissButton = {
@@ -94,7 +99,7 @@ fun TermsAndConditionsScreen(
                     onClick = { showRejectDialog = false },
                     border = androidx.compose.foundation.BorderStroke(1.dp, GrayDark)
                 ) {
-                    Text("Cancelar", color = GrayMid)
+                    Text(stringResource(R.string.btn_cancelar), color = GrayMid)
                 }
             }
         )
@@ -151,8 +156,8 @@ fun TermsHeader(onBack: () -> Unit) {
             modifier = Modifier.align(Alignment.CenterStart)
         ) {
             Icon(
-                imageVector = Icons.Default.ArrowBack,
-                contentDescription = "Back",
+                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                contentDescription = stringResource(R.string.cd_volver),
                 tint = White
             )
         }
@@ -162,13 +167,13 @@ fun TermsHeader(onBack: () -> Unit) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "Términos y Condiciones",
+                text = stringResource(R.string.title_terminos),
                 style = MaterialTheme.typography.titleLarge,
                 color = White,
                 fontWeight = FontWeight.Bold
             )
             Text(
-                text = "Última actualización: 1 de marzo de 2025",
+                text = stringResource(R.string.subtitle_actualizacion_terminos),
                 style = MaterialTheme.typography.labelSmall,
                 color = GrayMid
             )
@@ -212,7 +217,8 @@ fun TermsSectionCard(number: Int, section: TermsSection) {
                 ) {
                     Text(text = section.emoji, fontSize = 18.sp)
                     Text(
-                        text = section.title,
+                        // Aquí llamamos a stringResource usando la variable entera que guardamos
+                        text = stringResource(id = section.titleRes),
                         style = MaterialTheme.typography.titleMedium,
                         color = White,
                         fontWeight = FontWeight.SemiBold
@@ -220,7 +226,8 @@ fun TermsSectionCard(number: Int, section: TermsSection) {
                 }
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = section.content,
+                    // Y aquí igual para el contenido
+                    text = stringResource(id = section.contentRes),
                     style = MaterialTheme.typography.bodyMedium,
                     color = GrayMid
                 )
@@ -248,7 +255,7 @@ fun TermsBottomBar(onAccept: () -> Unit, onReject: () -> Unit) {
                 border = androidx.compose.foundation.BorderStroke(1.dp, GrayDark),
                 colors = ButtonDefaults.outlinedButtonColors(contentColor = GrayMid)
             ) {
-                Text("Rechazar")
+                Text(stringResource(R.string.btn_rechazar))
             }
 
             Button(
@@ -260,7 +267,7 @@ fun TermsBottomBar(onAccept: () -> Unit, onReject: () -> Unit) {
                     contentColor = NavyDeep
                 )
             ) {
-                Text("✓ Aceptar y continuar", fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.btn_aceptar_continuar), fontWeight = FontWeight.Bold)
             }
         }
     }

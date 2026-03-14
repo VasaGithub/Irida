@@ -1,2 +1,180 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources></resources>
+<resources>
+    <string name="app_name">Irida</string>
+    <string name="equipo_de_desarrollo">EQUIP DE DESENVOLUPAMENT</string>
+    <string name="tecnic_info">INFORMACIÓ TÈCNICA</string>
+    <string name="license_title">LLICÈNCIA</string>
+    <string name="footer_text">Desenvolupat al Campus Igualada.</string>
+    <string name="logo_irida">Logotip d\'Irida</string>
+    <string name="slogan_text">Plan your adventures, your way.\nDesenvolupat al Campus Igualada.</string>
+    <string name="date_picker">Data: %1$s</string>
+    <string name="time_picker">Hora: %1$s</string>
+    <string name="header_act">Activitats</string>
+    <string name="header_info">Gestiona les activitats dels teus viatges</string>
+    <string name="act_step_one">PAS 1 · SELECCIONA UN VIATGE</string>
+    <string name="act_step_two">PAS 2 · DADES DE L\'ACTIVITAT</string>
+    <string name="act_range">Rang del viatge: %1$s – %2$s</string>
+    <string name="act_title_ex">Títol *</string>
+    <string name="act_extr_ex">Descripció *</string>
+    <string name="act_text_ex">Ex: Visita al Temple Senso-ji</string>
+    <string name="act_desc_ex">Descriu l\'activitat</string>
+    <string name="act_upp_good">Activitat afegida correctament</string>
+    <string name="act_safe">Desar activitat</string>
+    <string name="select_trip">SELECCIONA UN VIATGE</string>
+    <string name="trip_acts">ACTIVITATS DEL VIATGE</string>
+    <string name="trip_acts_act">%1$d activitats</string>
+    <string name="trip_act_add">Aquest viatge encara no té activitats. Afegeix-ne la primera!</string>
+    <string name="lenguaje_act">ca</string>
+    <string name="trip_create">No tens cap viatge. Crea\'n un primer des d\'Inici.</string>
+    <string name="select_trip_2">Selecciona un viatge…</string>
+    <string name="select_time">Seleccionar hora</string>
+    <string name="trip_form">AddTripScreen: formulari obert</string>
+    <string name="date_selected">startDate seleccionada: %1$s</string>
+    <string name="date_end_select">endDate seleccionada: %1$s</string>
+    <string name="trip_title">Títol del viatge *</string>
+    <string name="ej_trip_title">Ex: Aventura a Tòquio</string> <string name="trip_desc">Descripció *</string>
+    <string name="trip_desc_desc">Descriu breument el viatge</string>
+    <string name="trip_dest">Destinació</string>
+    <string name="trip_dest_ex">Ex: Tòquio, Japó</string> <string name="trip_date">DATES DEL VIATGE</string>
+    <string name="in_date">Data d\'inici *</string>
+    <string name="end_date">Data de finalització *</string>
+    <string name="trip_emoji">Emoji del viatge</string>
+    <string name="presupuesto">Pressupost (€)</string>
+    <string name="btn_guardar_viaje">Desar viatge</string>
+    <string name="btn_cancelar">Cancel·lar</string>
+    <string name="title_nuevo_viaje">Nou viatge</string>
+    <string name="cd_volver">Enrere</string> <string name="formato_fecha">dd/MM/yyyy</string>
+    <string name="cd_seleccionar_fecha">Seleccionar data</string>
+    <string name="placeholder_presupuesto">0,00</string> <string name="error_viaje_no_encontrado">No s\'ha trobat el viatge</string>
+    <string name="trip_title_req">Títol del viatge *</string>
+    <string name="trip_desc_req">Descripció *</string>
+    <string name="in_date_req">Data d\'inici *</string>
+    <string name="end_date_req">Data de finalització *</string>
+    <string name="presupuesto_euro">Pressupost (€)</string>
+    <string name="btn_guardar_cambios">Desar els canvis</string>
+    <string name="title_editar_viaje">Editar viatge</string>
+
+    <string name="title_eliminar_viaje">Eliminar viatge</string>
+    <string name="msg_confirmar_eliminar_viaje">Segur que vols eliminar \"%1$s\"? Es perdran totes les activitats.</string>
+    <string name="btn_eliminar">Eliminar</string>
+    <string name="title_proximos_viajes">Propers viatges</string> <string name="label_cantidad_viajes">%1$d viatges</string>
+    <string name="btn_add_nuevo_viaje">Afegir un nou viatge</string>
+    <string name="greeting_user">Bon dia, %1$s 👋</string>
+    <string name="title_mis_viajes">Els meus viatges</string>
+    <string name="trip_card_dates_nights">📅 %1$s – %2$s · %3$d nits</string>
+    <string name="cd_editar">Editar</string>
+    <string name="cd_eliminar">Eliminar</string>
+    <string name="format_budget">%1$d €</string> <string name="format_percent">%1$d %%</string>
+    <string name="empty_state_title">Encara no tens cap viatge</string>
+    <string name="empty_state_desc">Prem el botó de sota per planificar la teva primera aventura</string>
+
+    <string name="nav_inicio">Inici</string>
+    <string name="nav_actividades">Activitats</string>
+    <string name="nav_galeria">Galeria</string>
+    <string name="nav_ajustes">Ajustos</string>
+
+    <string name="screen_title_preferencias">Ajustos</string>
+    <string name="screen_subtitle_preferencias">Personalitza la teva experiència a Irida</string>
+
+    <string name="section_idioma_region">IDIOMA I REGIÓ</string>
+    <string name="pref_title_idioma">Idioma</string>
+    <string name="pref_sub_idioma">Idioma de la interfície</string>
+    <string name="pref_title_moneda">Moneda</string>
+    <string name="pref_sub_moneda">Per als pressupostos</string>
+    <string name="pref_title_formato_fecha">Format de la data</string>
+    <string name="pref_sub_formato_fecha">Com es mostren les dates</string>
+
+    <string name="section_apariencia">APARENÇA</string>
+    <string name="pref_title_modo_oscuro">Mode fosc</string>
+    <string name="pref_sub_modo_oscuro">Tema de l\'aplicació</string>
+    <string name="pref_title_tamano_texto">Mida del text</string>
+    <string name="pref_sub_tamano_texto">Ajust d\'accessibilitat</string>
+
+    <string name="section_notificaciones">NOTIFICACIONS</string>
+    <string name="pref_title_recordatorios">Recordatoris de viatge</string>
+    <string name="pref_sub_recordatorios">Avís 24 h abans del vol</string>
+    <string name="pref_title_resumen">Resum setmanal</string>
+    <string name="pref_sub_resumen">Correu amb els propers viatges</string>
+    <string name="pref_title_sugerencias">Suggeriments IA</string>
+    <string name="pref_sub_sugerencias">Recomanacions personalitzades</string>
+
+    <string name="section_acerca_de">SOBRE L\'APP</string>
+    <string name="pref_title_acerca">Sobre Irida</string>
+    <string name="pref_sub_acerca">Equip, versió i informació</string>
+    <string name="pref_title_terminos">Termes i condicions</string>
+    <string name="pref_sub_terminos">Política d\'ús de l\'app</string>
+
+    <string name="lang_es">Castellà</string>
+    <string name="lang_en">Anglès</string>
+    <string name="lang_ca">Català</string>
+    <string name="lang_fr">Francès</string>
+    <string name="lang_de">Alemany</string>
+
+    <string name="curr_eur">EUR (€)</string>
+    <string name="curr_usd">USD ($)</string>
+    <string name="curr_gbp">GBP (£)</string>
+    <string name="curr_jpy">JPY (¥)</string>
+
+    <string name="date_fmt_dmy">DD/MM/AAAA</string>
+    <string name="date_fmt_mdy">MM/DD/AAAA</string>
+    <string name="date_fmt_ymd">AAAA/MM/DD</string>
+
+    <string name="size_small">Petit</string>
+    <string name="size_normal">Normal</string>
+    <string name="size_large">Gran</string>
+
+    <string name="btn_cerrar">Tancar</string>
+    <string name="dropdown_value">%1$s ▾</string>
+
+    <string name="cd_logo_irida">Logotip d\'Irida</string>
+    <string name="splash_subtitle">Travel Planner</string>
+    <string name="splash_tagline">Planifica les teves aventures a la teva manera</string>
+    <string name="splash_loading">CARREGANT…</string>
+    <string name="splash_version">v1.0.0 · Sprint 01</string>
+    <string name="splash_footer">Creat amb ❤️ al Campus Igualada</string>
+
+    <string name="terms_title_1">Acceptació dels termes</string>
+    <string name="terms_content_1">En utilitzar Irida Travel Planner, acceptes aquests termes i condicions. Si no estàs d\'acord amb alguna d\'aquestes condicions, no has d\'utilitzar l\'aplicació.</string>
+    <string name="terms_title_2">Privacitat i dades</string>
+    <string name="terms_content_2">Irida recopila únicament les dades necessàries per al funcionament de l\'app: nom d\'usuari, destinacions desades i itineraris. No compartim les teves dades amb tercers sense el teu consentiment explícit.</string>
+    <string name="terms_title_3">Ús de l\'aplicació</string>
+    <string name="terms_content_3">Irida és una eina de planificació personal. La informació mostrada és orientativa. Verifica sempre les dades amb els proveïdors oficials abans de fer reserves.</string>
+    <string name="terms_title_4">Serveis de tercers</string>
+    <string name="terms_content_4">L\'aplicació pot integrar serveis externs com Google Maps o APIs de vols. L\'ús d\'aquests serveis està subjecte a les seves pròpies polítiques de privacitat i termes d\'ús.</string>
+    <string name="terms_title_5">Modificacions</string>
+    <string name="terms_content_5">Ens reservem el dret de modificar aquests termes en qualsevol moment. Els canvis entraran en vigor en publicar la versió actualitzada a l\'aplicació.</string>
+    <string name="terms_title_6">Limitació de responsabilitat</string>
+    <string name="terms_content_6">L\'equip de desenvolupament no es fa responsable d\'errors en la informació de vols, hotels o activitats mostrada a l\'app. Confirma-ho sempre amb els proveïdors oficials.</string>
+
+    <string name="dialog_title_rechazar">Vols rebutjar els termes?</string>
+    <string name="dialog_desc_rechazar">Si rebutges els termes i condicions, no podràs utilitzar l\'aplicació.</string>
+    <string name="btn_si_rechazar">Sí, rebutjar</string>
+
+    <string name="title_terminos">Termes i condicions</string>
+    <string name="subtitle_actualizacion_terminos">Última actualització: 1 de març de 2025</string>
+    <string name="btn_rechazar">Rebutjar</string>
+    <string name="btn_aceptar_continuar">✓ Acceptar i continuar</string>
+
+    <string name="tab_itinerario">Itinerari</string>
+    <string name="tab_galeria">Galeria</string>
+    <string name="tab_notas">Notes</string>
+    <string name="stat_noches">NITS</string>
+    <string name="stat_actividades">ACTIVITATS</string>
+    <string name="stat_descripcion">DESCRIPCIÓ</string>
+    <string name="empty_activities_title">No hi ha activitats per a aquest viatge.</string>
+    <string name="empty_activities_desc">Afegeix la primera activitat amb el botó +</string>
+    <string name="placeholder_gallery">La galeria està disponible a la pantalla Galeria de viatge</string>
+    <string name="placeholder_notes">Encara no hi ha notes per a aquest viatge.</string>
+
+    <string name="filter_todas">Totes</string>
+    <string name="filter_top">★ Top</string>
+    <string name="filter_videos">Vídeos</string>
+    <string name="dialog_title_eliminar_foto">Eliminar foto</string>
+    <string name="dialog_desc_eliminar_foto">Segur que vols eliminar %1$s?</string>
+    <string name="label_elementos_count">%1$d elements</string>
+    <string name="sort_by_date">Ordena per: Data ▾</string>
+    <string name="mock_title_aventura_tokio">Aventura a Tòquio</string> <string name="label_fotos_mb">%1$d fotos · %2$d MB</string>
+    <string name="btn_anadir">Afegir</string>
+    <string name="cd_anadir_foto">Afegir una foto</string>
+    <string name="label_anadir_caps">AFEGIR</string>
+    <string name="badge_top">TOP</string>
+</resources>

@@ -9,16 +9,20 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.travelplanner.irida.R
 import com.travelplanner.irida.ui.theme.*
 
 @Composable
 fun PreferencesScreen(
     onNavigate: (String) -> Unit = {}
 ) {
+    // Para simplificar, usamos directamente el texto en el estado,
+    // pero idealmente deberías guardar una clave de preferencia en lugar del texto traducido.
     var selectedLanguage by remember { mutableStateOf("Español") }
     var selectedCurrency by remember { mutableStateOf("EUR (€)") }
     var selectedDateFormat by remember { mutableStateOf("DD/MM/AAAA") }
@@ -35,8 +39,14 @@ fun PreferencesScreen(
 
     if (showLanguageDialog) {
         OptionsDialog(
-            title = "Idioma",
-            options = listOf("Español", "English", "Català", "Français", "Deutsch"),
+            title = stringResource(R.string.pref_title_idioma),
+            options = listOf(
+                stringResource(R.string.lang_es),
+                stringResource(R.string.lang_en),
+                stringResource(R.string.lang_ca),
+                stringResource(R.string.lang_fr),
+                stringResource(R.string.lang_de)
+            ),
             selected = selectedLanguage,
             onSelect = { selectedLanguage = it; showLanguageDialog = false },
             onDismiss = { showLanguageDialog = false }
@@ -44,8 +54,13 @@ fun PreferencesScreen(
     }
     if (showCurrencyDialog) {
         OptionsDialog(
-            title = "Moneda",
-            options = listOf("EUR (€)", "USD ($)", "GBP (£)", "JPY (¥)"),
+            title = stringResource(R.string.pref_title_moneda),
+            options = listOf(
+                stringResource(R.string.curr_eur),
+                stringResource(R.string.curr_usd),
+                stringResource(R.string.curr_gbp),
+                stringResource(R.string.curr_jpy)
+            ),
             selected = selectedCurrency,
             onSelect = { selectedCurrency = it; showCurrencyDialog = false },
             onDismiss = { showCurrencyDialog = false }
@@ -53,8 +68,12 @@ fun PreferencesScreen(
     }
     if (showDateFormatDialog) {
         OptionsDialog(
-            title = "Formato de fecha",
-            options = listOf("DD/MM/AAAA", "MM/DD/AAAA", "AAAA/MM/DD"),
+            title = stringResource(R.string.pref_title_formato_fecha),
+            options = listOf(
+                stringResource(R.string.date_fmt_dmy),
+                stringResource(R.string.date_fmt_mdy),
+                stringResource(R.string.date_fmt_ymd)
+            ),
             selected = selectedDateFormat,
             onSelect = { selectedDateFormat = it; showDateFormatDialog = false },
             onDismiss = { showDateFormatDialog = false }
@@ -62,8 +81,12 @@ fun PreferencesScreen(
     }
     if (showTextSizeDialog) {
         OptionsDialog(
-            title = "Tamaño de texto",
-            options = listOf("Pequeño", "Normal", "Grande"),
+            title = stringResource(R.string.pref_title_tamano_texto),
+            options = listOf(
+                stringResource(R.string.size_small),
+                stringResource(R.string.size_normal),
+                stringResource(R.string.size_large)
+            ),
             selected = selectedTextSize,
             onSelect = { selectedTextSize = it; showTextSizeDialog = false },
             onDismiss = { showTextSizeDialog = false }
@@ -98,13 +121,13 @@ fun PreferencesScreen(
                         .padding(horizontal = 20.dp, vertical = 24.dp)
                 ) {
                     Text(
-                        text = "Preferencias",
+                        text = stringResource(R.string.screen_title_preferencias),
                         style = MaterialTheme.typography.headlineLarge,
                         color = White,
                         fontWeight = FontWeight.ExtraBold
                     )
                     Text(
-                        text = "Personaliza tu experiencia en Irida",
+                        text = stringResource(R.string.screen_subtitle_preferencias),
                         style = MaterialTheme.typography.bodyMedium,
                         color = GrayMid
                     )
@@ -112,29 +135,29 @@ fun PreferencesScreen(
             }
 
             // Language & Region section
-            item { PreferenceSectionHeader(emoji = "🌐", title = "IDIOMA Y REGIÓN") }
+            item { PreferenceSectionHeader(emoji = "🌐", title = stringResource(R.string.section_idioma_region)) }
             item {
                 PreferenceCard {
                     PreferenceDropdownItem(
                         emoji = "🌍",
-                        title = "Idioma",
-                        subtitle = "Idioma de la interfaz",
+                        title = stringResource(R.string.pref_title_idioma),
+                        subtitle = stringResource(R.string.pref_sub_idioma),
                         value = selectedLanguage,
                         onClick = { showLanguageDialog = true }
                     )
                     PreferenceDivider()
                     PreferenceDropdownItem(
                         emoji = "💱",
-                        title = "Moneda",
-                        subtitle = "Para presupuestos",
+                        title = stringResource(R.string.pref_title_moneda),
+                        subtitle = stringResource(R.string.pref_sub_moneda),
                         value = selectedCurrency,
                         onClick = { showCurrencyDialog = true }
                     )
                     PreferenceDivider()
                     PreferenceDropdownItem(
                         emoji = "📅",
-                        title = "Formato fecha",
-                        subtitle = "Cómo se muestran las fechas",
+                        title = stringResource(R.string.pref_title_formato_fecha),
+                        subtitle = stringResource(R.string.pref_sub_formato_fecha),
                         value = selectedDateFormat,
                         onClick = { showDateFormatDialog = true }
                     )
@@ -142,21 +165,21 @@ fun PreferencesScreen(
             }
 
             // Appearance section
-            item { PreferenceSectionHeader(emoji = "🎨", title = "APARIENCIA") }
+            item { PreferenceSectionHeader(emoji = "🎨", title = stringResource(R.string.section_apariencia)) }
             item {
                 PreferenceCard {
                     PreferenceToggleItem(
                         emoji = "🌙",
-                        title = "Modo oscuro",
-                        subtitle = "Tema de la aplicación",
+                        title = stringResource(R.string.pref_title_modo_oscuro),
+                        subtitle = stringResource(R.string.pref_sub_modo_oscuro),
                         checked = darkModeEnabled,
                         onCheckedChange = { darkModeEnabled = it }
                     )
                     PreferenceDivider()
                     PreferenceDropdownItem(
                         emoji = "🔤",
-                        title = "Tamaño de texto",
-                        subtitle = "Ajuste de accesibilidad",
+                        title = stringResource(R.string.pref_title_tamano_texto),
+                        subtitle = stringResource(R.string.pref_sub_tamano_texto),
                         value = selectedTextSize,
                         onClick = { showTextSizeDialog = true }
                     )
@@ -164,29 +187,29 @@ fun PreferencesScreen(
             }
 
             // Notifications section
-            item { PreferenceSectionHeader(emoji = "🔔", title = "NOTIFICACIONES") }
+            item { PreferenceSectionHeader(emoji = "🔔", title = stringResource(R.string.section_notificaciones)) }
             item {
                 PreferenceCard {
                     PreferenceToggleItem(
                         emoji = "🔔",
-                        title = "Recordatorios de viaje",
-                        subtitle = "Aviso 24h antes del vuelo",
+                        title = stringResource(R.string.pref_title_recordatorios),
+                        subtitle = stringResource(R.string.pref_sub_recordatorios),
                         checked = tripRemindersEnabled,
                         onCheckedChange = { tripRemindersEnabled = it }
                     )
                     PreferenceDivider()
                     PreferenceToggleItem(
                         emoji = "📧",
-                        title = "Resumen semanal",
-                        subtitle = "Email con próximos viajes",
+                        title = stringResource(R.string.pref_title_resumen),
+                        subtitle = stringResource(R.string.pref_sub_resumen),
                         checked = weeklyDigestEnabled,
                         onCheckedChange = { weeklyDigestEnabled = it }
                     )
                     PreferenceDivider()
                     PreferenceToggleItem(
                         emoji = "💡",
-                        title = "Sugerencias IA",
-                        subtitle = "Recomendaciones personalizadas",
+                        title = stringResource(R.string.pref_title_sugerencias),
+                        subtitle = stringResource(R.string.pref_sub_sugerencias),
                         checked = aiSuggestionsEnabled,
                         onCheckedChange = { aiSuggestionsEnabled = it }
                     )
@@ -194,7 +217,7 @@ fun PreferencesScreen(
             }
 
             // About section
-            item { PreferenceSectionHeader(emoji = "ℹ️", title = "ACERCA DE") }
+            item { PreferenceSectionHeader(emoji = "ℹ️", title = stringResource(R.string.section_acerca_de)) }
             item {
                 PreferenceCard {
                     Row(
@@ -212,13 +235,13 @@ fun PreferencesScreen(
                             Text(text = "ℹ️", fontSize = 20.sp)
                             Column {
                                 Text(
-                                    text = "Acerca de Irida",
+                                    text = stringResource(R.string.pref_title_acerca),
                                     style = MaterialTheme.typography.titleMedium,
                                     color = White,
                                     fontWeight = FontWeight.Medium
                                 )
                                 Text(
-                                    text = "Equipo, versión e información",
+                                    text = stringResource(R.string.pref_sub_acerca),
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = GrayMid
                                 )
@@ -244,13 +267,13 @@ fun PreferencesScreen(
                             Text(text = "📄", fontSize = 20.sp)
                             Column {
                                 Text(
-                                    text = "Términos y Condiciones",
+                                    text = stringResource(R.string.pref_title_terminos),
                                     style = MaterialTheme.typography.titleMedium,
                                     color = White,
                                     fontWeight = FontWeight.Medium
                                 )
                                 Text(
-                                    text = "Política de uso de la app",
+                                    text = stringResource(R.string.pref_sub_terminos),
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = GrayMid
                                 )
@@ -389,7 +412,8 @@ fun PreferenceDropdownItem(
         }
         TextButton(onClick = onClick) {
             Text(
-                text = "$value ▾",
+                // Aquí usamos %1$s para insertar la variable de valor en el texto formateado
+                text = stringResource(R.string.dropdown_value, value),
                 style = MaterialTheme.typography.bodyMedium,
                 color = TurquoisePrimary,
                 fontWeight = FontWeight.SemiBold
@@ -441,7 +465,7 @@ fun OptionsDialog(
         },
         confirmButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cerrar", color = TurquoisePrimary)
+                Text(stringResource(R.string.btn_cerrar), color = TurquoisePrimary)
             }
         }
     )

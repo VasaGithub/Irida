@@ -17,12 +17,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.travelplanner.irida.R
 import com.travelplanner.irida.domain.Trip
 import com.travelplanner.irida.ui.theme.*
 import com.travelplanner.irida.ui.viewmodels.TripListUiState
@@ -49,10 +51,10 @@ fun HomeScreen(
         AlertDialog(
             onDismissRequest = { tripToDelete = null },
             containerColor = NavyLight,
-            title = { Text("Eliminar viaje", color = White, fontWeight = FontWeight.Bold) },
+            title = { Text(stringResource(R.string.title_eliminar_viaje), color = White, fontWeight = FontWeight.Bold) },
             text = {
                 Text(
-                    "¿Seguro que quieres eliminar \"${trip.title}\"? Se perderán todas sus actividades.",
+                    text = stringResource(R.string.msg_confirmar_eliminar_viaje, trip.title),
                     color = GrayMid,
                     style = MaterialTheme.typography.bodyMedium
                 )
@@ -65,13 +67,13 @@ fun HomeScreen(
                         tripToDelete = null
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = ErrorRed)
-                ) { Text("Eliminar", color = White) }
+                ) { Text(stringResource(R.string.btn_eliminar), color = White) }
             },
             dismissButton = {
                 OutlinedButton(
                     onClick = { tripToDelete = null },
                     border = androidx.compose.foundation.BorderStroke(1.dp, GrayDark)
-                ) { Text("Cancelar", color = GrayMid) }
+                ) { Text(stringResource(R.string.btn_cancelar), color = GrayMid) }
             }
         )
     }
@@ -111,14 +113,14 @@ fun HomeScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Próximos Viajes",
+                        text = stringResource(R.string.title_proximos_viajes),
                         style = MaterialTheme.typography.titleLarge,
                         color = White,
                         fontWeight = FontWeight.Bold
                     )
                     val count = (uiState as? TripListUiState.Success)?.trips?.size ?: 0
                     Text(
-                        text = "$count viajes",
+                        text = stringResource(R.string.label_cantidad_viajes, count),
                         style = MaterialTheme.typography.bodyMedium,
                         color = TurquoisePrimary
                     )
@@ -180,7 +182,7 @@ fun HomeScreen(
                     ) {
                         Icon(Icons.Default.Add, contentDescription = null)
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Añadir nuevo viaje")
+                        Text(text = stringResource(R.string.btn_add_nuevo_viaje))
                     }
                 }
             }
@@ -206,12 +208,13 @@ fun HomeHeader() {
             ) {
                 Column {
                     Text(
-                        text = "Buenos días, Iker 👋",
+                        // He dejado 'Iker' como parámetro por si en el futuro tenéis perfiles de usuario
+                        text = stringResource(R.string.greeting_user, "Iker"),
                         style = MaterialTheme.typography.bodyMedium,
                         color = GrayMid
                     )
                     Text(
-                        text = "Mis Viajes",
+                        text = stringResource(R.string.title_mis_viajes),
                         style = MaterialTheme.typography.headlineLarge,
                         color = White,
                         fontWeight = FontWeight.ExtraBold
@@ -276,7 +279,12 @@ fun TripCard(
                                 overflow = TextOverflow.Ellipsis
                             )
                             Text(
-                                text = "📅 ${trip.startDate.format(cardDateFormatter)} – ${trip.endDate.format(cardDateFormatter)} · ${trip.getNights()} noches",
+                                text = stringResource(
+                                    R.string.trip_card_dates_nights,
+                                    trip.startDate.format(cardDateFormatter),
+                                    trip.endDate.format(cardDateFormatter),
+                                    trip.getNights()
+                                ),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = GrayMid
                             )
@@ -284,10 +292,10 @@ fun TripCard(
                     }
                     Row {
                         IconButton(onClick = onEditClick, modifier = Modifier.size(36.dp)) {
-                            Icon(Icons.Default.Edit, "Editar", tint = TurquoisePrimary, modifier = Modifier.size(18.dp))
+                            Icon(Icons.Default.Edit, stringResource(R.string.cd_editar), tint = TurquoisePrimary, modifier = Modifier.size(18.dp))
                         }
                         IconButton(onClick = onDeleteClick, modifier = Modifier.size(36.dp)) {
-                            Icon(Icons.Default.Delete, "Eliminar", tint = ErrorRed, modifier = Modifier.size(18.dp))
+                            Icon(Icons.Default.Delete, stringResource(R.string.cd_eliminar), tint = ErrorRed, modifier = Modifier.size(18.dp))
                         }
                     }
                 }
@@ -299,8 +307,17 @@ fun TripCard(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("€${trip.budget.toInt()}", style = MaterialTheme.typography.titleMedium, color = GoldAccent, fontWeight = FontWeight.Bold)
-                        Text("${trip.getBudgetProgressPercent()}%", style = MaterialTheme.typography.bodyMedium, color = TurquoisePrimary)
+                        Text(
+                            text = stringResource(R.string.format_budget, trip.budget.toInt()),
+                            style = MaterialTheme.typography.titleMedium,
+                            color = GoldAccent,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            text = stringResource(R.string.format_percent, trip.getBudgetProgressPercent()),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = TurquoisePrimary
+                        )
                     }
                     Spacer(modifier = Modifier.height(8.dp))
                     LinearProgressIndicator(
@@ -325,9 +342,9 @@ fun TripsEmptyState() {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text("🗺️", fontSize = 56.sp)
             Spacer(modifier = Modifier.height(12.dp))
-            Text("No tienes viajes todavía", style = MaterialTheme.typography.titleMedium, color = White, fontWeight = FontWeight.SemiBold)
+            Text(text = stringResource(R.string.empty_state_title), style = MaterialTheme.typography.titleMedium, color = White, fontWeight = FontWeight.SemiBold)
             Spacer(modifier = Modifier.height(4.dp))
-            Text("Pulsa el botón de abajo para planificar tu primera aventura", style = MaterialTheme.typography.bodyMedium, color = GrayMid)
+            Text(text = stringResource(R.string.empty_state_desc), style = MaterialTheme.typography.bodyMedium, color = GrayMid)
         }
     }
 }
@@ -340,10 +357,10 @@ fun TripsEmptyState() {
 fun BottomNavBar(selectedTab: Int, onTabSelected: (Int) -> Unit) {
     NavigationBar(containerColor = NavyMid, tonalElevation = 0.dp) {
         val items = listOf(
-            Triple("Inicio", Icons.Default.Home, "home"),
-            Triple("Actividades", Icons.Default.DateRange, "activities"),
-            Triple("Galería", Icons.Default.DateRange, "gallery"),
-            Triple("Ajustes", Icons.Default.Settings, "settings")
+            Triple(stringResource(R.string.nav_inicio), Icons.Default.Home, "home"),
+            Triple(stringResource(R.string.nav_actividades), Icons.Default.DateRange, "activities"),
+            Triple(stringResource(R.string.nav_galeria), Icons.Default.DateRange, "gallery"),
+            Triple(stringResource(R.string.nav_ajustes), Icons.Default.Settings, "settings")
         )
         items.forEachIndexed { index, (label, icon, _) ->
             NavigationBarItem(
