@@ -12,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -63,7 +64,7 @@ fun AboutScreen(
 
             // Team section
             item {
-                PreferenceSectionHeader(emoji = "👥", title = "EQUIPO DE DESARROLLO")
+                PreferenceSectionHeader(emoji = "👥", title = stringResource(R.string.equipo_de_desarrollo))
             }
             item {
                 Column(
@@ -80,7 +81,7 @@ fun AboutScreen(
 
             // Technical info section
             item {
-                PreferenceSectionHeader(emoji = "ℹ️", title = "INFORMACIÓN TÉCNICA")
+                PreferenceSectionHeader(emoji = "ℹ️", title = stringResource(R.string.tecnic_info))
             }
             item {
                 PreferenceCard {
@@ -98,7 +99,7 @@ fun AboutScreen(
 
             // License section
             item {
-                PreferenceSectionHeader(emoji = "📄", title = "LICENCIA")
+                PreferenceSectionHeader(emoji = "📄", title = stringResource(R.string.license_title))
             }
             item {
                 Card(
@@ -129,7 +130,7 @@ fun AboutScreen(
             item {
                 Spacer(modifier = Modifier.height(24.dp))
                 Text(
-                    text = "Desarrollado en Campus Igualada.",
+                    text = stringResource(R.string.footer_text),
                     style = MaterialTheme.typography.bodyMedium,
                     color = GrayDark,
                     textAlign = TextAlign.Center
@@ -166,7 +167,7 @@ fun AboutHero() {
             // Logo
             Image(
                 painter = painterResource(id = R.drawable.logo),
-                contentDescription = "Logo Irida",
+                contentDescription = stringResource(R.string.logo_irida),
                 modifier = Modifier.size(90.dp)
             )
 
@@ -202,7 +203,7 @@ fun AboutHero() {
             Spacer(modifier = Modifier.height(4.dp))
 
             Text(
-                text = "Plan your adventures, your way.\nDesarrollado en Campus Igualada.",
+                text = stringResource(R.string.slogan_text),
                 style = MaterialTheme.typography.bodyMedium,
                 color = GrayMid,
                 textAlign = TextAlign.Center

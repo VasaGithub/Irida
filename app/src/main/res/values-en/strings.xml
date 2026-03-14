@@ -1,0 +1,184 @@
+<resources>
+    <string name="app_name">Irida</string>
+    <string name="equipo_de_desarrollo">DEVELOPMENT TEAM</string>
+    <string name="tecnic_info">TECHNICAL INFORMATION</string>
+    <string name="license_title">LICENSE</string>
+    <string name="footer_text">Developed at Campus Igualada.</string>
+    <string name="logo_irida">Irida Logo</string>
+    <string name="slogan_text">Plan your adventures, your way.\nDeveloped at Campus Igualada.</string>
+    <string name="date_picker">Date: %1$s</string>
+    <string name="time_picker">Time: %1$s</string>
+    <string name="header_act">Activities</string>
+    <string name="header_info">Manage your trip activities</string>
+    <string name="act_step_one">STEP 1 · SELECT A TRIP</string>
+    <string name="act_step_two">STEP 2 · ACTIVITY DETAILS</string>
+    <string name="act_range">Trip range: %1$s – %2$s</string>
+    <string name="act_title_ex">Title *</string>
+    <string name="act_extr_ex">Description *</string>
+    <string name="act_text_ex">Ex: Senso-ji Temple visit</string> <string name="act_desc_ex">Activity description</string>
+    <string name="act_upp_good">Activity added successfully</string>
+    <string name="act_safe">Save activity</string>
+    <string name="select_trip">SELECT A TRIP</string>
+    <string name="trip_acts">TRIP ACTIVITIES</string>
+    <string name="trip_acts_act">%1$d activities</string>
+    <string name="trip_act_add">No activities yet. Add your first one!</string>
+    <string name="lenguaje_act">en</string>
+    <string name="trip_create">No trips found. Create your first one from Home.</string>
+    <string name="select_trip_2">Select a trip…</string>
+    <string name="select_time">Select time</string>
+    <string name="trip_form">AddTripScreen: form opened</string>
+    <string name="date_selected">startDate selected: %1$s</string>
+    <string name="date_end_select">endDate selected: %1$s</string>
+    <string name="trip_title">Trip title *</string>
+    <string name="ej_trip_title">Ex: Tokyo Adventure</string>
+    <string name="trip_desc">Description *</string>
+    <string name="trip_desc_desc">Short trip description</string>
+    <string name="trip_dest">Destination</string>
+    <string name="trip_dest_ex">Ex: Tokyo, Japan</string>
+    <string name="trip_date">TRIP DATES</string>
+    <string name="in_date">Start date *</string>
+    <string name="end_date">End date *</string>
+    <string name="trip_emoji">Trip emoji</string>
+    <string name="presupuesto">Budget (€)</string>
+    <string name="btn_guardar_viaje">Save trip</string>
+    <string name="btn_cancelar">Cancel</string>
+    <string name="title_nuevo_viaje">New trip</string>
+    <string name="cd_volver">Back</string> <string name="formato_fecha">MM/dd/yyyy</string> <string name="cd_seleccionar_fecha">Select date</string>
+    <string name="placeholder_presupuesto">0.00</string>
+    <string name="error_viaje_no_encontrado">Trip not found</string>
+    <string name="trip_title_req">Trip title *</string>
+    <string name="trip_desc_req">Description *</string>
+    <string name="in_date_req">Start date *</string>
+    <string name="end_date_req">End date *</string>
+    <string name="presupuesto_euro">Budget (€)</string>
+    <string name="btn_guardar_cambios">Save changes</string>
+    <string name="title_editar_viaje">Edit trip</string>
+
+    <string name="title_eliminar_viaje">Delete trip</string>
+    <string name="msg_confirmar_eliminar_viaje">Are you sure you want to delete \"%1$s\"? All activities will be lost.</string>
+    <string name="btn_eliminar">Delete</string>
+    <string name="title_proximos_viajes">Upcoming Trips</string>
+    <string name="label_cantidad_viajes">%1$d trips</string>
+    <string name="btn_add_nuevo_viaje">Add new trip</string>
+    <string name="greeting_user">Good morning, %1$s 👋</string>
+    <string name="title_mis_viajes">My Trips</string>
+    <string name="trip_card_dates_nights">📅 %1$s – %2$s · %3$d nights</string>
+    <string name="cd_editar">Edit</string>
+    <string name="cd_eliminar">Delete</string>
+    <string name="format_budget">€%1$d</string>
+    <string name="format_percent">%1$d%%</string>
+    <string name="empty_state_title">No trips yet</string>
+    <string name="empty_state_desc">Tap the button below to plan your first adventure</string>
+
+    <string name="nav_inicio">Home</string>
+    <string name="nav_actividades">Activities</string>
+    <string name="nav_galeria">Gallery</string>
+    <string name="nav_ajustes">Settings</string>
+
+    <string name="screen_title_preferencias">Settings</string>
+    <string name="screen_subtitle_preferencias">Customize your Irida experience</string>
+
+    <string name="section_idioma_region">LANGUAGE &amp; REGION</string>
+    <string name="pref_title_idioma">Language</string>
+    <string name="pref_sub_idioma">Interface language</string>
+    <string name="pref_title_moneda">Currency</string>
+    <string name="pref_sub_moneda">For budgets</string>
+    <string name="pref_title_formato_fecha">Date format</string>
+    <string name="pref_sub_formato_fecha">Display format for dates</string>
+
+    <string name="section_apariencia">APPEARANCE</string>
+    <string name="pref_title_modo_oscuro">Dark mode</string>
+    <string name="pref_sub_modo_oscuro">Application theme</string>
+    <string name="pref_title_tamano_texto">Text size</string>
+    <string name="pref_sub_tamano_texto">Accessibility settings</string>
+
+    <string name="section_notificaciones">NOTIFICATIONS</string>
+    <string name="pref_title_recordatorios">Trip reminders</string>
+    <string name="pref_sub_recordatorios">Alert 24h before departure</string>
+    <string name="pref_title_resumen">Weekly digest</string>
+    <string name="pref_sub_resumen">Email with upcoming plans</string>
+    <string name="pref_title_sugerencias">AI Suggestions</string>
+    <string name="pref_sub_sugerencias">Personalized recommendations</string>
+
+    <string name="section_acerca_de">ABOUT</string>
+    <string name="pref_title_acerca">About Irida</string>
+    <string name="pref_sub_acerca">Team, version, and info</string>
+    <string name="pref_title_terminos">Terms &amp; Conditions</string>
+    <string name="pref_sub_terminos">Usage policy</string>
+
+    <string name="lang_es">Spanish</string>
+    <string name="lang_en">English</string>
+    <string name="lang_ca">Catalan</string>
+    <string name="lang_fr">French</string>
+    <string name="lang_de">German</string>
+
+    <string name="curr_eur">EUR (€)</string>
+    <string name="curr_usd">USD ($)</string>
+    <string name="curr_gbp">GBP (£)</string>
+    <string name="curr_jpy">JPY (¥)</string>
+
+    <string name="date_fmt_dmy">DD/MM/YYYY</string>
+    <string name="date_fmt_mdy">MM/DD/YYYY</string>
+    <string name="date_fmt_ymd">YYYY/MM/DD</string>
+
+    <string name="size_small">Small</string>
+    <string name="size_normal">Normal</string>
+    <string name="size_large">Large</string>
+
+    <string name="btn_cerrar">Close</string>
+    <string name="dropdown_value">%1$s ▾</string>
+
+    <string name="cd_logo_irida">Irida Logo</string>
+    <string name="splash_subtitle">Travel Planner</string>
+    <string name="splash_tagline">Plan your adventures, your way</string>
+    <string name="splash_loading">LOADING…</string>
+    <string name="splash_version">v1.0.0 · Sprint 01</string>
+    <string name="splash_footer">Built with ❤️ at Campus Igualada</string>
+
+    <string name="terms_title_1">Acceptance of Terms</string>
+    <string name="terms_content_1">By using Irida Travel Planner, you accept these terms and conditions. If you do not agree with any of these conditions, you must not use the application.</string>
+    <string name="terms_title_2">Privacy and Data</string>
+    <string name="terms_content_2">Irida only collects data necessary for the app to function: username, saved destinations, and itineraries. We do not share your data with third parties without your explicit consent.</string>
+    <string name="terms_title_3">Usage</string>
+    <string name="terms_content_3">Irida is a personal planning tool. The information shown is for guidance only. Always verify details with official providers before making reservations.</string>
+    <string name="terms_title_4">Third-party Services</string>
+    <string name="terms_content_4">The application may integrate external services such as Google Maps or flight APIs. Use of these services is subject to their own privacy policies.</string>
+    <string name="terms_title_5">Modifications</string>
+    <string name="terms_content_5">We reserve the right to modify these terms at any time. Changes will take effect upon publishing the updated version.</string>
+    <string name="terms_title_6">Limitation of Liability</string>
+    <string name="terms_content_6">The development team is not responsible for errors in flight, hotel, or activity information. Always confirm with official providers.</string>
+
+    <string name="dialog_title_rechazar">Decline terms?</string>
+    <string name="dialog_desc_rechazar">If you decline the terms and conditions, you will not be able to use the application.</string>
+    <string name="btn_si_rechazar">Yes, decline</string>
+
+    <string name="title_terminos">Terms &amp; Conditions</string>
+    <string name="subtitle_actualizacion_terminos">Last updated: March 1, 2025</string>
+    <string name="btn_rechazar">Decline</string>
+    <string name="btn_aceptar_continuar">✓ Accept and Continue</string>
+
+    <string name="tab_itinerario">Itinerary</string>
+    <string name="tab_galeria">Gallery</string>
+    <string name="tab_notas">Notes</string>
+    <string name="stat_noches">NIGHTS</string>
+    <string name="stat_actividades">ACTIVITIES</string>
+    <string name="stat_descripcion">DESCRIPTION</string>
+    <string name="empty_activities_title">No activities for this trip</string>
+    <string name="empty_activities_desc">Tap the + button to add your first activity</string>
+    <string name="placeholder_gallery">Gallery available in the Trip Gallery section</string>
+    <string name="placeholder_notes">No notes for this trip yet.</string>
+
+    <string name="filter_todas">All</string>
+    <string name="filter_top">★ Top</string>
+    <string name="filter_videos">Videos</string>
+    <string name="dialog_title_eliminar_foto">Delete photo</string>
+    <string name="dialog_desc_eliminar_foto">Are you sure you want to delete %1$s?</string>
+    <string name="label_elementos_count">%1$d items</string>
+    <string name="sort_by_date">Sort by: Date ▾</string>
+    <string name="mock_title_aventura_tokio">Tokyo Adventure</string>
+    <string name="label_fotos_mb">%1$d photos · %2$d MB</string>
+    <string name="btn_anadir">Add</string>
+    <string name="cd_anadir_foto">Add photo</string>
+    <string name="label_anadir_caps">ADD</string>
+    <string name="badge_top">TOP</string>
+</resources>
