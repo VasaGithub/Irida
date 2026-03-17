@@ -21,9 +21,15 @@ import com.travelplanner.irida.ui.theme.*
 fun PreferencesScreen(
     onNavigate: (String) -> Unit = {}
 ) {
-    // Para simplificar, usamos directamente el texto en el estado,
-    // pero idealmente deberías guardar una clave de preferencia en lugar del texto traducido.
-    var selectedLanguage by remember { mutableStateOf("Español") }
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val prefs = remember { com.travelplanner.irida.data.PreferencesManager(context) }
+    var selectedLanguageCode by remember { mutableStateOf(prefs.selectedLanguageCode) }
+    val selectedLanguageText = when (selectedLanguageCode) {
+        "en" -> stringResource(R.string.lang_en)
+        "ca" -> stringResource(R.string.lang_ca)
+        else -> stringResource(R.string.lang_es)
+    }
+
     var selectedCurrency by remember { mutableStateOf("EUR (€)") }
     var selectedDateFormat by remember { mutableStateOf("DD/MM/AAAA") }
     var darkModeEnabled by remember { mutableStateOf(true) }
@@ -38,20 +44,29 @@ fun PreferencesScreen(
     var showTextSizeDialog by remember { mutableStateOf(false) }
 
     if (showLanguageDialog) {
+        val optionsMap = mapOf(
+            stringResource(R.string.lang_es) to "es",
+            stringResource(R.string.lang_en) to "en",
+            stringResource(R.string.lang_ca) to "ca"
+        )
+
         OptionsDialog(
             title = stringResource(R.string.pref_title_idioma),
-            options = listOf(
-                stringResource(R.string.lang_es),
-                stringResource(R.string.lang_en),
-                stringResource(R.string.lang_ca),
-                stringResource(R.string.lang_fr),
-                stringResource(R.string.lang_de)
-            ),
-            selected = selectedLanguage,
-            onSelect = { selectedLanguage = it; showLanguageDialog = false },
+            options = optionsMap.keys.toList(),
+            selected = selectedLanguageText, // La variable visual actual ("Español", "English"...)
+            onSelect = { selectedText ->
+                val code = optionsMap[selectedText] ?: "es"
+
+                // Al asignar el código, el PreferencesManager llama automáticamente a LanguageChangeUtil
+                prefs.selectedLanguageCode = code
+                selectedLanguageCode = code
+
+                showLanguageDialog = false
+            },
             onDismiss = { showLanguageDialog = false }
         )
     }
+
     if (showCurrencyDialog) {
         OptionsDialog(
             title = stringResource(R.string.pref_title_moneda),
@@ -142,7 +157,7 @@ fun PreferencesScreen(
                         emoji = "🌍",
                         title = stringResource(R.string.pref_title_idioma),
                         subtitle = stringResource(R.string.pref_sub_idioma),
-                        value = selectedLanguage,
+                        value = selectedLanguageText,
                         onClick = { showLanguageDialog = true }
                     )
                     PreferenceDivider()
