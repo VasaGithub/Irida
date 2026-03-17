@@ -15,6 +15,7 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -25,6 +26,7 @@ import kotlinx.coroutines.delay
 import androidx.compose.foundation.Image
 import androidx.compose.ui.res.painterResource
 import com.travelplanner.irida.R
+
 @Composable
 fun SplashScreen(onSplashFinished: () -> Unit = {}) {
 
@@ -117,7 +119,7 @@ fun SplashScreen(onSplashFinished: () -> Unit = {}) {
             // Logo placeholder
             Image(
                 painter = painterResource(id = R.drawable.logo),
-                contentDescription = "Logo Irida",
+                contentDescription = stringResource(R.string.cd_logo_irida),
                 modifier = Modifier
                     .size(110.dp)
                     .scale(logoScale.value)
@@ -127,7 +129,7 @@ fun SplashScreen(onSplashFinished: () -> Unit = {}) {
 
             // App name
             Text(
-                text = "Irida",
+                text = stringResource(R.string.app_name),
                 style = MaterialTheme.typography.displayLarge.copy(
                     fontWeight = FontWeight.ExtraBold,
                     letterSpacing = 2.sp
@@ -140,7 +142,7 @@ fun SplashScreen(onSplashFinished: () -> Unit = {}) {
 
             // Tagline
             Text(
-                text = "Travel Planner",
+                text = stringResource(R.string.splash_subtitle),
                 style = MaterialTheme.typography.titleMedium,
                 color = TurquoisePrimary.copy(alpha = subtitleAlpha.value),
                 letterSpacing = 4.sp,
@@ -150,7 +152,7 @@ fun SplashScreen(onSplashFinished: () -> Unit = {}) {
             Spacer(modifier = Modifier.height(12.dp))
 
             Text(
-                text = "Plan your adventures, your way",
+                text = stringResource(R.string.splash_tagline),
                 style = MaterialTheme.typography.bodyMedium,
                 color = GrayMid.copy(alpha = subtitleAlpha.value),
                 textAlign = TextAlign.Center
@@ -173,7 +175,7 @@ fun SplashScreen(onSplashFinished: () -> Unit = {}) {
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "LOADING...",
+                text = stringResource(R.string.splash_loading),
                 style = MaterialTheme.typography.labelSmall,
                 color = GrayMid.copy(alpha = subtitleAlpha.value),
                 letterSpacing = 3.sp
@@ -188,14 +190,14 @@ fun SplashScreen(onSplashFinished: () -> Unit = {}) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "v1.0.0 · Sprint 01",
+                text = stringResource(R.string.splash_version),
                 style = MaterialTheme.typography.labelSmall,
                 color = GrayDark,
                 letterSpacing = 1.sp
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = "Built with ❤️ at Campus Igualada",
+                text = stringResource(R.string.splash_footer),
                 style = MaterialTheme.typography.labelSmall,
                 color = GrayDark
             )

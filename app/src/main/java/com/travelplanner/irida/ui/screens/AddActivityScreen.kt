@@ -18,11 +18,13 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.travelplanner.irida.R
 import com.travelplanner.irida.domain.Activity
 import com.travelplanner.irida.domain.Trip
 import com.travelplanner.irida.ui.theme.*
@@ -88,7 +90,7 @@ fun AddActivityScreen(
             context,
             { _, year, month, day ->
                 date = LocalDate.of(year, month + 1, day)
-                Log.d(ADD_ACT_TAG, "Fecha: $date")
+                Log.d(ADD_ACT_TAG, context.getString(R.string.date_picker, date))
             },
             trip.startDate.year,
             trip.startDate.monthValue - 1,
@@ -105,7 +107,7 @@ fun AddActivityScreen(
 
     val timePicker = TimePickerDialog(context, { _, h, m ->
         time = LocalTime.of(h, m)
-        Log.d(ADD_ACT_TAG, "Hora: $time")
+        Log.d(ADD_ACT_TAG, context.getString(R.string.time_picker, time))
     }, 9, 0, true)
 
     Scaffold(
@@ -128,9 +130,11 @@ fun AddActivityScreen(
                 .padding(paddingValues)
         ) {
             // Header
-            Column(modifier = Modifier.padding(horizontal = 20.dp).padding(top = 24.dp, bottom = 16.dp)) {
-                Text("Actividades", style = MaterialTheme.typography.headlineMedium, color = White, fontWeight = FontWeight.ExtraBold)
-                Text("Gestiona las actividades de tus viajes", style = MaterialTheme.typography.bodyMedium, color = GrayMid)
+            Column(modifier = Modifier
+                .padding(horizontal = 20.dp)
+                .padding(top = 24.dp, bottom = 16.dp)) {
+                Text(stringResource(R.string.header_act), style = MaterialTheme.typography.headlineMedium, color = White, fontWeight = FontWeight.ExtraBold)
+                Text(stringResource(R.string.header_info), style = MaterialTheme.typography.bodyMedium, color = GrayMid)
             }
 
             // Tab selector
@@ -205,7 +209,10 @@ private fun ActTabRow(selectedTab: ActivityTab, onTabSelected: (ActivityTab) -> 
             Box(
                 modifier = Modifier
                     .weight(1f)
-                    .background(if (isSelected) TurquoisePrimary else NavyLight, RoundedCornerShape(12.dp))
+                    .background(
+                        if (isSelected) TurquoisePrimary else NavyLight,
+                        RoundedCornerShape(12.dp)
+                    )
                     .clickable { onTabSelected(tab) }
                     .padding(vertical = 10.dp),
                 contentAlignment = Alignment.Center
@@ -242,11 +249,13 @@ private fun AddTabContent(
     onSave: () -> Unit
 ) {
     LazyColumn(
-        modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 20.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
         contentPadding = PaddingValues(vertical = 16.dp)
     ) {
-        item { ActLabel("PASO 1 · SELECCIONA UN VIAJE") }
+        item { ActLabel(stringResource(R.string.act_step_one)) }
         item {
             if (trips.isEmpty()) ActEmptyTrips()
             else ActDropdown(trips, selectedTrip, dropdownExpanded, onExpandedChange, onTripSelected)
@@ -256,23 +265,31 @@ private fun AddTabContent(
             AnimatedVisibility(visible = selectedTrip != null, enter = fadeIn() + expandVertically(), exit = fadeOut() + shrinkVertically()) {
                 Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                     Spacer(Modifier.height(4.dp))
-                    ActLabel("PASO 2 · DATOS DE LA ACTIVIDAD")
+                    ActLabel(stringResource(R.string.act_step_two))
 
                     // Rango del viaje
                     selectedTrip?.let { trip ->
                         Card(shape = RoundedCornerShape(12.dp), colors = CardDefaults.cardColors(containerColor = TurquoisePrimary.copy(alpha = 0.1f))) {
-                            Row(Modifier.fillMaxWidth().padding(12.dp), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                            Row(Modifier
+                                .fillMaxWidth()
+                                .padding(12.dp), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
                                 Text("📅", fontSize = 16.sp)
                                 Text(
-                                    "Rango del viaje: ${trip.startDate.format(actDateFormatter)} – ${trip.endDate.format(actDateFormatter)}",
+                                    stringResource(
+                                        R.string.act_range,
+                                        trip.startDate.format(actDateFormatter),
+                                        trip.endDate.format(actDateFormatter)
+                                    ),
                                     style = MaterialTheme.typography.bodySmall, color = TurquoisePrimary
                                 )
                             }
                         }
                     }
 
-                    ActField("Título *", title, onTitleChange, "Ej: Visita al Templo Senso-ji", valErrors["title"])
-                    ActField("Descripción *", description, onDescChange, "Describe la actividad", valErrors["description"], singleLine = false, minLines = 3)
+                    ActField(stringResource(R.string.act_title_ex), title, onTitleChange,
+                        stringResource(R.string.act_text_ex), valErrors["title"])
+                    ActField(stringResource(R.string.act_extr_ex), description, onDescChange,
+                        stringResource(R.string.act_desc_ex), valErrors["description"], singleLine = false, minLines = 3)
 
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         ActDateField(Modifier.weight(1f), "Fecha *", date, valErrors["date"], onDateClick)
@@ -281,20 +298,24 @@ private fun AddTabContent(
 
                     AnimatedVisibility(visible = showSuccess) {
                         Card(shape = RoundedCornerShape(12.dp), colors = CardDefaults.cardColors(containerColor = SuccessGreen.copy(alpha = 0.15f))) {
-                            Row(Modifier.fillMaxWidth().padding(12.dp), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                            Row(Modifier
+                                .fillMaxWidth()
+                                .padding(12.dp), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
                                 Text("✅", fontSize = 16.sp)
-                                Text("Actividad añadida correctamente", style = MaterialTheme.typography.bodyMedium, color = SuccessGreen)
+                                Text(stringResource(R.string.act_upp_good), style = MaterialTheme.typography.bodyMedium, color = SuccessGreen)
                             }
                         }
                     }
 
                     Button(
                         onClick = onSave,
-                        modifier = Modifier.fillMaxWidth().height(52.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(52.dp),
                         shape = RoundedCornerShape(16.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = TurquoisePrimary, contentColor = NavyDeep)
                     ) {
-                        Text("Guardar actividad", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        Text(stringResource(R.string.act_safe), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                     }
                 }
             }
@@ -314,11 +335,13 @@ private fun ViewTabContent(
     detailState: TripDetailUiState
 ) {
     LazyColumn(
-        modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 20.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
         contentPadding = PaddingValues(vertical = 16.dp)
     ) {
-        item { ActLabel("SELECCIONA UN VIAJE") }
+        item { ActLabel(stringResource(R.string.select_trip)) }
         item {
             if (trips.isEmpty()) ActEmptyTrips()
             else ActDropdown(trips, selectedTrip, dropdownExpanded, onExpandedChange, onTripSelected)
@@ -327,16 +350,18 @@ private fun ViewTabContent(
         if (selectedTrip != null) {
             item {
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                    ActLabel("ACTIVIDADES DEL VIAJE")
+                    ActLabel(stringResource(R.string.trip_acts))
                     // Contador de actividades cuando el estado es Success
                     val count = (detailState as? TripDetailUiState.Success)?.activities?.size ?: 0
-                    if (count > 0) Text("$count actividades", style = MaterialTheme.typography.labelSmall, color = GrayMid)
+                    if (count > 0) Text(stringResource(R.string.trip_acts_act, count), style = MaterialTheme.typography.labelSmall, color = GrayMid)
                 }
             }
 
             when (detailState) {
                 is TripDetailUiState.Loading -> item {
-                    Box(Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
+                    Box(Modifier
+                        .fillMaxWidth()
+                        .padding(32.dp), contentAlignment = Alignment.Center) {
                         CircularProgressIndicator(color = TurquoisePrimary)
                     }
                 }
@@ -346,9 +371,11 @@ private fun ViewTabContent(
                     if (activities.isEmpty()) {
                         item {
                             Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = NavyLight)) {
-                                Row(Modifier.fillMaxWidth().padding(16.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                                Row(Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                                     Text("🗓️", fontSize = 24.sp)
-                                    Text("Este viaje aún no tiene actividades. ¡Añade la primera!", style = MaterialTheme.typography.bodyMedium, color = GrayMid)
+                                    Text(stringResource(R.string.trip_act_add), style = MaterialTheme.typography.bodyMedium, color = GrayMid)
                                 }
                             }
                         }
@@ -361,7 +388,9 @@ private fun ViewTabContent(
 
                 is TripDetailUiState.Error -> item {
                     Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = ErrorRed.copy(alpha = 0.1f))) {
-                        Row(Modifier.fillMaxWidth().padding(16.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        Row(Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                             Text("⚠️", fontSize = 20.sp)
                             Text(detailState.message, style = MaterialTheme.typography.bodyMedium, color = ErrorRed)
                         }
@@ -383,10 +412,14 @@ private fun ActActivityCard(activity: Activity) {
         colors = CardDefaults.cardColors(containerColor = NavyLight),
         modifier = Modifier.fillMaxWidth()
     ) {
-        Row(Modifier.fillMaxWidth().padding(16.dp), horizontalArrangement = Arrangement.spacedBy(14.dp), verticalAlignment = Alignment.Top) {
+        Row(Modifier
+            .fillMaxWidth()
+            .padding(16.dp), horizontalArrangement = Arrangement.spacedBy(14.dp), verticalAlignment = Alignment.Top) {
             // Badge fecha + hora
             Box(
-                modifier = Modifier.background(TurquoisePrimary.copy(alpha = 0.15f), RoundedCornerShape(10.dp)).padding(horizontal = 8.dp, vertical = 10.dp),
+                modifier = Modifier
+                    .background(TurquoisePrimary.copy(alpha = 0.15f), RoundedCornerShape(10.dp))
+                    .padding(horizontal = 8.dp, vertical = 10.dp),
                 contentAlignment = Alignment.Center
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -397,7 +430,9 @@ private fun ActActivityCard(activity: Activity) {
                         color = TurquoisePrimary
                     )
                     Text(
-                        text = activity.date.format(DateTimeFormatter.ofPattern("MMM", java.util.Locale("es"))).uppercase(),
+                        text = activity.date.format(DateTimeFormatter.ofPattern("MMM", java.util.Locale(
+                            stringResource(R.string.lenguaje_act)
+                        ))).uppercase(),
                         style = MaterialTheme.typography.labelSmall,
                         color = TurquoisePrimary
                     )
@@ -430,9 +465,11 @@ private fun ActLabel(text: String) {
 @Composable
 private fun ActEmptyTrips() {
     Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = NavyLight)) {
-        Row(Modifier.fillMaxWidth().padding(16.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        Row(Modifier
+            .fillMaxWidth()
+            .padding(16.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             Text("🗺️", fontSize = 24.sp)
-            Text("No tienes viajes. Crea uno primero desde Inicio.", style = MaterialTheme.typography.bodyMedium, color = GrayMid)
+            Text(stringResource(R.string.trip_create), style = MaterialTheme.typography.bodyMedium, color = GrayMid)
         }
     }
 }
@@ -467,7 +504,11 @@ private fun ActField(
 private fun ActDateField(modifier: Modifier, label: String, date: LocalDate?, error: String?, onClick: () -> Unit) {
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(6.dp)) {
         Text(label, style = MaterialTheme.typography.bodyMedium, color = if (error != null) ErrorRed else GrayMid, fontWeight = FontWeight.Medium)
-        Box(modifier = Modifier.fillMaxWidth().background(NavyLight, RoundedCornerShape(12.dp)).clickable { onClick() }.padding(horizontal = 16.dp, vertical = 14.dp)) {
+        Box(modifier = Modifier
+            .fillMaxWidth()
+            .background(NavyLight, RoundedCornerShape(12.dp))
+            .clickable { onClick() }
+            .padding(horizontal = 16.dp, vertical = 14.dp)) {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                 Text(date?.format(actDateFormatter) ?: "dd/MM/yyyy", color = if (date != null) White else GrayDark, style = MaterialTheme.typography.bodyMedium)
                 Icon(Icons.Default.DateRange, null, tint = if (error != null) ErrorRed else TurquoisePrimary, modifier = Modifier.size(20.dp))
@@ -486,9 +527,11 @@ private fun ActDropdown(
 ) {
     ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = onExpandedChange) {
         OutlinedTextField(
-            value = selectedTrip?.let { "${it.emoji} ${it.title}" } ?: "Selecciona un viaje...",
+            value = selectedTrip?.let { "${it.emoji} ${it.title}" } ?: stringResource(R.string.select_trip_2),
             onValueChange = {}, readOnly = true,
-            modifier = Modifier.fillMaxWidth().menuAnchor(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .menuAnchor(),
             trailingIcon = { Icon(Icons.Default.ArrowDropDown, null, tint = TurquoisePrimary) },
             colors = OutlinedTextFieldDefaults.colors(
                 focusedTextColor = White, unfocusedTextColor = if (selectedTrip != null) White else GrayDark,
@@ -525,10 +568,15 @@ private fun ActDropdown(
 fun TimePickerField(modifier: Modifier = Modifier, label: String, time: LocalTime?, error: String? = null, onClick: () -> Unit) {
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(6.dp)) {
         Text(label, style = MaterialTheme.typography.bodyMedium, color = if (error != null) ErrorRed else GrayMid, fontWeight = FontWeight.Medium)
-        Box(modifier = Modifier.fillMaxWidth().background(NavyLight, RoundedCornerShape(12.dp)).clickable { onClick() }.padding(horizontal = 16.dp, vertical = 14.dp)) {
+        Box(modifier = Modifier
+            .fillMaxWidth()
+            .background(NavyLight, RoundedCornerShape(12.dp))
+            .clickable { onClick() }
+            .padding(horizontal = 16.dp, vertical = 14.dp)) {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                 Text(time?.format(actTimeFormatter) ?: "HH:mm", color = if (time != null) White else GrayDark, style = MaterialTheme.typography.bodyMedium)
-                Icon(Icons.Default.DateRange, "Seleccionar hora", tint = if (error != null) ErrorRed else TurquoisePrimary, modifier = Modifier.size(20.dp))
+                Icon(Icons.Default.DateRange,
+                    stringResource(R.string.select_time), tint = if (error != null) ErrorRed else TurquoisePrimary, modifier = Modifier.size(20.dp))
             }
         }
         if (error != null) Text(error, style = MaterialTheme.typography.bodySmall, color = ErrorRed)

@@ -21,24 +21,32 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.travelplanner.irida.R
 import com.travelplanner.irida.ui.theme.*
 import com.travelplanner.irida.data.mocks.mockGalleryImages
 import com.travelplanner.irida.domain.GalleryImage
+
 @Composable
 fun TripGalleryScreen(
     onNavigate: (String) -> Unit = {}
 ) {
-    var selectedFilter by remember { mutableStateOf("Todas") }
+    // Usamos los strings traducidos para el estado inicial y las opciones de filtro
+    val filterAll = stringResource(R.string.filter_todas)
+    val filterTop = stringResource(R.string.filter_top)
+    val filterVideos = stringResource(R.string.filter_videos)
+
+    var selectedFilter by remember { mutableStateOf(filterAll) }
     var images by remember { mutableStateOf(mockGalleryImages) }
     var imageToDelete by remember { mutableStateOf<GalleryImage?>(null) }
-    val filters = listOf("Todas", "★ Top", "Vídeos")
+    val filters = listOf(filterAll, filterTop, filterVideos)
 
     val filteredImages = when (selectedFilter) {
-        "★ Top" -> images.filter { it.isTop }
+        filterTop -> images.filter { it.isTop }
         else -> images
     }
 
@@ -47,11 +55,11 @@ fun TripGalleryScreen(
             onDismissRequest = { imageToDelete = null },
             containerColor = NavyLight,
             title = {
-                Text("Eliminar foto", color = White, fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.dialog_title_eliminar_foto), color = White, fontWeight = FontWeight.Bold)
             },
             text = {
                 Text(
-                    "¿Seguro que quieres eliminar ${image.label}?",
+                    stringResource(R.string.dialog_desc_eliminar_foto, image.label),
                     color = GrayMid
                 )
             },
@@ -63,7 +71,7 @@ fun TripGalleryScreen(
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = ErrorRed)
                 ) {
-                    Text("Eliminar", color = White)
+                    Text(stringResource(R.string.btn_eliminar), color = White)
                 }
             },
             dismissButton = {
@@ -71,7 +79,7 @@ fun TripGalleryScreen(
                     onClick = { imageToDelete = null },
                     border = androidx.compose.foundation.BorderStroke(1.dp, GrayDark)
                 ) {
-                    Text("Cancelar", color = GrayMid)
+                    Text(stringResource(R.string.btn_cancelar), color = GrayMid)
                 }
             }
         )
@@ -139,13 +147,13 @@ fun TripGalleryScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "${filteredImages.size} elementos",
+                    text = stringResource(R.string.label_elementos_count, filteredImages.size),
                     style = MaterialTheme.typography.bodyMedium,
                     color = GrayMid
                 )
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        text = "Ordenar: Fecha ▾",
+                        text = stringResource(R.string.sort_by_date),
                         style = MaterialTheme.typography.bodyMedium,
                         color = TurquoisePrimary
                     )
@@ -193,13 +201,14 @@ fun GalleryHeader(imageCount: Int) {
     ) {
         Column {
             Text(
-                text = "Aventura en Tokio",
+                // Esto probablemente vendrá del ViewModel en el futuro, por ahora lo dejamos traducido
+                text = stringResource(R.string.mock_title_aventura_tokio),
                 style = MaterialTheme.typography.headlineMedium,
                 color = White,
                 fontWeight = FontWeight.ExtraBold
             )
             Text(
-                text = "$imageCount fotos · 234 MB",
+                text = stringResource(R.string.label_fotos_mb, imageCount, 234), // 234 MB hardcoded por ahora
                 style = MaterialTheme.typography.bodyMedium,
                 color = GrayMid
             )
@@ -215,7 +224,7 @@ fun GalleryHeader(imageCount: Int) {
         ) {
             Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(16.dp))
             Spacer(modifier = Modifier.width(4.dp))
-            Text("Añadir", fontWeight = FontWeight.Bold)
+            Text(stringResource(R.string.btn_anadir), fontWeight = FontWeight.Bold)
         }
     }
 }
@@ -234,13 +243,13 @@ fun AddImageCell(onClick: () -> Unit) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Icon(
                 imageVector = Icons.Default.Add,
-                contentDescription = "Añadir foto",
+                contentDescription = stringResource(R.string.cd_anadir_foto),
                 tint = TurquoisePrimary,
                 modifier = Modifier.size(28.dp)
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = "AÑADIR",
+                text = stringResource(R.string.label_anadir_caps),
                 style = MaterialTheme.typography.labelSmall,
                 color = TurquoisePrimary,
                 letterSpacing = 1.sp
@@ -286,7 +295,7 @@ fun ImageCell(image: GalleryImage, onDelete: () -> Unit) {
                     )
                     Spacer(modifier = Modifier.width(2.dp))
                     Text(
-                        text = "TOP",
+                        text = stringResource(R.string.badge_top),
                         style = MaterialTheme.typography.labelSmall,
                         color = NavyDeep,
                         fontSize = 8.sp,
@@ -308,7 +317,7 @@ fun ImageCell(image: GalleryImage, onDelete: () -> Unit) {
         ) {
             Icon(
                 imageVector = Icons.Default.Close,
-                contentDescription = "Eliminar",
+                contentDescription = stringResource(R.string.cd_eliminar),
                 tint = White,
                 modifier = Modifier.size(12.dp)
             )

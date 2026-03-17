@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -14,11 +15,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.travelplanner.irida.R
 import com.travelplanner.irida.domain.Activity
 import com.travelplanner.irida.domain.Trip
 import com.travelplanner.irida.ui.theme.*
@@ -44,7 +47,13 @@ fun TripDetailScreen(
 
     val uiState by viewModel.uiState.collectAsState()
     var selectedTab by remember { mutableIntStateOf(0) }
-    val tabs = listOf("Itinerario", "Galería", "Notas")
+
+    // Nombres de las pestañas traducidos
+    val tabs = listOf(
+        stringResource(R.string.tab_itinerario),
+        stringResource(R.string.tab_galeria),
+        stringResource(R.string.tab_notas)
+    )
 
     Scaffold(
         containerColor = NavyDeep,
@@ -131,10 +140,11 @@ fun TripDetailScreen(
                                 val grouped = state.activities.groupBy { it.date }
                                 grouped.forEach { (date, activitiesOfDay) ->
                                     item {
+                                        // Locale.getDefault() adapta el nombre del día ("Lun", "Mon", "Dl") al idioma del móvil
                                         DayHeader(
                                             day = date.format(
                                                 DateTimeFormatter.ofPattern("EEE dd MMM")
-                                                    .withLocale(java.util.Locale("es"))
+                                                    .withLocale(java.util.Locale.getDefault())
                                             )
                                         )
                                     }
@@ -169,7 +179,7 @@ fun TripDetailHeader(trip: Trip, onBack: () -> Unit) {
             onClick = onBack,
             modifier = Modifier.padding(8.dp).align(Alignment.TopStart)
         ) {
-            Icon(Icons.Default.ArrowBack, contentDescription = "Volver", tint = White)
+            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.cd_volver), tint = White)
         }
 
         Column(
@@ -185,7 +195,13 @@ fun TripDetailHeader(trip: Trip, onBack: () -> Unit) {
                 fontWeight = FontWeight.ExtraBold
             )
             Text(
-                text = "📅 ${trip.startDate.format(dateFormatter)} – ${trip.endDate.format(dateFormatter)} · ${trip.getNights()} noches",
+                // Reutilizamos la etiqueta que creamos en HomeScreen
+                text = stringResource(
+                    R.string.trip_card_dates_nights,
+                    trip.startDate.format(dateFormatter),
+                    trip.endDate.format(dateFormatter),
+                    trip.getNights()
+                ),
                 style = MaterialTheme.typography.bodyMedium,
                 color = GrayMid
             )
@@ -199,13 +215,13 @@ fun TripStatsRow(trip: Trip) {
         modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 16.dp),
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
-        StatItem(value = "${trip.getNights()}", label = "NOCHES", emoji = "🌙")
+        StatItem(value = "${trip.getNights()}", label = stringResource(R.string.stat_noches), emoji = "🌙")
         StatDivider()
-        StatItem(value = "${trip.activities.size}", label = "ACTIVIDADES", emoji = "📍")
+        StatItem(value = "${trip.activities.size}", label = stringResource(R.string.stat_actividades), emoji = "📍")
         StatDivider()
         StatItem(
             value = if (trip.description.length > 12) trip.description.take(12) + "…" else trip.description,
-            label = "DESCRIPCIÓN",
+            label = stringResource(R.string.stat_descripcion),
             emoji = "📝"
         )
     }
@@ -276,8 +292,8 @@ fun ActivityEmptyState() {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text("🗺️", fontSize = 48.sp)
             Spacer(modifier = Modifier.height(8.dp))
-            Text("No hay actividades para este viaje.", style = MaterialTheme.typography.bodyMedium, color = GrayMid)
-            Text("Añade la primera actividad con el botón +", style = MaterialTheme.typography.bodySmall, color = GrayDark)
+            Text(text = stringResource(R.string.empty_activities_title), style = MaterialTheme.typography.bodyMedium, color = GrayMid)
+            Text(text = stringResource(R.string.empty_activities_desc), style = MaterialTheme.typography.bodySmall, color = GrayDark)
         }
     }
 }
@@ -288,7 +304,7 @@ fun GalleryTabPlaceholder() {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text("🖼️", fontSize = 48.sp)
             Spacer(modifier = Modifier.height(8.dp))
-            Text("Galería disponible en la pantalla Galería de viaje", style = MaterialTheme.typography.bodyMedium, color = GrayMid)
+            Text(text = stringResource(R.string.placeholder_gallery), style = MaterialTheme.typography.bodyMedium, color = GrayMid)
         }
     }
 }
@@ -299,7 +315,7 @@ fun NotesTabPlaceholder() {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text("📝", fontSize = 48.sp)
             Spacer(modifier = Modifier.height(8.dp))
-            Text("Aún no hay notas para este viaje.", style = MaterialTheme.typography.bodyMedium, color = GrayMid)
+            Text(text = stringResource(R.string.placeholder_notes), style = MaterialTheme.typography.bodyMedium, color = GrayMid)
         }
     }
 }

@@ -7,15 +7,18 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.travelplanner.irida.R
 import com.travelplanner.irida.ui.theme.*
 import com.travelplanner.irida.ui.viewmodels.TripListViewModel
 import com.travelplanner.irida.ui.viewmodels.TripListUiState
@@ -85,7 +88,7 @@ fun EditTripScreen(
                 .background(NavyDeep),
             contentAlignment = androidx.compose.ui.Alignment.Center
         ) {
-            Text("Viaje no encontrado", color = ErrorRed)
+            Text(text = stringResource(R.string.error_viaje_no_encontrado), color = ErrorRed)
         }
         return
     }
@@ -107,20 +110,20 @@ fun EditTripScreen(
         ) {
             item {
                 TripFormField(
-                    label = "Título del viaje *",
+                    label = stringResource(R.string.trip_title_req),
                     value = title,
                     onValueChange = { title = it },
-                    placeholder = "Ej: Aventura en Tokio",
+                    placeholder = stringResource(R.string.ej_trip_title),
                     error = validationErrors["title"]
                 )
             }
 
             item {
                 TripFormField(
-                    label = "Descripción *",
+                    label = stringResource(R.string.trip_desc_req),
                     value = description,
                     onValueChange = { description = it },
-                    placeholder = "Describe brevemente el viaje",
+                    placeholder = stringResource(R.string.trip_desc_desc),
                     error = validationErrors["description"],
                     singleLine = false,
                     minLines = 3
@@ -129,14 +132,14 @@ fun EditTripScreen(
 
             item {
                 TripFormField(
-                    label = "Destino",
+                    label = stringResource(R.string.trip_dest),
                     value = destination,
                     onValueChange = { destination = it },
-                    placeholder = "Ej: Tokio, Japón"
+                    placeholder = stringResource(R.string.trip_dest_ex)
                 )
             }
 
-            item { FormSectionLabel(text = "FECHAS DEL VIAJE") }
+            item { FormSectionLabel(text = stringResource(R.string.trip_date)) }
 
             item {
                 Row(
@@ -145,14 +148,14 @@ fun EditTripScreen(
                 ) {
                     DatePickerField(
                         modifier = Modifier.weight(1f),
-                        label = "Fecha inicio *",
+                        label = stringResource(R.string.in_date_req),
                         date = startDate,
                         error = validationErrors["startDate"],
                         onClick = { startDatePicker.show() }
                     )
                     DatePickerField(
                         modifier = Modifier.weight(1f),
-                        label = "Fecha fin *",
+                        label = stringResource(R.string.end_date_req),
                         date = endDate,
                         error = validationErrors["endDate"],
                         onClick = { endDatePicker.show() }
@@ -162,7 +165,7 @@ fun EditTripScreen(
 
             item {
                 TripFormField(
-                    label = "Emoji del viaje",
+                    label = stringResource(R.string.trip_emoji),
                     value = emoji,
                     onValueChange = { if (it.length <= 2) emoji = it },
                     placeholder = "✈️"
@@ -171,10 +174,10 @@ fun EditTripScreen(
 
             item {
                 TripFormField(
-                    label = "Presupuesto (€)",
+                    label = stringResource(R.string.presupuesto_euro),
                     value = budgetText,
                     onValueChange = { if (it.all { c -> c.isDigit() || c == '.' }) budgetText = it },
-                    placeholder = "0.00",
+                    placeholder = stringResource(R.string.placeholder_presupuesto),
                     keyboardType = androidx.compose.ui.text.input.KeyboardType.Decimal
                 )
             }
@@ -210,7 +213,7 @@ fun EditTripScreen(
                     )
                 ) {
                     Text(
-                        text = "Guardar cambios",
+                        text = stringResource(R.string.btn_guardar_cambios),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold
                     )
@@ -226,7 +229,7 @@ fun EditTripScreen(
                     border = androidx.compose.foundation.BorderStroke(1.dp, GrayDark),
                     colors = ButtonDefaults.outlinedButtonColors(contentColor = GrayMid)
                 ) {
-                    Text("Cancelar")
+                    Text(text = stringResource(R.string.btn_cancelar))
                 }
             }
         }
@@ -239,7 +242,7 @@ fun EditTripTopBar(onNavigateBack: () -> Unit) {
     TopAppBar(
         title = {
             Text(
-                text = "Editar viaje",
+                text = stringResource(R.string.title_editar_viaje),
                 color = White,
                 fontWeight = FontWeight.Bold
             )
@@ -247,8 +250,8 @@ fun EditTripTopBar(onNavigateBack: () -> Unit) {
         navigationIcon = {
             IconButton(onClick = onNavigateBack) {
                 Icon(
-                    imageVector = Icons.Default.ArrowBack,
-                    contentDescription = "Volver",
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = stringResource(R.string.cd_volver),
                     tint = White
                 )
             }
