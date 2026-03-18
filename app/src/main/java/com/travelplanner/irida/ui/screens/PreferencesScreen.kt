@@ -14,15 +14,27 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.travelplanner.irida.R
+import com.travelplanner.irida.data.PreferencesManager
 import com.travelplanner.irida.ui.theme.*
+import com.travelplanner.irida.ui.viewmodels.SettingsViewModel
+import com.travelplanner.irida.ui.viewmodels.SettingsViewModelFactory
 
 @Composable
 fun PreferencesScreen(
     onNavigate: (String) -> Unit = {}
 ) {
     val context = androidx.compose.ui.platform.LocalContext.current
-    val prefs = remember { com.travelplanner.irida.data.PreferencesManager(context) }
+
+    // 1. Inicializamos el PreferencesManager y el ViewModel usando el Factory
+    val prefs = remember { PreferencesManager(context) }
+    val settingsViewModel: SettingsViewModel = viewModel(
+        factory = SettingsViewModelFactory(prefs)
+    )
+
+    // 2. Observamos los estados desde el ViewModel
+    // IDIOMA (Mantenemos la lógica directa con prefs porque usa LanguageChangeUtil internamente)
     var selectedLanguageCode by remember { mutableStateOf(prefs.selectedLanguageCode) }
     val selectedLanguageText = when (selectedLanguageCode) {
         "en" -> stringResource(R.string.lang_en)
@@ -30,19 +42,22 @@ fun PreferencesScreen(
         else -> stringResource(R.string.lang_es)
     }
 
-    var selectedCurrency by remember { mutableStateOf("EUR (€)") }
-    var selectedDateFormat by remember { mutableStateOf("DD/MM/AAAA") }
-    var darkModeEnabled by remember { mutableStateOf(true) }
-    var selectedTextSize by remember { mutableStateOf("Normal") }
-    var tripRemindersEnabled by remember { mutableStateOf(true) }
-    var weeklyDigestEnabled by remember { mutableStateOf(false) }
-    var aiSuggestionsEnabled by remember { mutableStateOf(true) }
+    // EL RESTO DE AJUSTES SE OBSERVAN DEL VIEWMODEL
+    val selectedCurrency by settingsViewModel.currency.collectAsState()
+    val selectedDateFormat by settingsViewModel.dateFormat.collectAsState()
+    val darkModeEnabled by settingsViewModel.isDarkMode.collectAsState()
+    val selectedTextSize by settingsViewModel.textSize.collectAsState()
+    val tripRemindersEnabled by settingsViewModel.tripReminders.collectAsState()
+    val weeklyDigestEnabled by settingsViewModel.weeklySummary.collectAsState()
+    val aiSuggestionsEnabled by settingsViewModel.aiSuggestions.collectAsState()
 
+    // Estados para mostrar los diálogos flotantes
     var showLanguageDialog by remember { mutableStateOf(false) }
     var showCurrencyDialog by remember { mutableStateOf(false) }
     var showDateFormatDialog by remember { mutableStateOf(false) }
     var showTextSizeDialog by remember { mutableStateOf(false) }
 
+    // --- DIÁLOGOS ---
     if (showLanguageDialog) {
         val optionsMap = mapOf(
             stringResource(R.string.lang_es) to "es",
@@ -53,14 +68,11 @@ fun PreferencesScreen(
         OptionsDialog(
             title = stringResource(R.string.pref_title_idioma),
             options = optionsMap.keys.toList(),
-            selected = selectedLanguageText, // La variable visual actual ("Español", "English"...)
+            selected = selectedLanguageText,
             onSelect = { selectedText ->
                 val code = optionsMap[selectedText] ?: "es"
-
-                // Al asignar el código, el PreferencesManager llama automáticamente a LanguageChangeUtil
                 prefs.selectedLanguageCode = code
                 selectedLanguageCode = code
-
                 showLanguageDialog = false
             },
             onDismiss = { showLanguageDialog = false }
@@ -77,7 +89,10 @@ fun PreferencesScreen(
                 stringResource(R.string.curr_jpy)
             ),
             selected = selectedCurrency,
-            onSelect = { selectedCurrency = it; showCurrencyDialog = false },
+            onSelect = {
+                settingsViewModel.setCurrency(it)
+                showCurrencyDialog = false
+            },
             onDismiss = { showCurrencyDialog = false }
         )
     }
@@ -90,7 +105,10 @@ fun PreferencesScreen(
                 stringResource(R.string.date_fmt_ymd)
             ),
             selected = selectedDateFormat,
-            onSelect = { selectedDateFormat = it; showDateFormatDialog = false },
+            onSelect = {
+                settingsViewModel.setDateFormat(it)
+                showDateFormatDialog = false
+            },
             onDismiss = { showDateFormatDialog = false }
         )
     }
@@ -103,11 +121,15 @@ fun PreferencesScreen(
                 stringResource(R.string.size_large)
             ),
             selected = selectedTextSize,
-            onSelect = { selectedTextSize = it; showTextSizeDialog = false },
+            onSelect = {
+                settingsViewModel.setTextSize(it)
+                showTextSizeDialog = false
+            },
             onDismiss = { showTextSizeDialog = false }
         )
     }
 
+    // --- PANTALLA PRINCIPAL ---
     Scaffold(
         containerColor = NavyDeep,
         bottomBar = {
@@ -188,7 +210,7 @@ fun PreferencesScreen(
                         title = stringResource(R.string.pref_title_modo_oscuro),
                         subtitle = stringResource(R.string.pref_sub_modo_oscuro),
                         checked = darkModeEnabled,
-                        onCheckedChange = { darkModeEnabled = it }
+                        onCheckedChange = { settingsViewModel.setDarkMode(it) }
                     )
                     PreferenceDivider()
                     PreferenceDropdownItem(
@@ -210,7 +232,7 @@ fun PreferencesScreen(
                         title = stringResource(R.string.pref_title_recordatorios),
                         subtitle = stringResource(R.string.pref_sub_recordatorios),
                         checked = tripRemindersEnabled,
-                        onCheckedChange = { tripRemindersEnabled = it }
+                        onCheckedChange = { settingsViewModel.setTripReminders(it) }
                     )
                     PreferenceDivider()
                     PreferenceToggleItem(
@@ -218,7 +240,7 @@ fun PreferencesScreen(
                         title = stringResource(R.string.pref_title_resumen),
                         subtitle = stringResource(R.string.pref_sub_resumen),
                         checked = weeklyDigestEnabled,
-                        onCheckedChange = { weeklyDigestEnabled = it }
+                        onCheckedChange = { settingsViewModel.setWeeklySummary(it) }
                     )
                     PreferenceDivider()
                     PreferenceToggleItem(
@@ -226,7 +248,7 @@ fun PreferencesScreen(
                         title = stringResource(R.string.pref_title_sugerencias),
                         subtitle = stringResource(R.string.pref_sub_sugerencias),
                         checked = aiSuggestionsEnabled,
-                        onCheckedChange = { aiSuggestionsEnabled = it }
+                        onCheckedChange = { settingsViewModel.setAiSuggestions(it) }
                     )
                 }
             }
@@ -427,7 +449,6 @@ fun PreferenceDropdownItem(
         }
         TextButton(onClick = onClick) {
             Text(
-                // Aquí usamos %1$s para insertar la variable de valor en el texto formateado
                 text = stringResource(R.string.dropdown_value, value),
                 style = MaterialTheme.typography.bodyMedium,
                 color = TurquoisePrimary,
