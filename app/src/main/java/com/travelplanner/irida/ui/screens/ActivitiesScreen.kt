@@ -13,6 +13,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -64,6 +66,10 @@ fun AddActivityScreen(
     var selectedTrip     by remember { mutableStateOf<Trip?>(null) }
     var dropdownExpanded by remember { mutableStateOf(false) }
 
+    // Estados para la gestión del CRUD
+    var activityToDelete by remember { mutableStateOf<Activity?>(null) }
+    var activityToEdit by remember { mutableStateOf<Activity?>(null) }
+
     // Campos del formulario
     var title       by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
@@ -73,10 +79,11 @@ fun AddActivityScreen(
 
     val trips = (tripsState as? TripListUiState.Success)?.trips ?: emptyList()
 
-    // Cada vez que cambia el viaje seleccionado → cargar sus actividades
+    // Cada vez que cambia el viaje seleccionado → cargar sus actividades y limpiar estados
     LaunchedEffect(selectedTrip) {
         tripDetailViewModel.clearValidationErrors()
         title = ""; description = ""; date = null; time = null
+        activityToEdit = null
         showSuccess = false
         selectedTrip?.let {
             Log.d(ADD_ACT_TAG, "loadTrip: ${it.id}")
@@ -170,11 +177,29 @@ fun AddActivityScreen(
                         showSuccess      = showSuccess,
                         onDateClick      = { datePicker?.show() },
                         onTimeClick      = { timePicker.show() },
+                        activityToEdit   = activityToEdit,
+                        onCancelEdit     = {
+                            activityToEdit = null
+                            title = ""; description = ""; date = null; time = null
+                            selectedTab = ActivityTab.VIEW
+                        },
                         onSave           = {
-                            val ok = tripDetailViewModel.addActivity(title, description, date, time)
-                            if (ok) {
-                                title = ""; description = ""; date = null; time = null
-                                showSuccess = true
+                            if (activityToEdit != null) {
+                                // MODO EDICIÓN
+                                val ok = tripDetailViewModel.updateActivity(activityToEdit!!.id, title, description, date, time)
+                                if (ok) {
+                                    activityToEdit = null
+                                    title = ""; description = ""; date = null; time = null
+                                    showSuccess = true
+                                    selectedTab = ActivityTab.VIEW // Volver a la lista al terminar
+                                }
+                            } else {
+                                // MODO AÑADIR
+                                val ok = tripDetailViewModel.addActivity(title, description, date, time)
+                                if (ok) {
+                                    title = ""; description = ""; date = null; time = null
+                                    showSuccess = true
+                                }
                             }
                         }
                     )
@@ -184,10 +209,44 @@ fun AddActivityScreen(
                         dropdownExpanded = dropdownExpanded,
                         onExpandedChange = { dropdownExpanded = it },
                         onTripSelected   = { selectedTrip = it; dropdownExpanded = false },
-                        detailState      = detailState
+                        detailState      = detailState,
+                        onEditActivity   = { activity ->
+                            activityToEdit = activity
+                            title = activity.title
+                            description = activity.description
+                            date = activity.date
+                            time = activity.time
+                            selectedTab = ActivityTab.ADD // Salto automático a la pestaña de edición
+                        },
+                        onDeleteActivity = { activity ->
+                            activityToDelete = activity
+                        }
                     )
                 }
             }
+        }
+
+        // --- DIÁLOGO DE CONFIRMACIÓN DE BORRADO ---
+        if (activityToDelete != null) {
+            AlertDialog(
+                onDismissRequest = { activityToDelete = null },
+                containerColor = NavyLight,
+                title = { Text("Eliminar actividad", color = White, fontWeight = FontWeight.Bold) },
+                text = { Text("¿Estás seguro de que quieres eliminar '${activityToDelete?.title}'? Esta acción no se puede deshacer.", color = GrayMid) },
+                confirmButton = {
+                    TextButton(onClick = {
+                        activityToDelete?.let { tripDetailViewModel.deleteActivity(it.id) }
+                        activityToDelete = null
+                    }) {
+                        Text("Eliminar", color = ErrorRed, fontWeight = FontWeight.Bold)
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { activityToDelete = null }) {
+                        Text(stringResource(R.string.btn_cerrar), color = TurquoisePrimary)
+                    }
+                }
+            )
         }
     }
 }
@@ -231,7 +290,7 @@ private fun ActTabRow(selectedTab: ActivityTab, onTabSelected: (ActivityTab) -> 
     }
 }
 
-// ── Tab: Añadir ────────────────────────────────────────────────────────────
+// ── Tab: Añadir / Editar ───────────────────────────────────────────────────
 
 @Composable
 private fun AddTabContent(
@@ -246,6 +305,8 @@ private fun AddTabContent(
     valErrors: Map<String, String>,
     showSuccess: Boolean,
     onDateClick: () -> Unit, onTimeClick: () -> Unit,
+    activityToEdit: Activity?,
+    onCancelEdit: () -> Unit,
     onSave: () -> Unit
 ) {
     LazyColumn(
@@ -255,7 +316,9 @@ private fun AddTabContent(
         verticalArrangement = Arrangement.spacedBy(16.dp),
         contentPadding = PaddingValues(vertical = 16.dp)
     ) {
-        item { ActLabel(stringResource(R.string.act_step_one)) }
+        item {
+            ActLabel(if (activityToEdit != null) "EDITANDO ACTIVIDAD" else stringResource(R.string.act_step_one))
+        }
         item {
             if (trips.isEmpty()) ActEmptyTrips()
             else ActDropdown(trips, selectedTrip, dropdownExpanded, onExpandedChange, onTripSelected)
@@ -307,15 +370,34 @@ private fun AddTabContent(
                         }
                     }
 
-                    Button(
-                        onClick = onSave,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(52.dp),
-                        shape = RoundedCornerShape(16.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = TurquoisePrimary, contentColor = NavyDeep)
+                    // Botones Cancelar (si edita) y Guardar/Actualizar
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        Text(stringResource(R.string.act_safe), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        if (activityToEdit != null) {
+                            OutlinedButton(
+                                onClick = onCancelEdit,
+                                modifier = Modifier.weight(1f).height(52.dp),
+                                shape = RoundedCornerShape(16.dp),
+                                colors = ButtonDefaults.outlinedButtonColors(contentColor = ErrorRed)
+                            ) {
+                                Text("Cancelar", fontWeight = FontWeight.Bold)
+                            }
+                        }
+
+                        Button(
+                            onClick = onSave,
+                            modifier = Modifier.weight(if (activityToEdit != null) 1f else 2f).height(52.dp),
+                            shape = RoundedCornerShape(16.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = TurquoisePrimary, contentColor = NavyDeep)
+                        ) {
+                            Text(
+                                text = if (activityToEdit != null) "Actualizar" else stringResource(R.string.act_safe),
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
                     }
                 }
             }
@@ -332,7 +414,9 @@ private fun ViewTabContent(
     dropdownExpanded: Boolean,
     onExpandedChange: (Boolean) -> Unit,
     onTripSelected: (Trip) -> Unit,
-    detailState: TripDetailUiState
+    detailState: TripDetailUiState,
+    onEditActivity: (Activity) -> Unit,
+    onDeleteActivity: (Activity) -> Unit
 ) {
     LazyColumn(
         modifier = Modifier
@@ -380,8 +464,13 @@ private fun ViewTabContent(
                             }
                         }
                     } else {
-                        items(activities, key = { it.id }) { activity ->
-                            ActActivityCard(activity)
+                        items(activities) { activity ->
+                            // Usamos la tarjeta actualizada con botones de editar y borrar
+                            ActActivityCardEditable(
+                                activity = activity,
+                                onEdit = { onEditActivity(activity) },
+                                onDelete = { onDeleteActivity(activity) }
+                            )
                         }
                     }
                 }
@@ -403,18 +492,26 @@ private fun ViewTabContent(
     }
 }
 
-// ── Tarjeta de actividad ───────────────────────────────────────────────────
+// ── Tarjeta de actividad con Acciones (Editar/Borrar) ──────────────────────
 
 @Composable
-private fun ActActivityCard(activity: Activity) {
+private fun ActActivityCardEditable(
+    activity: Activity,
+    onEdit: () -> Unit,
+    onDelete: () -> Unit
+) {
     Card(
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = NavyLight),
         modifier = Modifier.fillMaxWidth()
     ) {
-        Row(Modifier
-            .fillMaxWidth()
-            .padding(16.dp), horizontalArrangement = Arrangement.spacedBy(14.dp), verticalAlignment = Alignment.Top) {
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(14.dp),
+            verticalAlignment = Alignment.Top
+        ) {
             // Badge fecha + hora
             Box(
                 modifier = Modifier
@@ -445,10 +542,27 @@ private fun ActActivityCard(activity: Activity) {
                 }
             }
 
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            // Textos y Botones
+            Column(Modifier.weight(1f)) {
                 Text(activity.title, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Bold, color = White)
                 if (activity.description.isNotBlank()) {
+                    Spacer(modifier = Modifier.height(4.dp))
                     Text(activity.description, style = MaterialTheme.typography.bodySmall, color = GrayMid, maxLines = 3)
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Botones de acción alineados a la derecha
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    IconButton(onClick = onEdit, modifier = Modifier.size(36.dp)) {
+                        Icon(Icons.Default.Edit, contentDescription = "Editar", tint = TurquoisePrimary, modifier = Modifier.size(20.dp))
+                    }
+                    IconButton(onClick = onDelete, modifier = Modifier.size(36.dp)) {
+                        Icon(Icons.Default.Delete, contentDescription = "Eliminar", tint = ErrorRed, modifier = Modifier.size(20.dp))
+                    }
                 }
             }
         }
@@ -582,8 +696,6 @@ fun TimePickerField(modifier: Modifier = Modifier, label: String, time: LocalTim
         if (error != null) Text(error, style = MaterialTheme.typography.bodySmall, color = ErrorRed)
     }
 }
-
-// ── Preview ────────────────────────────────────────────────────────────────
 
 @Preview(showBackground = true)
 @Composable

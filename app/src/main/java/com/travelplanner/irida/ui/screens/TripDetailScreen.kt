@@ -1,5 +1,10 @@
 package com.travelplanner.irida.ui.screens
 
+import android.app.DatePickerDialog
+import android.app.TimePickerDialog
+import java.time.LocalDate
+import java.time.LocalTime
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -9,6 +14,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -47,6 +54,8 @@ fun TripDetailScreen(
 
     val uiState by viewModel.uiState.collectAsState()
     var selectedTab by remember { mutableIntStateOf(0) }
+    var activityToDelete by remember { mutableStateOf<Activity?>(null) }
+    var activityToEdit by remember { mutableStateOf<Activity?>(null) }
 
     // Nombres de las pestañas traducidos
     val tabs = listOf(
@@ -149,16 +158,148 @@ fun TripDetailScreen(
                                         )
                                     }
                                     items(activitiesOfDay) { activity ->
-                                        ActivityCard(activity = activity)
+                                        ActivityCard(
+                                            activity = activity,
+                                            onEdit = {
+                                                activityToEdit = activity
+                                            },
+                                            onDelete = {
+                                                activityToDelete = activity
+                                            }
+                                        )
                                     }
-                                }
-                            }
-                        }
+                                } // <-- Cierra el forEach
+                            } // <-- Cierra el else
+                        } // <-- Cierra la pestaña 0
+
                         1 -> item { GalleryTabPlaceholder() }
                         2 -> item { NotesTabPlaceholder() }
                     }
 
                     item { Spacer(modifier = Modifier.height(16.dp)) }
+                }
+
+                // --- DIÁLOGO DE CONFIRMACIÓN DE BORRADO ---
+                if (activityToDelete != null) {
+                    AlertDialog(
+                        onDismissRequest = { activityToDelete = null },
+                        containerColor = NavyLight,
+                        title = {
+                            Text("Eliminar actividad", color = White, fontWeight = FontWeight.Bold)
+                        },
+                        text = {
+                            Text(
+                                "¿Estás seguro de que quieres eliminar '${activityToDelete?.title}'? Esta acción no se puede deshacer.",
+                                color = GrayMid
+                            )
+                        },
+                        confirmButton = {
+                            TextButton(
+                                onClick = {
+                                    // 1. Borramos la actividad
+                                    activityToDelete?.let { viewModel.deleteActivity(it.id) }
+                                    // 2. Cerramos el diálogo
+                                    activityToDelete = null
+                                }
+                            ) {
+                                Text("Eliminar", color = ErrorRed, fontWeight = FontWeight.Bold)
+                            }
+                        },
+                        dismissButton = {
+                            TextButton(onClick = { activityToDelete = null }) {
+                                Text(stringResource(R.string.btn_cerrar), color = TurquoisePrimary)
+                            }
+                        }
+                    )
+                }
+                // --- DIÁLOGO DE EDICIÓN DE ACTIVIDAD ---
+                activityToEdit?.let { act ->
+                    val context = LocalContext.current
+
+                    // Copiamos los datos de la actividad a variables locales para editarlos
+                    var editTitle by remember(act) { mutableStateOf(act.title) }
+                    var editDesc by remember(act) { mutableStateOf(act.description) }
+                    var editDate by remember(act) { mutableStateOf(act.date) }
+                    var editTime by remember(act) { mutableStateOf(act.time) }
+
+                    // DatePicker restringido al rango del viaje
+                    val datePicker = DatePickerDialog(
+                        context,
+                        { _, year, month, day -> editDate = LocalDate.of(year, month + 1, day) },
+                        editDate.year, editDate.monthValue - 1, editDate.dayOfMonth
+                    ).apply {
+                        datePicker.minDate = state.trip.startDate.atStartOfDay(java.time.ZoneOffset.UTC.normalized() as java.time.ZoneId).toInstant().toEpochMilli()
+                        datePicker.maxDate = state.trip.endDate.atStartOfDay(java.time.ZoneOffset.UTC.normalized() as java.time.ZoneId).toInstant().toEpochMilli()
+                    }
+
+                    // TimePicker
+                    val timePicker = TimePickerDialog(
+                        context,
+                        { _, h, m -> editTime = LocalTime.of(h, m) },
+                        editTime.hour, editTime.minute, true
+                    )
+
+                    AlertDialog(
+                        onDismissRequest = { activityToEdit = null },
+                        containerColor = NavyLight,
+                        title = { Text("Editar Actividad", color = TurquoisePrimary, fontWeight = FontWeight.Bold) },
+                        text = {
+                            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                                OutlinedTextField(
+                                    value = editTitle, onValueChange = { editTitle = it },
+                                    label = { Text("Título", color = GrayMid) },
+                                    colors = OutlinedTextFieldDefaults.colors(
+                                        focusedTextColor = White, unfocusedTextColor = White,
+                                        focusedBorderColor = TurquoisePrimary, unfocusedBorderColor = GrayDark
+                                    ),
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                                OutlinedTextField(
+                                    value = editDesc, onValueChange = { editDesc = it },
+                                    label = { Text("Descripción", color = GrayMid) },
+                                    colors = OutlinedTextFieldDefaults.colors(
+                                        focusedTextColor = White, unfocusedTextColor = White,
+                                        focusedBorderColor = TurquoisePrimary, unfocusedBorderColor = GrayDark
+                                    ),
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    OutlinedButton(
+                                        onClick = { datePicker.show() },
+                                        modifier = Modifier.weight(1f),
+                                        colors = ButtonDefaults.outlinedButtonColors(contentColor = White),
+                                        border = androidx.compose.foundation.BorderStroke(1.dp, GrayDark)
+                                    ) {
+                                        Text(editDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")))
+                                    }
+                                    OutlinedButton(
+                                        onClick = { timePicker.show() },
+                                        modifier = Modifier.weight(1f),
+                                        colors = ButtonDefaults.outlinedButtonColors(contentColor = White),
+                                        border = androidx.compose.foundation.BorderStroke(1.dp, GrayDark)
+                                    ) {
+                                        Text(editTime.format(DateTimeFormatter.ofPattern("HH:mm")))
+                                    }
+                                }
+                            }
+                        },
+                        confirmButton = {
+                            Button(
+                                onClick = {
+                                    viewModel.updateActivity(act.id, editTitle, editDesc, editDate, editTime)
+                                    activityToEdit = null
+                                },
+                                colors = ButtonDefaults.buttonColors(containerColor = TurquoisePrimary, contentColor = NavyDeep)
+                            ) {
+                                Text("Actualizar", fontWeight = FontWeight.Bold)
+                            }
+                        },
+                        dismissButton = {
+                            TextButton(onClick = { activityToEdit = null }) {
+                                Text("Cancelar", color = White)
+                            }
+                        }
+                    )
                 }
             }
         }
@@ -254,7 +395,11 @@ fun DayHeader(day: String) {
 }
 
 @Composable
-fun ActivityCard(activity: Activity) {
+fun ActivityCard(
+    activity: Activity,
+    onEdit: () -> Unit,
+    onDelete: () -> Unit
+) {
     Row(
         modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 6.dp),
         verticalAlignment = Alignment.Top
@@ -275,11 +420,26 @@ fun ActivityCard(activity: Activity) {
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(containerColor = NavyLight)
         ) {
-            Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
-                Text(text = activity.title, style = MaterialTheme.typography.titleMedium, color = White, fontWeight = FontWeight.SemiBold)
-                if (activity.description.isNotBlank()) {
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(text = activity.description, style = MaterialTheme.typography.bodyMedium, color = GrayMid)
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(text = activity.title, style = MaterialTheme.typography.titleMedium, color = White, fontWeight = FontWeight.SemiBold)
+                    if (activity.description.isNotBlank()) {
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(text = activity.description, style = MaterialTheme.typography.bodyMedium, color = GrayMid)
+                    }
+                }
+
+                // Botón Editar
+                IconButton(onClick = onEdit) {
+                    Icon(Icons.Default.Edit, contentDescription = "Editar", tint = TurquoisePrimary)
+                }
+
+                // Botón Eliminar
+                IconButton(onClick = onDelete) {
+                    Icon(Icons.Default.Delete, contentDescription = "Eliminar", tint = ErrorRed)
                 }
             }
         }
