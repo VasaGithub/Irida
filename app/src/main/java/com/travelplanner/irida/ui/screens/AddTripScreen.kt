@@ -48,6 +48,8 @@ fun AddTripScreen(
     var endDate by remember { mutableStateOf<LocalDate?>(null) }
     var emoji by remember { mutableStateOf("✈️") }
     var budgetText by remember { mutableStateOf("") }
+    val today = LocalDate.now()
+    val oneYearFromNow = today.plusYears(1)
 
     // Limpiar errores al entrar en la pantalla
     LaunchedEffect(Unit) {
@@ -55,17 +57,23 @@ fun AddTripScreen(
         Log.d(TAG, context.getString(R.string.trip_form))
     }
 
-    // DatePickerDialogs — usamos el DatePickerDialog de Android (T1.3: sin texto libre)
+    // DatePickerDialogs — usamos el DatePickerDialog de Android
     val startDatePicker = DatePickerDialog(
         context,
         { _, year, month, day ->
             startDate = LocalDate.of(year, month + 1, day)
-            Log.d(TAG, context.getString(R.string.date_selected, startDate))
+            Log.d(TAG, context.getString(R.string.date_end_select, startDate))
         },
-        LocalDate.now().year,
-        LocalDate.now().monthValue - 1,
-        LocalDate.now().dayOfMonth
-    )
+        today.year,
+        today.monthValue - 1,
+        today.dayOfMonth
+    ).apply {
+        // Bloqueamos fechas anteriores a hoy
+        datePicker.minDate = today.atStartOfDay(java.time.ZoneOffset.UTC).toInstant().toEpochMilli()
+
+        // Bloqueamos fechas más allá de un año
+        datePicker.maxDate = oneYearFromNow.atStartOfDay(java.time.ZoneOffset.UTC).toInstant().toEpochMilli()
+    }
 
     val endDatePicker = DatePickerDialog(
         context,
