@@ -1,4 +1,4 @@
-package com.travelplanner.irida.data
+package com.travelplanner.irida.data.mocks
 
 import com.travelplanner.irida.domain.GalleryImage
 
