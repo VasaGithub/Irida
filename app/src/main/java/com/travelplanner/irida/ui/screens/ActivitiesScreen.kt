@@ -11,6 +11,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Delete
@@ -38,15 +39,13 @@ import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
-private const val ADD_ACT_TAG = "AddActivityScreen"
+private const val ADD_ACT_TAG = "ActivitiesScreen"
 private val actDateFormatter  = DateTimeFormatter.ofPattern("dd/MM/yyyy")
 private val actTimeFormatter  = DateTimeFormatter.ofPattern("HH:mm")
 
-// ── Tabs ───────────────────────────────────────────────────────────────────
-
-private enum class ActivityTab(val label: String, val emoji: String) {
-    ADD("Añadir", "➕"),
-    VIEW("Ver actividades", "📋")
+// ── Modos de la pantalla ───────────────────────────────────────────────────
+private enum class ScreenMode {
+    LIST, FORM, DETAIL
 }
 
 // ── Screen ─────────────────────────────────────────────────────────────────
@@ -62,13 +61,13 @@ fun AddActivityScreen(
     val detailState  by tripDetailViewModel.uiState.collectAsState()
     val valErrors    by tripDetailViewModel.validationErrors.collectAsState()
 
-    var selectedTab      by remember { mutableStateOf(ActivityTab.ADD) }
+    var currentMode      by remember { mutableStateOf(ScreenMode.LIST) }
     var selectedTrip     by remember { mutableStateOf<Trip?>(null) }
     var dropdownExpanded by remember { mutableStateOf(false) }
 
-    // Estados para la gestión del CRUD
+    // Estados para la gestión del CRUD y Vistas
     var activityToDelete by remember { mutableStateOf<Activity?>(null) }
-    var activityToEdit by remember { mutableStateOf<Activity?>(null) }
+    var activeActivity   by remember { mutableStateOf<Activity?>(null) } // Usado para Editar o Ver detalle
 
     // Campos del formulario
     var title       by remember { mutableStateOf("") }
@@ -79,19 +78,36 @@ fun AddActivityScreen(
 
     val trips = (tripsState as? TripListUiState.Success)?.trips ?: emptyList()
 
-    // Cada vez que cambia el viaje seleccionado → cargar sus actividades y limpiar estados
+    // Cargar viaje al seleccionarlo
     LaunchedEffect(selectedTrip) {
-        tripDetailViewModel.clearValidationErrors()
-        title = ""; description = ""; date = null; time = null
-        activityToEdit = null
-        showSuccess = false
         selectedTrip?.let {
             Log.d(ADD_ACT_TAG, "loadTrip: ${it.id}")
             tripDetailViewModel.loadTrip(it.id)
+            currentMode = ScreenMode.LIST // Asegurar que volvemos a la lista si cambiamos de viaje
         }
     }
 
-    // NUEVO: Autodestrucción del mensaje verde a los 3 segundos
+    // Preparar el formulario al entrar en modo FORM
+    LaunchedEffect(currentMode, activeActivity) {
+        if (currentMode == ScreenMode.FORM) {
+            tripDetailViewModel.clearValidationErrors()
+            if (activeActivity != null) {
+                // Modo Edición
+                title = activeActivity!!.title
+                description = activeActivity!!.description
+                date = activeActivity!!.date
+                time = activeActivity!!.time
+            } else {
+                // Modo Crear Nuevo
+                title = ""
+                description = ""
+                date = null
+                time = null
+            }
+        }
+    }
+
+    // Autodestrucción del mensaje verde a los 3 segundos
     LaunchedEffect(showSuccess) {
         if (showSuccess) {
             kotlinx.coroutines.delay(3000)
@@ -105,25 +121,15 @@ fun AddActivityScreen(
             context,
             { _, year, month, day ->
                 date = LocalDate.of(year, month + 1, day)
-                Log.d(ADD_ACT_TAG, context.getString(R.string.date_picker, date))
             },
-            trip.startDate.year,
-            trip.startDate.monthValue - 1,
-            trip.startDate.dayOfMonth
+            trip.startDate.year, trip.startDate.monthValue - 1, trip.startDate.dayOfMonth
         ).apply {
-            datePicker.minDate = trip.startDate
-                .atStartOfDay(java.time.ZoneOffset.UTC.normalized() as java.time.ZoneId)
-                .toInstant().toEpochMilli()
-            datePicker.maxDate = trip.endDate
-                .atStartOfDay(java.time.ZoneOffset.UTC.normalized() as java.time.ZoneId)
-                .toInstant().toEpochMilli()
+            datePicker.minDate = trip.startDate.atStartOfDay(java.time.ZoneOffset.UTC.normalized() as java.time.ZoneId).toInstant().toEpochMilli()
+            datePicker.maxDate = trip.endDate.atStartOfDay(java.time.ZoneOffset.UTC.normalized() as java.time.ZoneId).toInstant().toEpochMilli()
         }
     }
 
-    val timePicker = TimePickerDialog(context, { _, h, m ->
-        time = LocalTime.of(h, m)
-        Log.d(ADD_ACT_TAG, context.getString(R.string.time_picker, time))
-    }, 9, 0, true)
+    val timePicker = TimePickerDialog(context, { _, h, m -> time = LocalTime.of(h, m) }, 9, 0, true)
 
     Scaffold(
         containerColor = NavyDeep,
@@ -144,96 +150,234 @@ fun AddActivityScreen(
                 .background(NavyDeep)
                 .padding(paddingValues)
         ) {
-            // Header
-            Column(modifier = Modifier
-                .padding(horizontal = 20.dp)
-                .padding(top = 24.dp, bottom = 16.dp)) {
-                Text(stringResource(R.string.header_act), style = MaterialTheme.typography.headlineMedium, color = White, fontWeight = FontWeight.ExtraBold)
-                Text(stringResource(R.string.header_info), style = MaterialTheme.typography.bodyMedium, color = GrayMid)
+            // Header Principal (Siempre visible en la lista)
+            AnimatedVisibility(visible = currentMode == ScreenMode.LIST) {
+                Column(modifier = Modifier.padding(horizontal = 20.dp).padding(top = 24.dp, bottom = 16.dp)) {
+                    Text(stringResource(R.string.header_act), style = MaterialTheme.typography.headlineMedium, color = White, fontWeight = FontWeight.ExtraBold)
+                    Text(stringResource(R.string.header_info), style = MaterialTheme.typography.bodyMedium, color = GrayMid)
+                    Spacer(Modifier.height(16.dp))
+
+                    // Dropdown debajo del título
+                    if (trips.isEmpty()) {
+                        ActEmptyTrips()
+                    } else {
+                        ActLabel(stringResource(R.string.select_trip))
+                        Spacer(Modifier.height(8.dp))
+                        ActDropdown(trips, selectedTrip, dropdownExpanded, { dropdownExpanded = it }) {
+                            selectedTrip = it
+                            dropdownExpanded = false
+                        }
+                    }
+                }
             }
 
-            // Tab selector (NUEVO: Limpiamos el mensaje al tocar una pestaña)
-            ActTabRow(selectedTab = selectedTab, onTabSelected = {
-                selectedTab = it
-                showSuccess = false
-            })
-
-            Spacer(Modifier.height(8.dp))
-
-            // Contenido animado
+            // Contenido dinámico
             AnimatedContent(
-                targetState = selectedTab,
+                targetState = currentMode,
                 transitionSpec = {
-                    if (targetState.ordinal > initialState.ordinal)
-                        slideInHorizontally { it } + fadeIn() togetherWith slideOutHorizontally { -it } + fadeOut()
-                    else
-                        slideInHorizontally { -it } + fadeIn() togetherWith slideOutHorizontally { it } + fadeOut()
+                    slideInHorizontally { it } + fadeIn() togetherWith slideOutHorizontally { -it } + fadeOut()
                 },
-                label = "tab_transition"
-            ) { tab ->
-                when (tab) {
-                    ActivityTab.ADD -> AddTabContent(
-                        trips            = trips,
-                        selectedTrip     = selectedTrip,
-                        dropdownExpanded = dropdownExpanded,
-                        onExpandedChange = { dropdownExpanded = it },
-                        onTripSelected   = { selectedTrip = it; dropdownExpanded = false },
-                        title            = title,
-                        onTitleChange    = { title = it },
-                        description      = description,
-                        onDescChange     = { description = it },
-                        date             = date,
-                        time             = time,
-                        valErrors        = valErrors,
-                        showSuccess      = showSuccess,
-                        onDateClick      = { datePicker?.show() },
-                        onTimeClick      = { timePicker.show() },
-                        activityToEdit   = activityToEdit,
-                        onCancelEdit     = {
-                            activityToEdit = null
-                            title = ""; description = ""; date = null; time = null
-                            selectedTab = ActivityTab.VIEW
-                        },
-                        onSave           = {
-                            if (activityToEdit != null) {
-                                // MODO EDICIÓN
-                                val ok = tripDetailViewModel.updateActivity(activityToEdit!!.id, title, description, date, time)
-                                if (ok) {
-                                    activityToEdit = null
-                                    title = ""; description = ""; date = null; time = null
-                                    showSuccess = true
-                                    selectedTab = ActivityTab.VIEW // Volver a la lista al terminar
+                label = "screen_mode"
+            ) { mode ->
+                when (mode) {
+                    ScreenMode.LIST -> {
+                        // LA LISTA DE ACTIVIDADES
+                        if (selectedTrip != null) {
+                            LazyColumn(
+                                modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp),
+                                verticalArrangement = Arrangement.spacedBy(16.dp),
+                                contentPadding = PaddingValues(bottom = 24.dp)
+                            ) {
+                                // Mensaje de éxito flotante en la lista
+                                if (showSuccess) {
+                                    item {
+                                        Card(shape = RoundedCornerShape(12.dp), colors = CardDefaults.cardColors(containerColor = SuccessGreen.copy(alpha = 0.15f))) {
+                                            Row(Modifier.fillMaxWidth().padding(12.dp), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                                                Text("✅", fontSize = 16.sp)
+                                                Text(stringResource(R.string.act_upp_good), style = MaterialTheme.typography.bodyMedium, color = SuccessGreen)
+                                            }
+                                        }
+                                    }
                                 }
-                            } else {
-                                // MODO AÑADIR
-                                val ok = tripDetailViewModel.addActivity(title, description, date, time)
-                                if (ok) {
-                                    title = ""; description = ""; date = null; time = null
-                                    showSuccess = true
+
+                                // Botón Añadir Actividad
+                                item {
+                                    Button(
+                                        onClick = {
+                                            activeActivity = null
+                                            currentMode = ScreenMode.FORM
+                                        },
+                                        modifier = Modifier.fillMaxWidth().height(52.dp),
+                                        shape = RoundedCornerShape(16.dp),
+                                        colors = ButtonDefaults.buttonColors(containerColor = TurquoisePrimary, contentColor = NavyDeep)
+                                    ) {
+                                        Text("➕ Añadir actividad", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                                    }
+                                }
+
+                                // Lista de actividades ordenadas
+                                when (detailState) {
+                                    is TripDetailUiState.Loading -> item {
+                                        Box(Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
+                                            CircularProgressIndicator(color = TurquoisePrimary)
+                                        }
+                                    }
+                                    is TripDetailUiState.Success -> {
+                                        // ORDENAR POR DÍA Y LUEGO POR HORA
+                                        val sortedActivities = (detailState as TripDetailUiState.Success).activities
+                                            .sortedWith(compareBy({ it.date }, { it.time }))
+
+                                        if (sortedActivities.isEmpty()) {
+                                            item {
+                                                Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = NavyLight)) {
+                                                    Row(Modifier.fillMaxWidth().padding(16.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                                                        Text("🗓️", fontSize = 24.sp)
+                                                        Text(stringResource(R.string.trip_act_add), style = MaterialTheme.typography.bodyMedium, color = GrayMid)
+                                                    }
+                                                }
+                                            }
+                                        } else {
+                                            items(sortedActivities) { activity ->
+                                                ActActivityCardEditable(
+                                                    activity = activity,
+                                                    onCardClick = {
+                                                        activeActivity = activity
+                                                        currentMode = ScreenMode.DETAIL
+                                                    },
+                                                    onEdit = {
+                                                        activeActivity = activity
+                                                        currentMode = ScreenMode.FORM
+                                                    },
+                                                    onDelete = { activityToDelete = activity }
+                                                )
+                                            }
+                                        }
+                                    }
+                                    is TripDetailUiState.Error -> item {
+                                        Text((detailState as TripDetailUiState.Error).message, color = ErrorRed)
+                                    }
                                 }
                             }
                         }
-                    )
-                    ActivityTab.VIEW -> ViewTabContent(
-                        trips            = trips,
-                        selectedTrip     = selectedTrip,
-                        dropdownExpanded = dropdownExpanded,
-                        onExpandedChange = { dropdownExpanded = it },
-                        onTripSelected   = { selectedTrip = it; dropdownExpanded = false },
-                        detailState      = detailState,
-                        onEditActivity   = { activity ->
-                            activityToEdit = activity
-                            title = activity.title
-                            description = activity.description
-                            date = activity.date
-                            time = activity.time
-                            showSuccess = false // NUEVO: Matamos el fantasma antes de saltar a editar
-                            selectedTab = ActivityTab.ADD // Salto automático a la pestaña de edición
-                        },
-                        onDeleteActivity = { activity ->
-                            activityToDelete = activity
+                    }
+
+                    ScreenMode.FORM -> {
+                        // FORMULARIO (Crear o Editar)
+                        LazyColumn(
+                            modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp),
+                            verticalArrangement = Arrangement.spacedBy(16.dp),
+                            contentPadding = PaddingValues(top = 16.dp, bottom = 24.dp)
+                        ) {
+                            item {
+                                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    IconButton(onClick = { currentMode = ScreenMode.LIST }) {
+                                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Volver", tint = White)
+                                    }
+                                    Text(
+                                        text = if (activeActivity != null) "Editar Actividad" else "Nueva Actividad",
+                                        style = MaterialTheme.typography.titleLarge,
+                                        color = White,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+                            }
+
+                            item {
+                                selectedTrip?.let { trip ->
+                                    Card(shape = RoundedCornerShape(12.dp), colors = CardDefaults.cardColors(containerColor = TurquoisePrimary.copy(alpha = 0.1f))) {
+                                        Row(Modifier.fillMaxWidth().padding(12.dp), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                                            Text("📍", fontSize = 16.sp)
+                                            Text("Viaje: ${trip.title}", style = MaterialTheme.typography.bodySmall, color = TurquoisePrimary)
+                                        }
+                                    }
+                                }
+                            }
+
+                            item {
+                                ActField(stringResource(R.string.act_title_ex), title, { title = it }, stringResource(R.string.act_text_ex), valErrors["title"])
+                            }
+                            item {
+                                ActField(stringResource(R.string.act_extr_ex), description, { description = it }, stringResource(R.string.act_desc_ex), valErrors["description"], singleLine = false, minLines = 3)
+                            }
+
+                            item {
+                                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                                    ActDateField(Modifier.weight(1f), stringResource(R.string.act_date_label), date, valErrors["date"]) { datePicker?.show() }
+                                    TimePickerField(Modifier.weight(1f), stringResource(R.string.act_time_label), time, valErrors["time"]) { timePicker.show() }
+                                }
+                            }
+
+                            item {
+                                Row(modifier = Modifier.fillMaxWidth().padding(top = 8.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                                    OutlinedButton(
+                                        onClick = { currentMode = ScreenMode.LIST },
+                                        modifier = Modifier.weight(1f).height(52.dp),
+                                        shape = RoundedCornerShape(16.dp),
+                                        colors = ButtonDefaults.outlinedButtonColors(contentColor = GrayMid)
+                                    ) {
+                                        Text("Cancelar")
+                                    }
+                                    Button(
+                                        onClick = {
+                                            val ok = if (activeActivity != null) {
+                                                tripDetailViewModel.updateActivity(activeActivity!!.id, title, description, date, time)
+                                            } else {
+                                                tripDetailViewModel.addActivity(title, description, date, time)
+                                            }
+                                            if (ok) {
+                                                showSuccess = true
+                                                currentMode = ScreenMode.LIST
+                                            }
+                                        },
+                                        modifier = Modifier.weight(1.5f).height(52.dp),
+                                        shape = RoundedCornerShape(16.dp),
+                                        colors = ButtonDefaults.buttonColors(containerColor = TurquoisePrimary, contentColor = NavyDeep)
+                                    ) {
+                                        Text(if (activeActivity != null) "Actualizar" else "Guardar", fontWeight = FontWeight.Bold)
+                                    }
+                                }
+                            }
                         }
-                    )
+                    }
+
+                    ScreenMode.DETAIL -> {
+                        // VISTA DE DETALLE (Solo lectura)
+                        activeActivity?.let { activity ->
+                            Column(modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp).padding(top = 16.dp)) {
+                                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    IconButton(onClick = { currentMode = ScreenMode.LIST }) {
+                                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Volver", tint = White)
+                                    }
+                                    Text("Detalles", style = MaterialTheme.typography.titleLarge, color = White, fontWeight = FontWeight.Bold)
+                                }
+
+                                Spacer(Modifier.height(24.dp))
+
+                                Card(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    shape = RoundedCornerShape(16.dp),
+                                    colors = CardDefaults.cardColors(containerColor = NavyLight)
+                                ) {
+                                    Column(Modifier.padding(24.dp)) {
+                                        Text(activity.title, style = MaterialTheme.typography.headlineMedium, color = TurquoisePrimary, fontWeight = FontWeight.Bold)
+                                        Spacer(Modifier.height(16.dp))
+
+                                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                            Text("📅", fontSize = 20.sp)
+                                            Text("${activity.date.format(actDateFormatter)} a las ${activity.time.format(actTimeFormatter)}", style = MaterialTheme.typography.bodyLarge, color = White)
+                                        }
+
+                                        if (activity.description.isNotBlank()) {
+                                            Spacer(Modifier.height(24.dp))
+                                            Text("📝 Notas", style = MaterialTheme.typography.labelMedium, color = GrayMid)
+                                            Spacer(Modifier.height(4.dp))
+                                            Text(activity.description, style = MaterialTheme.typography.bodyMedium, color = White)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -263,276 +407,24 @@ fun AddActivityScreen(
     }
 }
 
-// ── Tab Row ────────────────────────────────────────────────────────────────
-
-@Composable
-private fun ActTabRow(selectedTab: ActivityTab, onTabSelected: (ActivityTab) -> Unit) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 20.dp)
-            .background(NavyLight, RoundedCornerShape(16.dp))
-            .padding(4.dp),
-        horizontalArrangement = Arrangement.spacedBy(4.dp)
-    ) {
-        ActivityTab.entries.forEach { tab ->
-            val isSelected = tab == selectedTab
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .background(
-                        if (isSelected) TurquoisePrimary else NavyLight,
-                        RoundedCornerShape(12.dp)
-                    )
-                    .clickable { onTabSelected(tab) }
-                    .padding(vertical = 10.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Text(tab.emoji, fontSize = 14.sp)
-                    Text(
-                        text = tab.label,
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                        color = if (isSelected) NavyDeep else GrayMid
-                    )
-                }
-            }
-        }
-    }
-}
-
-// ── Tab: Añadir / Editar ───────────────────────────────────────────────────
-
-@Composable
-private fun AddTabContent(
-    trips: List<Trip>,
-    selectedTrip: Trip?,
-    dropdownExpanded: Boolean,
-    onExpandedChange: (Boolean) -> Unit,
-    onTripSelected: (Trip) -> Unit,
-    title: String, onTitleChange: (String) -> Unit,
-    description: String, onDescChange: (String) -> Unit,
-    date: LocalDate?, time: LocalTime?,
-    valErrors: Map<String, String>,
-    showSuccess: Boolean,
-    onDateClick: () -> Unit, onTimeClick: () -> Unit,
-    activityToEdit: Activity?,
-    onCancelEdit: () -> Unit,
-    onSave: () -> Unit
-) {
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 20.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
-        contentPadding = PaddingValues(vertical = 16.dp)
-    ) {
-        item {
-            ActLabel(if (activityToEdit != null) "EDITANDO ACTIVIDAD" else stringResource(R.string.act_step_one))
-        }
-        item {
-            if (trips.isEmpty()) ActEmptyTrips()
-            else ActDropdown(trips, selectedTrip, dropdownExpanded, onExpandedChange, onTripSelected)
-        }
-
-        item {
-            AnimatedVisibility(visible = selectedTrip != null, enter = fadeIn() + expandVertically(), exit = fadeOut() + shrinkVertically()) {
-                Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                    Spacer(Modifier.height(4.dp))
-                    ActLabel(stringResource(R.string.act_step_two))
-
-                    // Rango del viaje
-                    selectedTrip?.let { trip ->
-                        Card(shape = RoundedCornerShape(12.dp), colors = CardDefaults.cardColors(containerColor = TurquoisePrimary.copy(alpha = 0.1f))) {
-                            Row(Modifier
-                                .fillMaxWidth()
-                                .padding(12.dp), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                                Text("📅", fontSize = 16.sp)
-                                Text(
-                                    stringResource(
-                                        R.string.act_range,
-                                        trip.startDate.format(actDateFormatter),
-                                        trip.endDate.format(actDateFormatter)
-                                    ),
-                                    style = MaterialTheme.typography.bodySmall, color = TurquoisePrimary
-                                )
-                            }
-                        }
-                    }
-
-                    ActField(stringResource(R.string.act_title_ex), title, onTitleChange,
-                        stringResource(R.string.act_text_ex), valErrors["title"])
-                    ActField(stringResource(R.string.act_extr_ex), description, onDescChange,
-                        stringResource(R.string.act_desc_ex), valErrors["description"], singleLine = false, minLines = 3)
-
-                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                        ActDateField(
-                            modifier = Modifier.weight(1f),
-                            label = stringResource(R.string.act_date_label),
-                            date = date,
-                            error = valErrors["date"],
-                            onClick = onDateClick
-                        )
-                        TimePickerField(
-                            modifier = Modifier.weight(1f),
-                            label = stringResource(R.string.act_time_label),
-                            time = time,
-                            error = valErrors["time"],
-                            onClick = onTimeClick
-                        )
-                    }
-
-                    AnimatedVisibility(visible = showSuccess) {
-                        Card(shape = RoundedCornerShape(12.dp), colors = CardDefaults.cardColors(containerColor = SuccessGreen.copy(alpha = 0.15f))) {
-                            Row(Modifier
-                                .fillMaxWidth()
-                                .padding(12.dp), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                                Text("✅", fontSize = 16.sp)
-                                Text(stringResource(R.string.act_upp_good), style = MaterialTheme.typography.bodyMedium, color = SuccessGreen)
-                            }
-                        }
-                    }
-
-                    // Botones Cancelar (si edita) y Guardar/Actualizar
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        if (activityToEdit != null) {
-                            OutlinedButton(
-                                onClick = onCancelEdit,
-                                modifier = Modifier.weight(1f).height(52.dp),
-                                shape = RoundedCornerShape(16.dp),
-                                colors = ButtonDefaults.outlinedButtonColors(contentColor = ErrorRed)
-                            ) {
-                                Text("Cancelar", fontWeight = FontWeight.Bold)
-                            }
-                        }
-
-                        Button(
-                            onClick = onSave,
-                            modifier = Modifier.weight(if (activityToEdit != null) 1f else 2f).height(52.dp),
-                            shape = RoundedCornerShape(16.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = TurquoisePrimary, contentColor = NavyDeep)
-                        ) {
-                            Text(
-                                text = if (activityToEdit != null) "Actualizar" else stringResource(R.string.act_safe),
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-// ── Tab: Ver actividades ───────────────────────────────────────────────────
-
-@Composable
-private fun ViewTabContent(
-    trips: List<Trip>,
-    selectedTrip: Trip?,
-    dropdownExpanded: Boolean,
-    onExpandedChange: (Boolean) -> Unit,
-    onTripSelected: (Trip) -> Unit,
-    detailState: TripDetailUiState,
-    onEditActivity: (Activity) -> Unit,
-    onDeleteActivity: (Activity) -> Unit
-) {
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 20.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
-        contentPadding = PaddingValues(vertical = 16.dp)
-    ) {
-        item { ActLabel(stringResource(R.string.select_trip)) }
-        item {
-            if (trips.isEmpty()) ActEmptyTrips()
-            else ActDropdown(trips, selectedTrip, dropdownExpanded, onExpandedChange, onTripSelected)
-        }
-
-        if (selectedTrip != null) {
-            item {
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                    ActLabel(stringResource(R.string.trip_acts))
-                    // Contador de actividades cuando el estado es Success
-                    val count = (detailState as? TripDetailUiState.Success)?.activities?.size ?: 0
-                    if (count > 0) Text(stringResource(R.string.trip_acts_act, count), style = MaterialTheme.typography.labelSmall, color = GrayMid)
-                }
-            }
-
-            when (detailState) {
-                is TripDetailUiState.Loading -> item {
-                    Box(Modifier
-                        .fillMaxWidth()
-                        .padding(32.dp), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator(color = TurquoisePrimary)
-                    }
-                }
-
-                is TripDetailUiState.Success -> {
-                    val activities = detailState.activities  // ya vienen ordenadas del ViewModel
-                    if (activities.isEmpty()) {
-                        item {
-                            Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = NavyLight)) {
-                                Row(Modifier
-                                    .fillMaxWidth()
-                                    .padding(16.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                                    Text("🗓️", fontSize = 24.sp)
-                                    Text(stringResource(R.string.trip_act_add), style = MaterialTheme.typography.bodyMedium, color = GrayMid)
-                                }
-                            }
-                        }
-                    } else {
-                        items(activities) { activity ->
-                            // Usamos la tarjeta actualizada con botones de editar y borrar
-                            ActActivityCardEditable(
-                                activity = activity,
-                                onEdit = { onEditActivity(activity) },
-                                onDelete = { onDeleteActivity(activity) }
-                            )
-                        }
-                    }
-                }
-
-                is TripDetailUiState.Error -> item {
-                    Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = ErrorRed.copy(alpha = 0.1f))) {
-                        Row(Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                            Text("⚠️", fontSize = 20.sp)
-                            Text(detailState.message, style = MaterialTheme.typography.bodyMedium, color = ErrorRed)
-                        }
-                    }
-                }
-
-                else -> { /* Loading inicial — no mostrar nada */ }
-            }
-        }
-    }
-}
-
-// ── Tarjeta de actividad con Acciones (Editar/Borrar) ──────────────────────
+// ── Tarjeta de actividad con Acciones (Clickable) ──────────────────────────
 
 @Composable
 private fun ActActivityCardEditable(
     activity: Activity,
+    onCardClick: () -> Unit,
     onEdit: () -> Unit,
     onDelete: () -> Unit
 ) {
     Card(
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = NavyLight),
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onCardClick() } // CLIC EN LA TARJETA PARA VER DETALLE
     ) {
         Row(
-            Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
+            Modifier.fillMaxWidth().padding(16.dp),
             horizontalArrangement = Arrangement.spacedBy(14.dp),
             verticalAlignment = Alignment.Top
         ) {
@@ -551,9 +443,7 @@ private fun ActActivityCardEditable(
                         color = TurquoisePrimary
                     )
                     Text(
-                        text = activity.date.format(DateTimeFormatter.ofPattern("MMM", java.util.Locale(
-                            stringResource(R.string.lenguaje_act)
-                        ))).uppercase(),
+                        text = activity.date.format(DateTimeFormatter.ofPattern("MMM", java.util.Locale(stringResource(R.string.lenguaje_act)))).uppercase(),
                         style = MaterialTheme.typography.labelSmall,
                         color = TurquoisePrimary
                     )
@@ -571,12 +461,12 @@ private fun ActActivityCardEditable(
                 Text(activity.title, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Bold, color = White)
                 if (activity.description.isNotBlank()) {
                     Spacer(modifier = Modifier.height(4.dp))
-                    Text(activity.description, style = MaterialTheme.typography.bodySmall, color = GrayMid, maxLines = 3)
+                    Text(activity.description, style = MaterialTheme.typography.bodySmall, color = GrayMid, maxLines = 2)
                 }
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // Botones de acción alineados a la derecha
+                // Botones de acción (Evitamos que el clic en el botón active el de la tarjeta entera)
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End
@@ -603,9 +493,7 @@ private fun ActLabel(text: String) {
 @Composable
 private fun ActEmptyTrips() {
     Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = NavyLight)) {
-        Row(Modifier
-            .fillMaxWidth()
-            .padding(16.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        Row(Modifier.fillMaxWidth().padding(16.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             Text("🗺️", fontSize = 24.sp)
             Text(stringResource(R.string.trip_create), style = MaterialTheme.typography.bodyMedium, color = GrayMid)
         }
@@ -667,9 +555,7 @@ private fun ActDropdown(
         OutlinedTextField(
             value = selectedTrip?.let { "${it.emoji} ${it.title}" } ?: stringResource(R.string.select_trip_2),
             onValueChange = {}, readOnly = true,
-            modifier = Modifier
-                .fillMaxWidth()
-                .menuAnchor(),
+            modifier = Modifier.fillMaxWidth().menuAnchor(),
             trailingIcon = { Icon(Icons.Default.ArrowDropDown, null, tint = TurquoisePrimary) },
             colors = OutlinedTextFieldDefaults.colors(
                 focusedTextColor = White, unfocusedTextColor = if (selectedTrip != null) White else GrayDark,
@@ -686,10 +572,7 @@ private fun ActDropdown(
                             Text(trip.emoji, fontSize = 20.sp)
                             Column {
                                 Text(trip.title, style = MaterialTheme.typography.bodyMedium, color = White, fontWeight = FontWeight.Medium)
-                                Text(
-                                    "${trip.startDate.format(actDateFormatter)} – ${trip.endDate.format(actDateFormatter)}",
-                                    style = MaterialTheme.typography.bodySmall, color = GrayMid
-                                )
+                                Text("${trip.startDate.format(actDateFormatter)} – ${trip.endDate.format(actDateFormatter)}", style = MaterialTheme.typography.bodySmall, color = GrayMid)
                             }
                         }
                     },
@@ -701,7 +584,6 @@ private fun ActDropdown(
     }
 }
 
-// TimePickerField — público para uso desde otras pantallas si se necesita
 @Composable
 fun TimePickerField(modifier: Modifier = Modifier, label: String, time: LocalTime?, error: String? = null, onClick: () -> Unit) {
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -713,8 +595,7 @@ fun TimePickerField(modifier: Modifier = Modifier, label: String, time: LocalTim
             .padding(horizontal = 16.dp, vertical = 14.dp)) {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                 Text(time?.format(actTimeFormatter) ?: "HH:mm", color = if (time != null) White else GrayDark, style = MaterialTheme.typography.bodyMedium)
-                Icon(Icons.Default.DateRange,
-                    stringResource(R.string.select_time), tint = if (error != null) ErrorRed else TurquoisePrimary, modifier = Modifier.size(20.dp))
+                Icon(Icons.Default.DateRange, stringResource(R.string.select_time), tint = if (error != null) ErrorRed else TurquoisePrimary, modifier = Modifier.size(20.dp))
             }
         }
         if (error != null) Text(error, style = MaterialTheme.typography.bodySmall, color = ErrorRed)
