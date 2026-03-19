@@ -45,6 +45,7 @@ import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuAnchorType // ¡Importación nueva!
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -83,11 +84,11 @@ import com.travelplanner.irida.ui.viewmodels.TripDetailUiState
 import com.travelplanner.irida.ui.viewmodels.TripDetailViewModel
 import com.travelplanner.irida.ui.viewmodels.TripListUiState
 import com.travelplanner.irida.ui.viewmodels.TripListViewModel
+import kotlinx.coroutines.delay
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
-private const val ADD_ACT_TAG = "ActivitiesScreen"
 private val actDateFormatter  = DateTimeFormatter.ofPattern("dd/MM/yyyy")
 private val actTimeFormatter  = DateTimeFormatter.ofPattern("HH:mm")
 
@@ -98,7 +99,7 @@ private enum class ScreenMode {
 @Composable
 fun AddActivityScreen(
     initialTripId: String? = null,
-    initialActivityId: String? = null, // NUEVO PARÁMETRO
+    initialActivityId: String? = null,
     onNavigate: (String) -> Unit = {},
     onReturn: () -> Unit = {},
     tripListViewModel: TripListViewModel = viewModel(),
@@ -124,13 +125,11 @@ fun AddActivityScreen(
 
     val trips = (tripsState as? TripListUiState.Success)?.trips ?: emptyList()
 
-    // 1. CARGA DE VIAJE AUTOMÁTICA
     LaunchedEffect(initialTripId, trips) {
         if (initialTripId != null && selectedTrip == null && trips.isNotEmpty()) {
             val trip = trips.find { it.id == initialTripId }
             if (trip != null) {
                 selectedTrip = trip
-                // Si solo venimos a añadir (no hay activityId), preparamos formulario limpio
                 if (initialActivityId == null) {
                     activeActivity = null
                     currentMode = ScreenMode.FORM
@@ -148,7 +147,6 @@ fun AddActivityScreen(
         }
     }
 
-    // 2. NUEVO: CARGA DE ACTIVIDAD AUTOMÁTICA (MODO EDICIÓN PROFUNDO)
     LaunchedEffect(detailState, initialActivityId) {
         if (initialActivityId != null && detailState is TripDetailUiState.Success) {
             val activities = (detailState as TripDetailUiState.Success).activities
@@ -179,7 +177,7 @@ fun AddActivityScreen(
 
     LaunchedEffect(showSuccess) {
         if (showSuccess) {
-            kotlinx.coroutines.delay(3000)
+            delay(3000)
             showSuccess = false
         }
     }
@@ -306,7 +304,7 @@ fun AddActivityScreen(
                                                         activeActivity = activity
                                                         currentMode = ScreenMode.FORM
                                                     },
-                                                    onDelete = { activityToDelete = activity }
+                                                    onDelete = { activityToDelete = activity } // Esto causaba los primeros warnings
                                                 )
                                             }
                                         }
@@ -383,7 +381,7 @@ fun AddActivityScreen(
                                             }
                                             if (ok) {
                                                 if (initialTripId != null) {
-                                                    onReturn() // Volvemos al viaje si venimos desde ahí
+                                                    onReturn()
                                                 } else {
                                                     showSuccess = true
                                                     currentMode = ScreenMode.LIST
@@ -442,6 +440,7 @@ fun AddActivityScreen(
             }
         }
 
+        // --- SOLUCIÓN A LOS PRIMEROS DOS WARNINGS: Diálogo de borrado en esta pantalla ---
         if (activityToDelete != null) {
             AlertDialog(
                 onDismissRequest = { activityToDelete = null },
@@ -485,7 +484,8 @@ private fun ActActivityCardEditable(
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(text = activity.date.dayOfMonth.toString(), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.ExtraBold, color = TurquoisePrimary)
-                    Text(text = activity.date.format(DateTimeFormatter.ofPattern("MMM", java.util.Locale(stringResource(R.string.lenguaje_act)))).uppercase(), style = MaterialTheme.typography.labelSmall, color = TurquoisePrimary)
+                    // --- SOLUCIÓN AL WARNING DE LOCALE (Línea 486) ---
+                    Text(text = activity.date.format(DateTimeFormatter.ofPattern("MMM", java.util.Locale.forLanguageTag(stringResource(R.string.lenguaje_act)))).uppercase(), style = MaterialTheme.typography.labelSmall, color = TurquoisePrimary)
                     Spacer(Modifier.height(4.dp))
                     Text(text = activity.time.format(actTimeFormatter), style = MaterialTheme.typography.labelSmall, color = GrayMid)
                 }
@@ -559,7 +559,9 @@ private fun ActDropdown(
     ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = onExpandedChange) {
         OutlinedTextField(
             value = selectedTrip?.let { "${it.emoji} ${it.title}" } ?: stringResource(R.string.select_trip_2),
-            onValueChange = {}, readOnly = true, modifier = Modifier.fillMaxWidth().menuAnchor(),
+            onValueChange = {}, readOnly = true,
+            // --- SOLUCIÓN AL WARNING DE MENUANCHOR (Línea 560) ---
+            modifier = Modifier.fillMaxWidth().menuAnchor(MenuAnchorType.PrimaryNotEditable),
             trailingIcon = { Icon(Icons.Default.ArrowDropDown, null, tint = TurquoisePrimary) },
             colors = OutlinedTextFieldDefaults.colors(focusedTextColor = White, unfocusedTextColor = if (selectedTrip != null) White else GrayDark, focusedBorderColor = TurquoisePrimary, unfocusedBorderColor = GrayDark, focusedContainerColor = NavyLight, unfocusedContainerColor = NavyLight, cursorColor = TurquoisePrimary),
             shape = RoundedCornerShape(12.dp)

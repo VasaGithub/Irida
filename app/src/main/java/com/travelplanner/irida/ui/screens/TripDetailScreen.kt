@@ -216,9 +216,6 @@ fun TripDetailScreen(
                         }
                     )
                 }
-
-                // ¡Aquí eliminamos todo el bloque de AlertDialog de edición que teníamos!
-                // Ahora la edición la gestiona ActivitiesScreen.
             }
         }
     }

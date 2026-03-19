@@ -76,8 +76,9 @@ fun EditTripScreen(
     var title by remember(tripToEdit) { mutableStateOf(tripToEdit?.title ?: "") }
     var description by remember(tripToEdit) { mutableStateOf(tripToEdit?.description ?: "") }
     var destination by remember(tripToEdit) { mutableStateOf(tripToEdit?.destination ?: "") }
-    var startDate by remember(tripToEdit) { mutableStateOf<LocalDate?>(tripToEdit?.startDate) }
-    var endDate by remember(tripToEdit) { mutableStateOf<LocalDate?>(tripToEdit?.endDate) }
+    // --- SOLUCIÓN AL WARNING: Eliminado <LocalDate?> explícito ---
+    var startDate by remember(tripToEdit) { mutableStateOf(tripToEdit?.startDate) }
+    var endDate by remember(tripToEdit) { mutableStateOf(tripToEdit?.endDate) }
     var emoji by remember(tripToEdit) { mutableStateOf(tripToEdit?.emoji ?: "✈️") }
     var budgetText by remember(tripToEdit) { mutableStateOf(tripToEdit?.budget?.toString() ?: "") }
 

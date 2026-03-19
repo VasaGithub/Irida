@@ -88,7 +88,6 @@ fun SplashScreen(onSplashFinished: () -> Unit = {}) {
 
         // Loading bar
         delay(300)
-        loadingProgress = 1f
         delay(2200)
 
         onSplashFinished()

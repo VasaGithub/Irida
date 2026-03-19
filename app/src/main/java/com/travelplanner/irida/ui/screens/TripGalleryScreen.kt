@@ -70,7 +70,6 @@ import com.travelplanner.irida.ui.theme.WhiteSoft
 fun TripGalleryScreen(
     onNavigate: (String) -> Unit = {}
 ) {
-    // Usamos los strings traducidos para el estado inicial y las opciones de filtro
     val filterAll = stringResource(R.string.filter_todas)
     val filterTop = stringResource(R.string.filter_top)
     val filterVideos = stringResource(R.string.filter_videos)

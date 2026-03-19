@@ -5,6 +5,7 @@ import com.travelplanner.irida.data.fakeDB.FakeTripDataSource
 import com.travelplanner.irida.domain.Activity
 import com.travelplanner.irida.domain.Trip
 import com.travelplanner.irida.domain.TripRepository
+private const val TAG = "TripRepositoryImpl"
 
 class TripRepositoryImpl private constructor(
     private val dataSource: FakeTripDataSource = FakeTripDataSource
@@ -13,8 +14,6 @@ class TripRepositoryImpl private constructor(
     companion object {
         val instance: TripRepositoryImpl by lazy { TripRepositoryImpl() }
     }
-
-    private val TAG = "TripRepositoryImpl"
 
     // ── TRIPS ──────────────────────────────────────────────────────────────
 
