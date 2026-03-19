@@ -91,6 +91,14 @@ fun AddActivityScreen(
         }
     }
 
+    // NUEVO: Autodestrucción del mensaje verde a los 3 segundos
+    LaunchedEffect(showSuccess) {
+        if (showSuccess) {
+            kotlinx.coroutines.delay(3000)
+            showSuccess = false
+        }
+    }
+
     // DatePicker restringido al rango del viaje
     val datePicker = selectedTrip?.let { trip ->
         DatePickerDialog(
@@ -144,8 +152,11 @@ fun AddActivityScreen(
                 Text(stringResource(R.string.header_info), style = MaterialTheme.typography.bodyMedium, color = GrayMid)
             }
 
-            // Tab selector
-            ActTabRow(selectedTab = selectedTab, onTabSelected = { selectedTab = it })
+            // Tab selector (NUEVO: Limpiamos el mensaje al tocar una pestaña)
+            ActTabRow(selectedTab = selectedTab, onTabSelected = {
+                selectedTab = it
+                showSuccess = false
+            })
 
             Spacer(Modifier.height(8.dp))
 
@@ -216,6 +227,7 @@ fun AddActivityScreen(
                             description = activity.description
                             date = activity.date
                             time = activity.time
+                            showSuccess = false // NUEVO: Matamos el fantasma antes de saltar a editar
                             selectedTab = ActivityTab.ADD // Salto automático a la pestaña de edición
                         },
                         onDeleteActivity = { activity ->
