@@ -13,9 +13,6 @@ import java.time.LocalDate
 import java.time.LocalTime
 import java.util.UUID
 
-/**
- * Estados posibles de la pantalla de detalle de un viaje.
- */
 sealed class TripDetailUiState {
     object Loading : TripDetailUiState()
     data class Success(
@@ -24,19 +21,6 @@ sealed class TripDetailUiState {
     ) : TripDetailUiState()
     data class Error(val message: String) : TripDetailUiState()
 }
-
-/**
- * ViewModel para TripDetailScreen e ItineraryScreen.
- *
- * Responsabilidades (T1.7):
- * - Cargar y exponer el viaje seleccionado y sus actividades como StateFlow
- * - Implementar addActivity, updateActivity, deleteActivity
- * - Validar los datos de actividad antes de enviarlos al repositorio (T1.8)
- * - Validar que la actividad esté dentro del rango de fechas del viaje (T1.3)
- * - Emitir errores de validación para que la UI los muestre (T3.1)
- *
- * Arquitectura: UI → TripDetailViewModel → TripRepository → FakeTripDataSource
- */
 class TripDetailViewModel(
     private val repository: TripRepository = TripRepositoryImpl.instance
 ) : ViewModel() {

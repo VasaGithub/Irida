@@ -355,8 +355,20 @@ private fun AddTabContent(
                         stringResource(R.string.act_desc_ex), valErrors["description"], singleLine = false, minLines = 3)
 
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                        ActDateField(Modifier.weight(1f), "Fecha *", date, valErrors["date"], onDateClick)
-                        TimePickerField(Modifier.weight(1f), "Hora *", time, valErrors["time"], onTimeClick)
+                        ActDateField(
+                            modifier = Modifier.weight(1f),
+                            label = stringResource(R.string.act_date_label),
+                            date = date,
+                            error = valErrors["date"],
+                            onClick = onDateClick
+                        )
+                        TimePickerField(
+                            modifier = Modifier.weight(1f),
+                            label = stringResource(R.string.act_time_label),
+                            time = time,
+                            error = valErrors["time"],
+                            onClick = onTimeClick
+                        )
                     }
 
                     AnimatedVisibility(visible = showSuccess) {
