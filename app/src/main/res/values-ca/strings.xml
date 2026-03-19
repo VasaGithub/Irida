@@ -177,4 +177,7 @@
     <string name="cd_anadir_foto">Afegir una foto</string>
     <string name="label_anadir_caps">AFEGIR</string>
     <string name="badge_top">TOP</string>
+
+    <string name="act_date_label">Data *</string>
+    <string name="act_time_label">Hora *</string>
 </resources>
