@@ -3,6 +3,7 @@ package com.travelplanner.irida.ui.screens
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.util.Log
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -221,7 +222,9 @@ fun AddActivityScreen(
                                         shape = RoundedCornerShape(16.dp),
                                         colors = ButtonDefaults.buttonColors(containerColor = TurquoisePrimary, contentColor = NavyDeep)
                                     ) {
-                                        Text("➕ Añadir actividad", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                                        Icon(Icons.Default.Add, contentDescription = null)
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        Text("Añadir actividad", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                                     }
                                 }
 

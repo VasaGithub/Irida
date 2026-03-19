@@ -163,26 +163,33 @@ fun HomeScreen(
                 }
             }
 
+            // --- BOTÓN ACTUALIZADO PARA MANTENER LA CONSISTENCIA VISUAL ---
             item {
                 Spacer(modifier = Modifier.height(8.dp))
                 Box(
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp)
                 ) {
-                    OutlinedButton(
+                    Button(
                         onClick = {
                             Log.d(HOME_TAG, "Añadir viaje pulsado")
                             onAddTripClick()
                         },
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(52.dp),
                         shape = RoundedCornerShape(16.dp),
-                        colors = ButtonDefaults.outlinedButtonColors(contentColor = TurquoisePrimary),
-                        border = androidx.compose.foundation.BorderStroke(
-                            1.dp, TurquoisePrimary.copy(alpha = 0.5f)
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = TurquoisePrimary,
+                            contentColor = NavyDeep
                         )
                     ) {
                         Icon(Icons.Default.Add, contentDescription = null)
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text(text = stringResource(R.string.btn_add_nuevo_viaje))
+                        Text(
+                            text = stringResource(R.string.btn_add_nuevo_viaje),
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
+                        )
                     }
                 }
             }
@@ -208,7 +215,6 @@ fun HomeHeader() {
             ) {
                 Column {
                     Text(
-                        // He dejado 'Iker' como parámetro por si en el futuro tenéis perfiles de usuario
                         text = stringResource(R.string.greeting_user, "Iker"),
                         style = MaterialTheme.typography.bodyMedium,
                         color = GrayMid
@@ -236,9 +242,6 @@ fun HomeHeader() {
     }
 }
 
-/**
- * TripCard con botones de editar/eliminar y fechas desde LocalDate.
- */
 @Composable
 fun TripCard(
     trip: Trip,
@@ -349,10 +352,6 @@ fun TripsEmptyState() {
     }
 }
 
-/**
- * BottomNavBar — mantenida en HomeScreen.kt como en Sprint 01.
- * Importada por el resto de pantallas desde aquí.
- */
 @Composable
 fun BottomNavBar(selectedTab: Int, onTabSelected: (Int) -> Unit) {
     NavigationBar(containerColor = NavyMid, tonalElevation = 0.dp) {

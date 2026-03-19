@@ -32,7 +32,7 @@ import com.travelplanner.irida.ui.theme.*
 import com.travelplanner.irida.ui.viewmodels.TripDetailUiState
 import com.travelplanner.irida.ui.viewmodels.TripDetailViewModel
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
-
+import androidx.compose.material.icons.filled.Add
 private val dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
 private val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
 
@@ -147,7 +147,9 @@ fun TripDetailScreen(
                                     shape = RoundedCornerShape(16.dp),
                                     colors = ButtonDefaults.buttonColors(containerColor = TurquoisePrimary, contentColor = NavyDeep)
                                 ) {
-                                    Text("➕ Añadir actividad", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                                    Icon(Icons.Default.Add, contentDescription = null)
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text("Añadir actividad", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                                 }
                             }
                         }
