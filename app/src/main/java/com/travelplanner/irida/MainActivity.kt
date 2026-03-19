@@ -5,9 +5,9 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import com.travelplanner.irida.data.PreferencesManager
-import com.travelplanner.irida.utils.LanguageChangeUtil
 import com.travelplanner.irida.ui.AppNavigation
 import com.travelplanner.irida.ui.theme.IridaTheme
+import com.travelplanner.irida.utils.LanguageChangeUtil
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

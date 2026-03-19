@@ -1,6 +1,6 @@
 package com.travelplanner.irida.ui
 
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -8,7 +8,16 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.travelplanner.irida.ui.screens.*
+import com.travelplanner.irida.ui.screens.AboutScreen
+import com.travelplanner.irida.ui.screens.AddActivityScreen
+import com.travelplanner.irida.ui.screens.AddTripScreen
+import com.travelplanner.irida.ui.screens.EditTripScreen
+import com.travelplanner.irida.ui.screens.HomeScreen
+import com.travelplanner.irida.ui.screens.PreferencesScreen
+import com.travelplanner.irida.ui.screens.SplashScreen
+import com.travelplanner.irida.ui.screens.TermsAndConditionsScreen
+import com.travelplanner.irida.ui.screens.TripDetailScreen
+import com.travelplanner.irida.ui.screens.TripGalleryScreen
 import com.travelplanner.irida.ui.viewmodels.TripDetailViewModel
 import com.travelplanner.irida.ui.viewmodels.TripListViewModel
 
