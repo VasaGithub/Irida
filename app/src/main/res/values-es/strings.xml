@@ -40,7 +40,7 @@
     <string name="in_date">Fecha inicio *</string>
     <string name="end_date">Fecha fin *</string>
     <string name="trip_emoji">Emoji del viaje</string>
-<string name="presupuesto">Presupuesto (€)</string>
+    <string name="presupuesto">Presupuesto (€)</string>
     <string name="btn_guardar_viaje">Guardar viaje</string>
     <string name="btn_cancelar">Cancelar</string>
     <string name="title_nuevo_viaje">Nuevo viaje</string>

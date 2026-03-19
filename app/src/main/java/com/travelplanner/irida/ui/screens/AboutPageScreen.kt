@@ -1,5 +1,6 @@
 package com.travelplanner.irida.ui.screens
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -10,13 +11,15 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.travelplanner.irida.ui.theme.*
-
+import com.travelplanner.irida.R
 data class TeamMember(
     val initials: String,
     val name: String,
@@ -39,7 +42,7 @@ fun AboutScreen(
             BottomNavBar(selectedTab = 3, onTabSelected = { tab ->
                 when (tab) {
                     0 -> onNavigate("home")
-                    1 -> onNavigate("trips")
+                    1 -> onNavigate("activities")
                     2 -> onNavigate("gallery")
                     3 -> onNavigate("settings")
                 }
@@ -61,7 +64,7 @@ fun AboutScreen(
 
             // Team section
             item {
-                PreferenceSectionHeader(emoji = "👥", title = "EQUIPO DE DESARROLLO")
+                PreferenceSectionHeader(emoji = "👥", title = stringResource(R.string.equipo_de_desarrollo))
             }
             item {
                 Column(
@@ -78,7 +81,7 @@ fun AboutScreen(
 
             // Technical info section
             item {
-                PreferenceSectionHeader(emoji = "ℹ️", title = "INFORMACIÓN TÉCNICA")
+                PreferenceSectionHeader(emoji = "ℹ️", title = stringResource(R.string.tecnic_info))
             }
             item {
                 PreferenceCard {
@@ -96,7 +99,7 @@ fun AboutScreen(
 
             // License section
             item {
-                PreferenceSectionHeader(emoji = "📄", title = "LICENCIA")
+                PreferenceSectionHeader(emoji = "📄", title = stringResource(R.string.license_title))
             }
             item {
                 Card(
@@ -127,7 +130,7 @@ fun AboutScreen(
             item {
                 Spacer(modifier = Modifier.height(24.dp))
                 Text(
-                    text = "Desarrollado en Campus Igualada.",
+                    text = stringResource(R.string.footer_text),
                     style = MaterialTheme.typography.bodyMedium,
                     color = GrayDark,
                     textAlign = TextAlign.Center
@@ -162,19 +165,11 @@ fun AboutHero() {
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             // Logo
-            Box(
-                modifier = Modifier
-                    .size(90.dp)
-                    .background(
-                        Brush.linearGradient(
-                            colors = listOf(TurquoisePrimary, TurquoiseLight)
-                        ),
-                        shape = CircleShape
-                    ),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(text = "✈", fontSize = 40.sp, color = NavyDeep)
-            }
+            Image(
+                painter = painterResource(id = R.drawable.logo),
+                contentDescription = stringResource(R.string.logo_irida),
+                modifier = Modifier.size(90.dp)
+            )
 
             Text(
                 text = "Irida",
@@ -208,7 +203,7 @@ fun AboutHero() {
             Spacer(modifier = Modifier.height(4.dp))
 
             Text(
-                text = "Plan your adventures, your way.\nDesarrollado en Campus Igualada.",
+                text = stringResource(R.string.slogan_text),
                 style = MaterialTheme.typography.bodyMedium,
                 color = GrayMid,
                 textAlign = TextAlign.Center
