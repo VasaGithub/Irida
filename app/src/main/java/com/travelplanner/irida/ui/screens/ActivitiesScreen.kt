@@ -43,16 +43,16 @@ private const val ADD_ACT_TAG = "ActivitiesScreen"
 private val actDateFormatter  = DateTimeFormatter.ofPattern("dd/MM/yyyy")
 private val actTimeFormatter  = DateTimeFormatter.ofPattern("HH:mm")
 
-// ── Modos de la pantalla ───────────────────────────────────────────────────
 private enum class ScreenMode {
     LIST, FORM, DETAIL
 }
 
-// ── Screen ─────────────────────────────────────────────────────────────────
-
 @Composable
 fun AddActivityScreen(
+    initialTripId: String? = null,
+    initialActivityId: String? = null, // NUEVO PARÁMETRO
     onNavigate: (String) -> Unit = {},
+    onReturn: () -> Unit = {},
     tripListViewModel: TripListViewModel = viewModel(),
     tripDetailViewModel: TripDetailViewModel = viewModel()
 ) {
@@ -65,11 +65,9 @@ fun AddActivityScreen(
     var selectedTrip     by remember { mutableStateOf<Trip?>(null) }
     var dropdownExpanded by remember { mutableStateOf(false) }
 
-    // Estados para la gestión del CRUD y Vistas
     var activityToDelete by remember { mutableStateOf<Activity?>(null) }
-    var activeActivity   by remember { mutableStateOf<Activity?>(null) } // Usado para Editar o Ver detalle
+    var activeActivity   by remember { mutableStateOf<Activity?>(null) }
 
-    // Campos del formulario
     var title       by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var date        by remember { mutableStateOf<LocalDate?>(null) }
@@ -78,27 +76,51 @@ fun AddActivityScreen(
 
     val trips = (tripsState as? TripListUiState.Success)?.trips ?: emptyList()
 
-    // Cargar viaje al seleccionarlo
-    LaunchedEffect(selectedTrip) {
-        selectedTrip?.let {
-            Log.d(ADD_ACT_TAG, "loadTrip: ${it.id}")
-            tripDetailViewModel.loadTrip(it.id)
-            currentMode = ScreenMode.LIST // Asegurar que volvemos a la lista si cambiamos de viaje
+    // 1. CARGA DE VIAJE AUTOMÁTICA
+    LaunchedEffect(initialTripId, trips) {
+        if (initialTripId != null && selectedTrip == null && trips.isNotEmpty()) {
+            val trip = trips.find { it.id == initialTripId }
+            if (trip != null) {
+                selectedTrip = trip
+                // Si solo venimos a añadir (no hay activityId), preparamos formulario limpio
+                if (initialActivityId == null) {
+                    activeActivity = null
+                    currentMode = ScreenMode.FORM
+                }
+            }
         }
     }
 
-    // Preparar el formulario al entrar en modo FORM
+    LaunchedEffect(selectedTrip) {
+        selectedTrip?.let {
+            tripDetailViewModel.loadTrip(it.id)
+            if (initialTripId == null && currentMode != ScreenMode.FORM) {
+                currentMode = ScreenMode.LIST
+            }
+        }
+    }
+
+    // 2. NUEVO: CARGA DE ACTIVIDAD AUTOMÁTICA (MODO EDICIÓN PROFUNDO)
+    LaunchedEffect(detailState, initialActivityId) {
+        if (initialActivityId != null && detailState is TripDetailUiState.Success) {
+            val activities = (detailState as TripDetailUiState.Success).activities
+            val activity = activities.find { it.id == initialActivityId }
+            if (activity != null && activeActivity?.id != initialActivityId) {
+                activeActivity = activity
+                currentMode = ScreenMode.FORM
+            }
+        }
+    }
+
     LaunchedEffect(currentMode, activeActivity) {
         if (currentMode == ScreenMode.FORM) {
             tripDetailViewModel.clearValidationErrors()
             if (activeActivity != null) {
-                // Modo Edición
                 title = activeActivity!!.title
                 description = activeActivity!!.description
                 date = activeActivity!!.date
                 time = activeActivity!!.time
             } else {
-                // Modo Crear Nuevo
                 title = ""
                 description = ""
                 date = null
@@ -107,7 +129,6 @@ fun AddActivityScreen(
         }
     }
 
-    // Autodestrucción del mensaje verde a los 3 segundos
     LaunchedEffect(showSuccess) {
         if (showSuccess) {
             kotlinx.coroutines.delay(3000)
@@ -115,13 +136,10 @@ fun AddActivityScreen(
         }
     }
 
-    // DatePicker restringido al rango del viaje
     val datePicker = selectedTrip?.let { trip ->
         DatePickerDialog(
             context,
-            { _, year, month, day ->
-                date = LocalDate.of(year, month + 1, day)
-            },
+            { _, year, month, day -> date = LocalDate.of(year, month + 1, day) },
             trip.startDate.year, trip.startDate.monthValue - 1, trip.startDate.dayOfMonth
         ).apply {
             datePicker.minDate = trip.startDate.atStartOfDay(java.time.ZoneOffset.UTC.normalized() as java.time.ZoneId).toInstant().toEpochMilli()
@@ -150,14 +168,12 @@ fun AddActivityScreen(
                 .background(NavyDeep)
                 .padding(paddingValues)
         ) {
-            // Header Principal (Siempre visible en la lista)
             AnimatedVisibility(visible = currentMode == ScreenMode.LIST) {
                 Column(modifier = Modifier.padding(horizontal = 20.dp).padding(top = 24.dp, bottom = 16.dp)) {
                     Text(stringResource(R.string.header_act), style = MaterialTheme.typography.headlineMedium, color = White, fontWeight = FontWeight.ExtraBold)
                     Text(stringResource(R.string.header_info), style = MaterialTheme.typography.bodyMedium, color = GrayMid)
                     Spacer(Modifier.height(16.dp))
 
-                    // Dropdown debajo del título
                     if (trips.isEmpty()) {
                         ActEmptyTrips()
                     } else {
@@ -171,24 +187,19 @@ fun AddActivityScreen(
                 }
             }
 
-            // Contenido dinámico
             AnimatedContent(
                 targetState = currentMode,
-                transitionSpec = {
-                    slideInHorizontally { it } + fadeIn() togetherWith slideOutHorizontally { -it } + fadeOut()
-                },
+                transitionSpec = { slideInHorizontally { it } + fadeIn() togetherWith slideOutHorizontally { -it } + fadeOut() },
                 label = "screen_mode"
             ) { mode ->
                 when (mode) {
                     ScreenMode.LIST -> {
-                        // LA LISTA DE ACTIVIDADES
                         if (selectedTrip != null) {
                             LazyColumn(
                                 modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp),
                                 verticalArrangement = Arrangement.spacedBy(16.dp),
                                 contentPadding = PaddingValues(bottom = 24.dp)
                             ) {
-                                // Mensaje de éxito flotante en la lista
                                 if (showSuccess) {
                                     item {
                                         Card(shape = RoundedCornerShape(12.dp), colors = CardDefaults.cardColors(containerColor = SuccessGreen.copy(alpha = 0.15f))) {
@@ -200,7 +211,6 @@ fun AddActivityScreen(
                                     }
                                 }
 
-                                // Botón Añadir Actividad
                                 item {
                                     Button(
                                         onClick = {
@@ -215,7 +225,6 @@ fun AddActivityScreen(
                                     }
                                 }
 
-                                // Lista de actividades ordenadas
                                 when (detailState) {
                                     is TripDetailUiState.Loading -> item {
                                         Box(Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
@@ -223,7 +232,6 @@ fun AddActivityScreen(
                                         }
                                     }
                                     is TripDetailUiState.Success -> {
-                                        // ORDENAR POR DÍA Y LUEGO POR HORA
                                         val sortedActivities = (detailState as TripDetailUiState.Success).activities
                                             .sortedWith(compareBy({ it.date }, { it.time }))
 
@@ -262,7 +270,6 @@ fun AddActivityScreen(
                     }
 
                     ScreenMode.FORM -> {
-                        // FORMULARIO (Crear o Editar)
                         LazyColumn(
                             modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp),
                             verticalArrangement = Arrangement.spacedBy(16.dp),
@@ -270,7 +277,9 @@ fun AddActivityScreen(
                         ) {
                             item {
                                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                    IconButton(onClick = { currentMode = ScreenMode.LIST }) {
+                                    IconButton(onClick = {
+                                        if (initialTripId != null) onReturn() else currentMode = ScreenMode.LIST
+                                    }) {
                                         Icon(Icons.AutoMirrored.Filled.ArrowBack, "Volver", tint = White)
                                     }
                                     Text(
@@ -293,12 +302,8 @@ fun AddActivityScreen(
                                 }
                             }
 
-                            item {
-                                ActField(stringResource(R.string.act_title_ex), title, { title = it }, stringResource(R.string.act_text_ex), valErrors["title"])
-                            }
-                            item {
-                                ActField(stringResource(R.string.act_extr_ex), description, { description = it }, stringResource(R.string.act_desc_ex), valErrors["description"], singleLine = false, minLines = 3)
-                            }
+                            item { ActField(stringResource(R.string.act_title_ex), title, { title = it }, stringResource(R.string.act_text_ex), valErrors["title"]) }
+                            item { ActField(stringResource(R.string.act_extr_ex), description, { description = it }, stringResource(R.string.act_desc_ex), valErrors["description"], singleLine = false, minLines = 3) }
 
                             item {
                                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -310,7 +315,9 @@ fun AddActivityScreen(
                             item {
                                 Row(modifier = Modifier.fillMaxWidth().padding(top = 8.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                                     OutlinedButton(
-                                        onClick = { currentMode = ScreenMode.LIST },
+                                        onClick = {
+                                            if (initialTripId != null) onReturn() else currentMode = ScreenMode.LIST
+                                        },
                                         modifier = Modifier.weight(1f).height(52.dp),
                                         shape = RoundedCornerShape(16.dp),
                                         colors = ButtonDefaults.outlinedButtonColors(contentColor = GrayMid)
@@ -325,8 +332,12 @@ fun AddActivityScreen(
                                                 tripDetailViewModel.addActivity(title, description, date, time)
                                             }
                                             if (ok) {
-                                                showSuccess = true
-                                                currentMode = ScreenMode.LIST
+                                                if (initialTripId != null) {
+                                                    onReturn() // Volvemos al viaje si venimos desde ahí
+                                                } else {
+                                                    showSuccess = true
+                                                    currentMode = ScreenMode.LIST
+                                                }
                                             }
                                         },
                                         modifier = Modifier.weight(1.5f).height(52.dp),
@@ -341,7 +352,6 @@ fun AddActivityScreen(
                     }
 
                     ScreenMode.DETAIL -> {
-                        // VISTA DE DETALLE (Solo lectura)
                         activeActivity?.let { activity ->
                             Column(modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp).padding(top = 16.dp)) {
                                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -382,7 +392,6 @@ fun AddActivityScreen(
             }
         }
 
-        // --- DIÁLOGO DE CONFIRMACIÓN DE BORRADO ---
         if (activityToDelete != null) {
             AlertDialog(
                 onDismissRequest = { activityToDelete = null },
@@ -407,8 +416,6 @@ fun AddActivityScreen(
     }
 }
 
-// ── Tarjeta de actividad con Acciones (Clickable) ──────────────────────────
-
 @Composable
 private fun ActActivityCardEditable(
     activity: Activity,
@@ -419,76 +426,39 @@ private fun ActActivityCardEditable(
     Card(
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = NavyLight),
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onCardClick() } // CLIC EN LA TARJETA PARA VER DETALLE
+        modifier = Modifier.fillMaxWidth().clickable { onCardClick() }
     ) {
-        Row(
-            Modifier.fillMaxWidth().padding(16.dp),
-            horizontalArrangement = Arrangement.spacedBy(14.dp),
-            verticalAlignment = Alignment.Top
-        ) {
-            // Badge fecha + hora
+        Row(Modifier.fillMaxWidth().padding(16.dp), horizontalArrangement = Arrangement.spacedBy(14.dp), verticalAlignment = Alignment.Top) {
             Box(
-                modifier = Modifier
-                    .background(TurquoisePrimary.copy(alpha = 0.15f), RoundedCornerShape(10.dp))
-                    .padding(horizontal = 8.dp, vertical = 10.dp),
+                modifier = Modifier.background(TurquoisePrimary.copy(alpha = 0.15f), RoundedCornerShape(10.dp)).padding(horizontal = 8.dp, vertical = 10.dp),
                 contentAlignment = Alignment.Center
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(
-                        text = activity.date.dayOfMonth.toString(),
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.ExtraBold,
-                        color = TurquoisePrimary
-                    )
-                    Text(
-                        text = activity.date.format(DateTimeFormatter.ofPattern("MMM", java.util.Locale(stringResource(R.string.lenguaje_act)))).uppercase(),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = TurquoisePrimary
-                    )
+                    Text(text = activity.date.dayOfMonth.toString(), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.ExtraBold, color = TurquoisePrimary)
+                    Text(text = activity.date.format(DateTimeFormatter.ofPattern("MMM", java.util.Locale(stringResource(R.string.lenguaje_act)))).uppercase(), style = MaterialTheme.typography.labelSmall, color = TurquoisePrimary)
                     Spacer(Modifier.height(4.dp))
-                    Text(
-                        text = activity.time.format(actTimeFormatter),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = GrayMid
-                    )
+                    Text(text = activity.time.format(actTimeFormatter), style = MaterialTheme.typography.labelSmall, color = GrayMid)
                 }
             }
 
-            // Textos y Botones
             Column(Modifier.weight(1f)) {
                 Text(activity.title, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Bold, color = White)
                 if (activity.description.isNotBlank()) {
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(activity.description, style = MaterialTheme.typography.bodySmall, color = GrayMid, maxLines = 2)
                 }
-
                 Spacer(modifier = Modifier.height(8.dp))
-
-                // Botones de acción (Evitamos que el clic en el botón active el de la tarjeta entera)
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End
-                ) {
-                    IconButton(onClick = onEdit, modifier = Modifier.size(36.dp)) {
-                        Icon(Icons.Default.Edit, contentDescription = "Editar", tint = TurquoisePrimary, modifier = Modifier.size(20.dp))
-                    }
-                    IconButton(onClick = onDelete, modifier = Modifier.size(36.dp)) {
-                        Icon(Icons.Default.Delete, contentDescription = "Eliminar", tint = ErrorRed, modifier = Modifier.size(20.dp))
-                    }
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                    IconButton(onClick = onEdit, modifier = Modifier.size(36.dp)) { Icon(Icons.Default.Edit, contentDescription = "Editar", tint = TurquoisePrimary, modifier = Modifier.size(20.dp)) }
+                    IconButton(onClick = onDelete, modifier = Modifier.size(36.dp)) { Icon(Icons.Default.Delete, contentDescription = "Eliminar", tint = ErrorRed, modifier = Modifier.size(20.dp)) }
                 }
             }
         }
     }
 }
 
-// ── Componentes UI reutilizables ───────────────────────────────────────────
-
 @Composable
-private fun ActLabel(text: String) {
-    Text(text, style = MaterialTheme.typography.labelSmall, color = TurquoisePrimary, letterSpacing = 2.sp, fontWeight = FontWeight.Bold)
-}
+private fun ActLabel(text: String) { Text(text, style = MaterialTheme.typography.labelSmall, color = TurquoisePrimary, letterSpacing = 2.sp, fontWeight = FontWeight.Bold) }
 
 @Composable
 private fun ActEmptyTrips() {
@@ -503,23 +473,14 @@ private fun ActEmptyTrips() {
 @Composable
 private fun ActField(
     label: String, value: String, onValueChange: (String) -> Unit,
-    placeholder: String, error: String? = null,
-    singleLine: Boolean = true, minLines: Int = 1
+    placeholder: String, error: String? = null, singleLine: Boolean = true, minLines: Int = 1
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
         Text(label, style = MaterialTheme.typography.bodyMedium, color = if (error != null) ErrorRed else GrayMid, fontWeight = FontWeight.Medium)
         OutlinedTextField(
-            value = value, onValueChange = onValueChange,
-            placeholder = { Text(placeholder, color = GrayDark) },
-            modifier = Modifier.fillMaxWidth(),
-            singleLine = singleLine, minLines = minLines, isError = error != null,
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedTextColor = White, unfocusedTextColor = White,
-                focusedBorderColor = TurquoisePrimary, unfocusedBorderColor = GrayDark,
-                errorBorderColor = ErrorRed, focusedContainerColor = NavyLight,
-                unfocusedContainerColor = NavyLight, errorContainerColor = NavyLight,
-                cursorColor = TurquoisePrimary
-            ),
+            value = value, onValueChange = onValueChange, placeholder = { Text(placeholder, color = GrayDark) },
+            modifier = Modifier.fillMaxWidth(), singleLine = singleLine, minLines = minLines, isError = error != null,
+            colors = OutlinedTextFieldDefaults.colors(focusedTextColor = White, unfocusedTextColor = White, focusedBorderColor = TurquoisePrimary, unfocusedBorderColor = GrayDark, errorBorderColor = ErrorRed, focusedContainerColor = NavyLight, unfocusedContainerColor = NavyLight, errorContainerColor = NavyLight, cursorColor = TurquoisePrimary),
             shape = RoundedCornerShape(12.dp)
         )
         if (error != null) Text(error, style = MaterialTheme.typography.bodySmall, color = ErrorRed)
@@ -530,11 +491,7 @@ private fun ActField(
 private fun ActDateField(modifier: Modifier, label: String, date: LocalDate?, error: String?, onClick: () -> Unit) {
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(6.dp)) {
         Text(label, style = MaterialTheme.typography.bodyMedium, color = if (error != null) ErrorRed else GrayMid, fontWeight = FontWeight.Medium)
-        Box(modifier = Modifier
-            .fillMaxWidth()
-            .background(NavyLight, RoundedCornerShape(12.dp))
-            .clickable { onClick() }
-            .padding(horizontal = 16.dp, vertical = 14.dp)) {
+        Box(modifier = Modifier.fillMaxWidth().background(NavyLight, RoundedCornerShape(12.dp)).clickable { onClick() }.padding(horizontal = 16.dp, vertical = 14.dp)) {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                 Text(date?.format(actDateFormatter) ?: "dd/MM/yyyy", color = if (date != null) White else GrayDark, style = MaterialTheme.typography.bodyMedium)
                 Icon(Icons.Default.DateRange, null, tint = if (error != null) ErrorRed else TurquoisePrimary, modifier = Modifier.size(20.dp))
@@ -547,21 +504,14 @@ private fun ActDateField(modifier: Modifier, label: String, date: LocalDate?, er
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ActDropdown(
-    trips: List<Trip>, selectedTrip: Trip?,
-    expanded: Boolean, onExpandedChange: (Boolean) -> Unit,
-    onTripSelected: (Trip) -> Unit
+    trips: List<Trip>, selectedTrip: Trip?, expanded: Boolean, onExpandedChange: (Boolean) -> Unit, onTripSelected: (Trip) -> Unit
 ) {
     ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = onExpandedChange) {
         OutlinedTextField(
             value = selectedTrip?.let { "${it.emoji} ${it.title}" } ?: stringResource(R.string.select_trip_2),
-            onValueChange = {}, readOnly = true,
-            modifier = Modifier.fillMaxWidth().menuAnchor(),
+            onValueChange = {}, readOnly = true, modifier = Modifier.fillMaxWidth().menuAnchor(),
             trailingIcon = { Icon(Icons.Default.ArrowDropDown, null, tint = TurquoisePrimary) },
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedTextColor = White, unfocusedTextColor = if (selectedTrip != null) White else GrayDark,
-                focusedBorderColor = TurquoisePrimary, unfocusedBorderColor = GrayDark,
-                focusedContainerColor = NavyLight, unfocusedContainerColor = NavyLight, cursorColor = TurquoisePrimary
-            ),
+            colors = OutlinedTextFieldDefaults.colors(focusedTextColor = White, unfocusedTextColor = if (selectedTrip != null) White else GrayDark, focusedBorderColor = TurquoisePrimary, unfocusedBorderColor = GrayDark, focusedContainerColor = NavyLight, unfocusedContainerColor = NavyLight, cursorColor = TurquoisePrimary),
             shape = RoundedCornerShape(12.dp)
         )
         ExposedDropdownMenu(expanded = expanded, onDismissRequest = { onExpandedChange(false) }, modifier = Modifier.background(NavyLight)) {
@@ -588,11 +538,7 @@ private fun ActDropdown(
 fun TimePickerField(modifier: Modifier = Modifier, label: String, time: LocalTime?, error: String? = null, onClick: () -> Unit) {
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(6.dp)) {
         Text(label, style = MaterialTheme.typography.bodyMedium, color = if (error != null) ErrorRed else GrayMid, fontWeight = FontWeight.Medium)
-        Box(modifier = Modifier
-            .fillMaxWidth()
-            .background(NavyLight, RoundedCornerShape(12.dp))
-            .clickable { onClick() }
-            .padding(horizontal = 16.dp, vertical = 14.dp)) {
+        Box(modifier = Modifier.fillMaxWidth().background(NavyLight, RoundedCornerShape(12.dp)).clickable { onClick() }.padding(horizontal = 16.dp, vertical = 14.dp)) {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                 Text(time?.format(actTimeFormatter) ?: "HH:mm", color = if (time != null) White else GrayDark, style = MaterialTheme.typography.bodyMedium)
                 Icon(Icons.Default.DateRange, stringResource(R.string.select_time), tint = if (error != null) ErrorRed else TurquoisePrimary, modifier = Modifier.size(20.dp))
@@ -605,7 +551,5 @@ fun TimePickerField(modifier: Modifier = Modifier, label: String, time: LocalTim
 @Preview(showBackground = true)
 @Composable
 fun AddActivityScreenPreview() {
-    IridaTheme {
-        AddActivityScreen()
-    }
+    IridaTheme { AddActivityScreen() }
 }

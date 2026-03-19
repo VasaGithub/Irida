@@ -17,7 +17,7 @@ object Routes {
     const val TERMS       = "terms"
     const val HOME        = "home"
 
-    const val ACTIVITIES = "activities"
+    const val ACTIVITIES  = "activities"
     const val TRIP_DETAIL = "trip_detail"
     const val ADD_TRIP    = "add_trip"
     const val EDIT_TRIP   = "edit_trip"
@@ -27,6 +27,18 @@ object Routes {
 
     fun tripDetail(tripId: String) = "$TRIP_DETAIL/$tripId"
     fun editTrip(tripId: String)   = "$EDIT_TRIP/$tripId"
+
+    // ACTUALIZADO: Ahora acepta también un activityId opcional
+    fun activities(tripId: String? = null, activityId: String? = null): String {
+        var route = ACTIVITIES
+        if (tripId != null) {
+            route += "?tripId=$tripId"
+            if (activityId != null) {
+                route += "&activityId=$activityId"
+            }
+        }
+        return route
+    }
 }
 
 var termsAccepted = false
@@ -34,9 +46,6 @@ var termsAccepted = false
 @Composable
 fun AppNavigation(navController: NavHostController = rememberNavController()) {
 
-    // ViewModels compartidos entre todas las pantallas que los necesitan.
-    // Al crearlos aquí (en el composable raíz), Compose garantiza que es
-    // siempre la misma instancia mientras la app está viva.
     val tripListViewModel: TripListViewModel = viewModel()
     val tripDetailViewModel: TripDetailViewModel = viewModel()
 
@@ -49,13 +58,9 @@ fun AppNavigation(navController: NavHostController = rememberNavController()) {
             SplashScreen(
                 onSplashFinished = {
                     if (termsAccepted) {
-                        navController.navigate(Routes.HOME) {
-                            popUpTo(Routes.SPLASH) { inclusive = true }
-                        }
+                        navController.navigate(Routes.HOME) { popUpTo(Routes.SPLASH) { inclusive = true } }
                     } else {
-                        navController.navigate(Routes.TERMS) {
-                            popUpTo(Routes.SPLASH) { inclusive = true }
-                        }
+                        navController.navigate(Routes.TERMS) { popUpTo(Routes.SPLASH) { inclusive = true } }
                     }
                 }
             )
@@ -65,9 +70,7 @@ fun AppNavigation(navController: NavHostController = rememberNavController()) {
             TermsAndConditionsScreen(
                 onAccept = {
                     termsAccepted = true
-                    navController.navigate(Routes.HOME) {
-                        popUpTo(Routes.TERMS) { inclusive = true }
-                    }
+                    navController.navigate(Routes.HOME) { popUpTo(Routes.TERMS) { inclusive = true } }
                 },
                 onReject = { termsAccepted = false },
                 onBack = { navController.popBackStack() }
@@ -114,34 +117,43 @@ fun AppNavigation(navController: NavHostController = rememberNavController()) {
                 tripId = tripId,
                 onBack = { navController.popBackStack() },
                 onNavigate = { route -> handleBottomNav(route, navController) },
+                onAddActivity = { navController.navigate(Routes.activities(tripId)) },
+                // NUEVO: Conectamos la edición con la ruta pasando ambos IDs
+                onEditActivity = { activityId -> navController.navigate(Routes.activities(tripId, activityId)) },
                 viewModel = tripDetailViewModel
             )
         }
 
-        composable(Routes.ACTIVITIES) {
+        // ACTUALIZADO: Añadimos activityId a los argumentos que espera la ruta
+        composable(
+            route = "${Routes.ACTIVITIES}?tripId={tripId}&activityId={activityId}",
+            arguments = listOf(
+                navArgument("tripId") { type = NavType.StringType; nullable = true; defaultValue = null },
+                navArgument("activityId") { type = NavType.StringType; nullable = true; defaultValue = null }
+            )
+        ) { backStackEntry ->
+            val tripId = backStackEntry.arguments?.getString("tripId")
+            val activityId = backStackEntry.arguments?.getString("activityId")
             AddActivityScreen(
+                initialTripId = tripId,
+                initialActivityId = activityId, // Se lo pasamos a la pantalla
                 onNavigate = { route -> handleBottomNav(route, navController) },
+                onReturn = { navController.popBackStack() },
                 tripListViewModel = tripListViewModel,
                 tripDetailViewModel = tripDetailViewModel
             )
         }
 
         composable(Routes.GALLERY) {
-            TripGalleryScreen(
-                onNavigate = { route -> handleBottomNav(route, navController) }
-            )
+            TripGalleryScreen(onNavigate = { route -> handleBottomNav(route, navController) })
         }
 
         composable(Routes.PREFERENCES) {
-            PreferencesScreen(
-                onNavigate = { route -> handleBottomNav(route, navController) }
-            )
+            PreferencesScreen(onNavigate = { route -> handleBottomNav(route, navController) })
         }
 
         composable(Routes.ABOUT) {
-            AboutScreen(
-                onNavigate = { route -> handleBottomNav(route, navController) }
-            )
+            AboutScreen(onNavigate = { route -> handleBottomNav(route, navController) })
         }
     }
 }
