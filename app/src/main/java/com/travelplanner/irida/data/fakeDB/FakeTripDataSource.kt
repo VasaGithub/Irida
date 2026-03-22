@@ -30,21 +30,24 @@ object FakeTripDataSource {
             title = "Aventura en Tokio",
             description = "Explorando la cultura japonesa: templos, gastronomía y tecnología.",
             startDate = today.plusDays(10),
-            endDate = today.plusDays(18)
+            endDate = today.plusDays(18),
+            emoji = "⛩️"
         )
         val trip2 = Trip(
             id = "trip-002",
             title = "Escapada a París",
             description = "Ciudad de la luz: museos, gastronomía y arquitectura.",
             startDate = today.plusDays(30),
-            endDate = today.plusDays(34)
+            endDate = today.plusDays(34),
+            emoji = "🥐"
         )
         val trip3 = Trip(
             id = "trip-003",
             title = "Evasión en Bali",
             description = "Playas paradisíacas, templos y retiros de bienestar.",
             startDate = today.plusDays(60),
-            endDate = today.plusDays(70)
+            endDate = today.plusDays(70),
+            emoji = "🌴"
         )
 
         trips.addAll(listOf(trip1, trip2, trip3))
