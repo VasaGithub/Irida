@@ -34,7 +34,12 @@ fun IridaTheme(content: @Composable () -> Unit) {
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
+
+            // Ocultamos el warning porque cambiar la app a Edge-To-Edge
+            // rompería los paddings actuales de nuestras pantallas.
+            @Suppress("DEPRECATION")
             window.statusBarColor = NavyDeep.toArgb()
+
             WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = false
         }
     }

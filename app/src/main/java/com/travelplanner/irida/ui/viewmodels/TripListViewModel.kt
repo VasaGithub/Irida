@@ -2,9 +2,9 @@ package com.travelplanner.irida.ui.viewmodels
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
+import com.travelplanner.irida.data.repository.TripRepositoryImpl
 import com.travelplanner.irida.domain.Trip
 import com.travelplanner.irida.domain.TripRepository
-import com.travelplanner.irida.data.repository.TripRepositoryImpl
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

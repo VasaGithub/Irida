@@ -3,14 +3,37 @@ package com.travelplanner.irida.ui.screens
 import android.app.DatePickerDialog
 import android.util.Log
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -19,9 +42,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.travelplanner.irida.R
-import com.travelplanner.irida.ui.theme.*
-import com.travelplanner.irida.ui.viewmodels.TripListViewModel
+import com.travelplanner.irida.ui.theme.ErrorRed
+import com.travelplanner.irida.ui.theme.GrayDark
+import com.travelplanner.irida.ui.theme.GrayMid
+import com.travelplanner.irida.ui.theme.IridaTheme
+import com.travelplanner.irida.ui.theme.NavyDeep
+import com.travelplanner.irida.ui.theme.NavyMid
+import com.travelplanner.irida.ui.theme.TurquoisePrimary
+import com.travelplanner.irida.ui.theme.White
 import com.travelplanner.irida.ui.viewmodels.TripListUiState
+import com.travelplanner.irida.ui.viewmodels.TripListViewModel
 import java.time.LocalDate
 
 private const val EDIT_TAG = "EditTripScreen"
@@ -46,8 +76,9 @@ fun EditTripScreen(
     var title by remember(tripToEdit) { mutableStateOf(tripToEdit?.title ?: "") }
     var description by remember(tripToEdit) { mutableStateOf(tripToEdit?.description ?: "") }
     var destination by remember(tripToEdit) { mutableStateOf(tripToEdit?.destination ?: "") }
-    var startDate by remember(tripToEdit) { mutableStateOf<LocalDate?>(tripToEdit?.startDate) }
-    var endDate by remember(tripToEdit) { mutableStateOf<LocalDate?>(tripToEdit?.endDate) }
+    // --- SOLUCIÓN AL WARNING: Eliminado <LocalDate?> explícito ---
+    var startDate by remember(tripToEdit) { mutableStateOf(tripToEdit?.startDate) }
+    var endDate by remember(tripToEdit) { mutableStateOf(tripToEdit?.endDate) }
     var emoji by remember(tripToEdit) { mutableStateOf(tripToEdit?.emoji ?: "✈️") }
     var budgetText by remember(tripToEdit) { mutableStateOf(tripToEdit?.budget?.toString() ?: "") }
 

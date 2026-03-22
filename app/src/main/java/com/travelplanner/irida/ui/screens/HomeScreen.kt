@@ -3,15 +3,52 @@ package com.travelplanner.irida.ui.screens
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -26,7 +63,17 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.travelplanner.irida.R
 import com.travelplanner.irida.domain.Trip
-import com.travelplanner.irida.ui.theme.*
+import com.travelplanner.irida.ui.theme.ErrorRed
+import com.travelplanner.irida.ui.theme.GoldAccent
+import com.travelplanner.irida.ui.theme.GrayDark
+import com.travelplanner.irida.ui.theme.GrayMid
+import com.travelplanner.irida.ui.theme.IridaTheme
+import com.travelplanner.irida.ui.theme.NavyDeep
+import com.travelplanner.irida.ui.theme.NavyLight
+import com.travelplanner.irida.ui.theme.NavyMid
+import com.travelplanner.irida.ui.theme.TurquoiseLight
+import com.travelplanner.irida.ui.theme.TurquoisePrimary
+import com.travelplanner.irida.ui.theme.White
 import com.travelplanner.irida.ui.viewmodels.TripListUiState
 import com.travelplanner.irida.ui.viewmodels.TripListViewModel
 import java.time.format.DateTimeFormatter
@@ -163,26 +210,33 @@ fun HomeScreen(
                 }
             }
 
+            // --- BOTÓN ACTUALIZADO PARA MANTENER LA CONSISTENCIA VISUAL ---
             item {
                 Spacer(modifier = Modifier.height(8.dp))
                 Box(
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp)
                 ) {
-                    OutlinedButton(
+                    Button(
                         onClick = {
                             Log.d(HOME_TAG, "Añadir viaje pulsado")
                             onAddTripClick()
                         },
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(52.dp),
                         shape = RoundedCornerShape(16.dp),
-                        colors = ButtonDefaults.outlinedButtonColors(contentColor = TurquoisePrimary),
-                        border = androidx.compose.foundation.BorderStroke(
-                            1.dp, TurquoisePrimary.copy(alpha = 0.5f)
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = TurquoisePrimary,
+                            contentColor = NavyDeep
                         )
                     ) {
                         Icon(Icons.Default.Add, contentDescription = null)
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text(text = stringResource(R.string.btn_add_nuevo_viaje))
+                        Text(
+                            text = stringResource(R.string.btn_add_nuevo_viaje),
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
+                        )
                     }
                 }
             }
@@ -208,7 +262,6 @@ fun HomeHeader() {
             ) {
                 Column {
                     Text(
-                        // He dejado 'Iker' como parámetro por si en el futuro tenéis perfiles de usuario
                         text = stringResource(R.string.greeting_user, "Iker"),
                         style = MaterialTheme.typography.bodyMedium,
                         color = GrayMid
@@ -236,9 +289,6 @@ fun HomeHeader() {
     }
 }
 
-/**
- * TripCard con botones de editar/eliminar y fechas desde LocalDate.
- */
 @Composable
 fun TripCard(
     trip: Trip,
@@ -349,10 +399,6 @@ fun TripsEmptyState() {
     }
 }
 
-/**
- * BottomNavBar — mantenida en HomeScreen.kt como en Sprint 01.
- * Importada por el resto de pantallas desde aquí.
- */
 @Composable
 fun BottomNavBar(selectedTab: Int, onTabSelected: (Int) -> Unit) {
     NavigationBar(containerColor = NavyMid, tonalElevation = 0.dp) {

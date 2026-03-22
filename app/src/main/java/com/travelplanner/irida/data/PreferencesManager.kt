@@ -2,6 +2,7 @@ package com.travelplanner.irida.data
 
 import android.content.Context
 import android.content.SharedPreferences
+import androidx.core.content.edit
 import com.travelplanner.irida.utils.LanguageChangeUtil
 
 class PreferencesManager(private val context: Context) {
@@ -14,8 +15,8 @@ class PreferencesManager(private val context: Context) {
     var selectedLanguageCode: String
         get() = preferences.getString("user_language", "es") ?: "es"
         set(value) {
-            // 1. Guardar en memoria
-            preferences.edit().putString("user_language", value).apply()
+            // 1. Guardar en memoria usando la extensión KTX
+            preferences.edit { putString("user_language", value) }
             // 2. Aplicar el cambio en el sistema inmediatamente
             languageChangeUtil.changeLanguage(context, value)
         }
@@ -23,14 +24,14 @@ class PreferencesManager(private val context: Context) {
     // ─── APARIENCIA Y PANTALLA ──────────────────────────────────────────────
 
     fun saveDarkMode(isDark: Boolean) {
-        preferences.edit().putBoolean("dark_mode", isDark).apply()
+        preferences.edit { putBoolean("dark_mode", isDark) }
     }
     fun getDarkMode(): Boolean {
         return preferences.getBoolean("dark_mode", false) // false por defecto
     }
 
     fun saveTextSize(size: String) {
-        preferences.edit().putString("text_size", size).apply()
+        preferences.edit { putString("text_size", size) }
     }
     fun getTextSize(): String {
         return preferences.getString("text_size", "Mediano") ?: "Mediano"
@@ -39,14 +40,14 @@ class PreferencesManager(private val context: Context) {
     // ─── REGIONAL Y FORMATOS ────────────────────────────────────────────────
 
     fun saveCurrency(currency: String) {
-        preferences.edit().putString("currency", currency).apply()
+        preferences.edit { putString("currency", currency) }
     }
     fun getCurrency(): String {
         return preferences.getString("currency", "EUR") ?: "EUR"
     }
 
     fun saveDateFormat(format: String) {
-        preferences.edit().putString("date_format", format).apply()
+        preferences.edit { putString("date_format", format) }
     }
     fun getDateFormat(): String {
         return preferences.getString("date_format", "dd/MM/yyyy") ?: "dd/MM/yyyy"
@@ -55,21 +56,21 @@ class PreferencesManager(private val context: Context) {
     // ─── NOTIFICACIONES Y PRIVACIDAD ────────────────────────────────────────
 
     fun saveTripReminders(enabled: Boolean) {
-        preferences.edit().putBoolean("trip_reminders", enabled).apply()
+        preferences.edit { putBoolean("trip_reminders", enabled) }
     }
     fun getTripReminders(): Boolean {
         return preferences.getBoolean("trip_reminders", true) // true por defecto
     }
 
     fun saveWeeklySummary(enabled: Boolean) {
-        preferences.edit().putBoolean("weekly_summary", enabled).apply()
+        preferences.edit { putBoolean("weekly_summary", enabled) }
     }
     fun getWeeklySummary(): Boolean {
         return preferences.getBoolean("weekly_summary", true)
     }
 
     fun saveAiSuggestions(enabled: Boolean) {
-        preferences.edit().putBoolean("ai_suggestions", enabled).apply()
+        preferences.edit { putBoolean("ai_suggestions", enabled) }
     }
     fun getAiSuggestions(): Boolean {
         return preferences.getBoolean("ai_suggestions", true)
