@@ -132,7 +132,7 @@
     <string name="splash_subtitle">Travel Planner</string>
     <string name="splash_tagline">Plan your adventures, your way</string>
     <string name="splash_loading">LOADING…</string>
-    <string name="splash_version">v1.0.0 · Sprint 01</string>
+    <string name="splash_version">v2.0.0 · Sprint 02</string>
     <string name="splash_footer">Built with ❤️ at Campus Igualada</string>
 
     <string name="terms_title_1">Acceptance of Terms</string>

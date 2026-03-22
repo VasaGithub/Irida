@@ -109,9 +109,9 @@ fun AboutScreen(
             }
             item {
                 PreferenceCard {
-                    TechInfoRow("Versión", "1.0.0")
+                    TechInfoRow("Versión", "2.0.0")
                     PreferenceDivider()
-                    TechInfoRow("Sprint", "01")
+                    TechInfoRow("Sprint", "02")
                     PreferenceDivider()
                     TechInfoRow("Android mín.", "API 26 (8.0)")
                     PreferenceDivider()
@@ -216,7 +216,7 @@ fun AboutHero() {
                 color = TurquoisePrimary.copy(alpha = 0.15f)
             ) {
                 Text(
-                    text = "v1.0.0 · Sprint 01",
+                    text = "v2.0.0 · Sprint 02",
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp),
                     style = MaterialTheme.typography.labelSmall,
                     color = TurquoisePrimary,
