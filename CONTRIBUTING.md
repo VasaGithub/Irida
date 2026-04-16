@@ -18,7 +18,7 @@ Sigue siempre este orden cuando vayas a programar tu parte:
    `git pull origin develop`
 
 2. **Crea tu rama de trabajo:**
-   Nombra la rama con la tarea que vas a hacer (ejemplo: `feature/t3-1-home-layout`).
+   Nombra la rama con la tarea que vas a hacer (ejemplo: `feature/home-layout`).
    `git checkout -b feature/nombre-de-tu-tarea`
 
 3. **Programa y haz commits:**
