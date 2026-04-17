@@ -39,7 +39,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.travelplanner.irida.R
 import com.travelplanner.irida.data.PreferencesManager
 import com.travelplanner.irida.ui.theme.GrayDark
@@ -54,7 +53,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 
 @Composable
 fun PreferencesScreen(
-    onNavigate: (String) -> Unit = {}
+        onNavigate: (String) -> Unit = {},
+        onLogout: () -> Unit = {}
 ) {
     val context = androidx.compose.ui.platform.LocalContext.current
 
@@ -351,6 +351,29 @@ fun PreferencesScreen(
                     }
                 }
             }
+            // Account section
+            item { PreferenceSectionHeader(emoji = "🔐", title = "CUENTA") }
+            item {
+                PreferenceCard {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { onLogout() }
+                            .padding(horizontal = 16.dp, vertical = 14.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Text(text = "🚪", fontSize = 20.sp)
+                        Text(
+                            text = "Cerrar sesión",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = androidx.compose.ui.graphics.Color.Red,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+                }
+            }
+
         }
     }
 }
