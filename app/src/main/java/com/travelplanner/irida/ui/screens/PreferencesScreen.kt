@@ -50,7 +50,7 @@ import com.travelplanner.irida.ui.theme.NavyLight
 import com.travelplanner.irida.ui.theme.TurquoisePrimary
 import com.travelplanner.irida.ui.theme.White
 import com.travelplanner.irida.ui.viewmodels.SettingsViewModel
-import com.travelplanner.irida.ui.viewmodels.SettingsViewModelFactory
+import androidx.hilt.navigation.compose.hiltViewModel
 
 @Composable
 fun PreferencesScreen(
@@ -60,9 +60,9 @@ fun PreferencesScreen(
 
     // 1. Inicializamos el PreferencesManager y el ViewModel usando el Factory
     val prefs = remember { PreferencesManager(context) }
-    val settingsViewModel: SettingsViewModel = viewModel(
-        factory = SettingsViewModelFactory(prefs)
-    )
+    val settingsViewModel: SettingsViewModel = hiltViewModel()
+
+
 
     // 2. Observamos los estados desde el ViewModel
     // IDIOMA (Mantenemos la lógica directa con prefs porque usa LanguageChangeUtil internamente)
