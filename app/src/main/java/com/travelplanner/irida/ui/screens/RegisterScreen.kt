@@ -173,7 +173,7 @@ fun RegisterScreen(
                         localError = "Las contraseñas no coinciden"
                     password.length < 6 ->
                         localError = "La contraseña debe tener al menos 6 caracteres"
-                    else -> authViewModel.register(email.trim(), password)
+                    else -> authViewModel.register(email.trim(), username.trim(), password)
                 }
             },
             enabled = state !is AuthViewModel.AuthUiState.Loading,

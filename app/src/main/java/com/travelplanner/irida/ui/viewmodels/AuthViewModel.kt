@@ -13,13 +13,16 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import javax.inject.Inject
+import com.travelplanner.irida.domain.UserRepository
+import com.travelplanner.irida.data.local.entity.UserEntity
+
 
 @HiltViewModel
 class AuthViewModel @Inject constructor(
     private val authRepository: AuthRepository,
+    private val userRepository: UserRepository,
     private val accessLogDao: AccessLogDao
 ) : ViewModel() {
-
     sealed class AuthUiState {
         object Idle : AuthUiState()
         object Loading : AuthUiState()
@@ -52,11 +55,23 @@ class AuthViewModel @Inject constructor(
         }
     }
 
-    fun register(email: String, password: String) {
+    fun register(email: String, username: String, password: String) {
         viewModelScope.launch {
             _state.value = AuthUiState.Loading
             authRepository.register(email, password)
                 .onSuccess { user ->
+                    userRepository.saveUser(
+                        UserEntity(
+                            uid = user.uid,
+                            email = email,
+                            username = username,
+                            birthdate = "",
+                            address = "",
+                            country = "",
+                            phone = "",
+                            acceptEmails = false
+                        )
+                    )
                     authRepository.sendVerificationEmail()
                     Log.i("AuthVM", "REGISTER uid=${user.uid}")
                     _state.value = AuthUiState.Success
@@ -64,6 +79,7 @@ class AuthViewModel @Inject constructor(
                 .onFailure { _state.value = AuthUiState.Error(it.message ?: "Error de registro") }
         }
     }
+
 
     fun sendPasswordReset(email: String) {
         viewModelScope.launch {
