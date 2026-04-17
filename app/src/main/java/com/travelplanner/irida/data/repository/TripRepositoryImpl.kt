@@ -1,66 +1,58 @@
 package com.travelplanner.irida.data.repository
 
-import android.util.Log
-import com.travelplanner.irida.data.fakeDB.FakeTripDataSource
+import com.google.firebase.auth.FirebaseAuth
+import com.travelplanner.irida.data.local.dao.ActivityDao
+import com.travelplanner.irida.data.local.dao.TripDao
+import com.travelplanner.irida.data.local.entity.toDomain
+import com.travelplanner.irida.data.local.entity.toEntity
 import com.travelplanner.irida.domain.Activity
 import com.travelplanner.irida.domain.Trip
 import com.travelplanner.irida.domain.TripRepository
-private const val TAG = "TripRepositoryImpl"
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class TripRepositoryImpl private constructor(
-    private val dataSource: FakeTripDataSource = FakeTripDataSource
+@Singleton
+class TripRepositoryImpl @Inject constructor(
+    private val tripDao: TripDao,
+    private val activityDao: ActivityDao,
+    private val auth: FirebaseAuth
 ) : TripRepository {
 
-    companion object {
-        val instance: TripRepositoryImpl by lazy { TripRepositoryImpl() }
+    override fun getTripsStream(userId: String): Flow<List<Trip>> =
+        tripDao.getTripsStream(userId).map { list -> list.map { it.toDomain() } }
+
+    override fun getActivitiesStream(tripId: String): Flow<List<Activity>> =
+        activityDao.getActivitiesStream(tripId).map { list -> list.map { it.toDomain() } }
+
+    override suspend fun getTripById(id: String): Trip? =
+        tripDao.getTripById(id)?.toDomain()
+
+    override suspend fun isTitleDuplicate(title: String, userId: String, excludeId: String): Boolean =
+        tripDao.countByTitle(title, userId, excludeId) > 0
+
+    override suspend fun addTrip(trip: Trip) {
+        tripDao.insert(trip.toEntity(auth.currentUser?.uid ?: ""))
     }
 
-    // ── TRIPS ──────────────────────────────────────────────────────────────
-
-    override fun getTrips(): List<Trip> {
-        Log.d(TAG, "getTrips llamado")
-        return dataSource.getTrips()
+    override suspend fun updateTrip(trip: Trip) {
+        tripDao.update(trip.toEntity(trip.userId))
     }
 
-    override fun getTripById(id: String): Trip? {
-        Log.d(TAG, "getTripById llamado con id=$id")
-        return dataSource.getTripById(id)
+    override suspend fun deleteTrip(tripId: String) {
+        tripDao.delete(tripId)
     }
 
-    override fun addTrip(trip: Trip) {
-        Log.d(TAG, "addTrip llamado: '${trip.title}'")
-        dataSource.addTrip(trip)
+    override suspend fun addActivity(activity: Activity) {
+        activityDao.insert(activity.toEntity())
     }
 
-    override fun updateTrip(trip: Trip) {
-        Log.d(TAG, "updateTrip llamado: '${trip.title}' (id=${trip.id})")
-        dataSource.updateTrip(trip)
+    override suspend fun updateActivity(activity: Activity) {
+        activityDao.update(activity.toEntity())
     }
 
-    override fun deleteTrip(tripId: String) {
-        Log.d(TAG, "deleteTrip llamado: id=$tripId")
-        dataSource.deleteTrip(tripId)
-    }
-
-    // ── ACTIVITIES ─────────────────────────────────────────────────────────
-
-    override fun getActivities(tripId: String): List<Activity> {
-        Log.d(TAG, "getActivities llamado: tripId=$tripId")
-        return dataSource.getActivities(tripId)
-    }
-
-    override fun addActivity(activity: Activity) {
-        Log.d(TAG, "addActivity llamado: '${activity.title}' (tripId=${activity.tripId})")
-        dataSource.addActivity(activity)
-    }
-
-    override fun updateActivity(activity: Activity) {
-        Log.d(TAG, "updateActivity llamado: '${activity.title}' (id=${activity.id})")
-        dataSource.updateActivity(activity)
-    }
-
-    override fun deleteActivity(activityId: String) {
-        Log.d(TAG, "deleteActivity llamado: id=$activityId")
-        dataSource.deleteActivity(activityId)
+    override suspend fun deleteActivity(activityId: String) {
+        activityDao.delete(activityId)
     }
 }

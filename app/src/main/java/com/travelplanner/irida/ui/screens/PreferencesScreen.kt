@@ -39,7 +39,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.travelplanner.irida.R
 import com.travelplanner.irida.data.PreferencesManager
 import com.travelplanner.irida.ui.theme.GrayDark
@@ -50,19 +49,20 @@ import com.travelplanner.irida.ui.theme.NavyLight
 import com.travelplanner.irida.ui.theme.TurquoisePrimary
 import com.travelplanner.irida.ui.theme.White
 import com.travelplanner.irida.ui.viewmodels.SettingsViewModel
-import com.travelplanner.irida.ui.viewmodels.SettingsViewModelFactory
+import androidx.hilt.navigation.compose.hiltViewModel
 
 @Composable
 fun PreferencesScreen(
-    onNavigate: (String) -> Unit = {}
+        onNavigate: (String) -> Unit = {},
+        onLogout: () -> Unit = {}
 ) {
     val context = androidx.compose.ui.platform.LocalContext.current
 
     // 1. Inicializamos el PreferencesManager y el ViewModel usando el Factory
     val prefs = remember { PreferencesManager(context) }
-    val settingsViewModel: SettingsViewModel = viewModel(
-        factory = SettingsViewModelFactory(prefs)
-    )
+    val settingsViewModel: SettingsViewModel = hiltViewModel()
+
+
 
     // 2. Observamos los estados desde el ViewModel
     // IDIOMA (Mantenemos la lógica directa con prefs porque usa LanguageChangeUtil internamente)
@@ -351,6 +351,29 @@ fun PreferencesScreen(
                     }
                 }
             }
+            // Account section
+            item { PreferenceSectionHeader(emoji = "🔐", title = "CUENTA") }
+            item {
+                PreferenceCard {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { onLogout() }
+                            .padding(horizontal = 16.dp, vertical = 14.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Text(text = "🚪", fontSize = 20.sp)
+                        Text(
+                            text = "Cerrar sesión",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = androidx.compose.ui.graphics.Color.Red,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+                }
+            }
+
         }
     }
 }

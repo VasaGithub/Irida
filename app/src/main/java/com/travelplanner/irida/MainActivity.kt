@@ -8,7 +8,9 @@ import com.travelplanner.irida.data.PreferencesManager
 import com.travelplanner.irida.ui.AppNavigation
 import com.travelplanner.irida.ui.theme.IridaTheme
 import com.travelplanner.irida.utils.LanguageChangeUtil
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
