@@ -33,8 +33,19 @@ class AuthViewModel @Inject constructor(
     private val _state = MutableStateFlow<AuthUiState>(AuthUiState.Idle)
     val state: StateFlow<AuthUiState> = _state.asStateFlow()
 
+    private val _currentUsername = MutableStateFlow("")
+    val currentUsername: StateFlow<String> = _currentUsername.asStateFlow()
+
     val isLoggedIn get() = authRepository.currentUser != null
     val isEmailVerified get() = authRepository.isEmailVerified
+
+    init {
+        authRepository.currentUser?.uid?.let { uid ->
+            viewModelScope.launch {
+                _currentUsername.value = userRepository.getUserById(uid)?.username ?: ""
+            }
+        }
+    }
 
     fun login(email: String, password: String) {
         viewModelScope.launch {
@@ -48,6 +59,7 @@ class AuthViewModel @Inject constructor(
                             datetime = LocalDateTime.now().toString()
                         )
                     )
+                    _currentUsername.value = userRepository.getUserById(user.uid)?.username ?: ""
                     Log.i("AuthVM", "LOGIN uid=${user.uid}")
                     _state.value = AuthUiState.Success
                 }
@@ -73,6 +85,7 @@ class AuthViewModel @Inject constructor(
                         )
                     )
                     authRepository.sendVerificationEmail()
+                    _currentUsername.value = username
                     Log.i("AuthVM", "REGISTER uid=${user.uid}")
                     _state.value = AuthUiState.Success
                 }
@@ -103,6 +116,7 @@ class AuthViewModel @Inject constructor(
                 )
             }
             authRepository.logout()
+            _currentUsername.value = ""
             Log.i("AuthVM", "LOGOUT uid=$uid")
             _state.value = AuthUiState.Idle
         }

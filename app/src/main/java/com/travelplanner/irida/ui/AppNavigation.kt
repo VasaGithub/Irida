@@ -1,6 +1,8 @@
 package com.travelplanner.irida.ui
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -59,6 +61,7 @@ fun AppNavigation(navController: NavHostController = rememberNavController()) {
     val tripListViewModel: TripListViewModel = hiltViewModel()
     val tripDetailViewModel: TripDetailViewModel = hiltViewModel()
     val authViewModel: AuthViewModel = hiltViewModel()
+    val currentUsername by authViewModel.currentUsername.collectAsState()
 
     NavHost(navController = navController, startDestination = Routes.SPLASH) {
 
@@ -112,6 +115,7 @@ fun AppNavigation(navController: NavHostController = rememberNavController()) {
 
         composable(Routes.HOME) {
             HomeScreen(
+                username = currentUsername,
                 onTripClick = { trip -> navController.navigate(Routes.tripDetail(trip.id)) },
                 onAddTripClick = { navController.navigate(Routes.ADD_TRIP) },
                 onEditTripClick = { trip -> navController.navigate(Routes.editTrip(trip.id)) },
