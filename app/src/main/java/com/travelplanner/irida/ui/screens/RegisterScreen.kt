@@ -12,9 +12,14 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -29,17 +34,22 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.travelplanner.irida.ui.theme.ErrorRed
 import com.travelplanner.irida.ui.theme.GrayMid
 import com.travelplanner.irida.ui.theme.NavyDeep
 import com.travelplanner.irida.ui.theme.NavyLight
+import com.travelplanner.irida.ui.theme.SuccessGreen
 import com.travelplanner.irida.ui.theme.TurquoisePrimary
 import com.travelplanner.irida.ui.theme.White
 import com.travelplanner.irida.ui.viewmodels.AuthViewModel
+
+private val emailRegex = Regex("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")
 
 @Composable
 fun RegisterScreen(
@@ -51,16 +61,30 @@ fun RegisterScreen(
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
+    var passwordVisible by remember { mutableStateOf(false) }
+    var confirmPasswordVisible by remember { mutableStateOf(false) }
     var localError by remember { mutableStateOf("") }
+    var registrationDone by remember { mutableStateOf(false) }
 
     val state by authViewModel.state.collectAsState()
 
     LaunchedEffect(state) {
         if (state is AuthViewModel.AuthUiState.Success) {
             authViewModel.resetState()
-            onRegisterSuccess()
+            registrationDone = true
         }
     }
+
+    val fieldColors = OutlinedTextFieldDefaults.colors(
+        focusedBorderColor = TurquoisePrimary,
+        unfocusedBorderColor = GrayMid,
+        focusedTextColor = White,
+        unfocusedTextColor = White,
+        cursorColor = TurquoisePrimary,
+        focusedContainerColor = NavyLight,
+        unfocusedContainerColor = NavyLight
+    )
+    val fieldShape = RoundedCornerShape(12.dp)
 
     Column(
         modifier = Modifier
@@ -85,113 +109,164 @@ fun RegisterScreen(
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        val fieldColors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = TurquoisePrimary,
-            unfocusedBorderColor = GrayMid,
-            focusedTextColor = White,
-            unfocusedTextColor = White,
-            cursorColor = TurquoisePrimary,
-            focusedContainerColor = NavyLight,
-            unfocusedContainerColor = NavyLight
-        )
-        val fieldShape = RoundedCornerShape(12.dp)
-
-        OutlinedTextField(
-            value = email,
-            onValueChange = { email = it },
-            label = { Text("Correo electrónico", color = GrayMid) },
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-            modifier = Modifier.fillMaxWidth(),
-            colors = fieldColors,
-            shape = fieldShape
-        )
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        OutlinedTextField(
-            value = username,
-            onValueChange = { username = it },
-            label = { Text("Nombre de usuario", color = GrayMid) },
-            singleLine = true,
-            modifier = Modifier.fillMaxWidth(),
-            colors = fieldColors,
-            shape = fieldShape
-        )
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        OutlinedTextField(
-            value = password,
-            onValueChange = { password = it },
-            label = { Text("Contraseña", color = GrayMid) },
-            singleLine = true,
-            visualTransformation = PasswordVisualTransformation(),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-            modifier = Modifier.fillMaxWidth(),
-            colors = fieldColors,
-            shape = fieldShape
-        )
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        OutlinedTextField(
-            value = confirmPassword,
-            onValueChange = { confirmPassword = it },
-            label = { Text("Confirmar contraseña", color = GrayMid) },
-            singleLine = true,
-            visualTransformation = PasswordVisualTransformation(),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-            modifier = Modifier.fillMaxWidth(),
-            colors = fieldColors,
-            shape = fieldShape
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        val errorMsg = localError.ifEmpty {
-            (state as? AuthViewModel.AuthUiState.Error)?.message ?: ""
-        }
-        if (errorMsg.isNotEmpty()) {
+        if (registrationDone) {
             Text(
-                text = errorMsg,
-                color = Color.Red,
-                style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.fillMaxWidth()
+                text = "✓ Cuenta creada correctamente.",
+                color = SuccessGreen,
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.SemiBold,
+                textAlign = TextAlign.Center
             )
-        }
-
-        Spacer(modifier = Modifier.height(20.dp))
-
-        Button(
-            onClick = {
-                localError = ""
-                when {
-                    email.isBlank() || username.isBlank() || password.isBlank() ->
-                        localError = "Rellena todos los campos"
-                    password != confirmPassword ->
-                        localError = "Las contraseñas no coinciden"
-                    password.length < 6 ->
-                        localError = "La contraseña debe tener al menos 6 caracteres"
-                    else -> authViewModel.register(email.trim(), username.trim(), password)
-                }
-            },
-            enabled = state !is AuthViewModel.AuthUiState.Loading,
-            modifier = Modifier.fillMaxWidth().height(50.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = TurquoisePrimary),
-            shape = RoundedCornerShape(12.dp)
-        ) {
-            if (state is AuthViewModel.AuthUiState.Loading) {
-                CircularProgressIndicator(color = NavyDeep, strokeWidth = 2.dp)
-            } else {
-                Text("Registrarse", color = NavyDeep, fontWeight = FontWeight.Bold)
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "Hemos enviado un email de verificación a $email. Verifícalo antes de iniciar sesión.",
+                color = GrayMid,
+                style = MaterialTheme.typography.bodyMedium,
+                textAlign = TextAlign.Center
+            )
+            Spacer(modifier = Modifier.height(24.dp))
+            Button(
+                onClick = onRegisterSuccess,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = TurquoisePrimary),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Text("Ir al inicio de sesión", color = NavyDeep, fontWeight = FontWeight.Bold)
             }
-        }
+        } else {
+            OutlinedTextField(
+                value = email,
+                onValueChange = {
+                    email = it
+                    localError = ""
+                },
+                label = { Text("Correo electrónico", color = GrayMid) },
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                modifier = Modifier.fillMaxWidth(),
+                colors = fieldColors,
+                shape = fieldShape
+            )
 
-        Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
-        TextButton(onClick = onNavigateToLogin) {
-            Text("¿Ya tienes cuenta? Inicia sesión", color = GrayMid)
+            OutlinedTextField(
+                value = username,
+                onValueChange = {
+                    username = it
+                    localError = ""
+                },
+                label = { Text("Nombre de usuario", color = GrayMid) },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+                colors = fieldColors,
+                shape = fieldShape
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            OutlinedTextField(
+                value = password,
+                onValueChange = {
+                    password = it
+                    localError = ""
+                },
+                label = { Text("Contraseña", color = GrayMid) },
+                singleLine = true,
+                visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                trailingIcon = {
+                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                        Icon(
+                            imageVector = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
+                            contentDescription = if (passwordVisible) "Ocultar contraseña" else "Mostrar contraseña",
+                            tint = GrayMid
+                        )
+                    }
+                },
+                modifier = Modifier.fillMaxWidth(),
+                colors = fieldColors,
+                shape = fieldShape
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            OutlinedTextField(
+                value = confirmPassword,
+                onValueChange = {
+                    confirmPassword = it
+                    localError = ""
+                },
+                label = { Text("Confirmar contraseña", color = GrayMid) },
+                singleLine = true,
+                visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                trailingIcon = {
+                    IconButton(onClick = { confirmPasswordVisible = !confirmPasswordVisible }) {
+                        Icon(
+                            imageVector = if (confirmPasswordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
+                            contentDescription = if (confirmPasswordVisible) "Ocultar contraseña" else "Mostrar contraseña",
+                            tint = GrayMid
+                        )
+                    }
+                },
+                modifier = Modifier.fillMaxWidth(),
+                colors = fieldColors,
+                shape = fieldShape
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            val errorMsg = localError.ifEmpty {
+                (state as? AuthViewModel.AuthUiState.Error)?.message ?: ""
+            }
+            if (errorMsg.isNotEmpty()) {
+                Text(
+                    text = errorMsg,
+                    color = ErrorRed,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            Button(
+                onClick = {
+                    localError = ""
+                    when {
+                        email.isBlank() || username.isBlank() || password.isBlank() ->
+                            localError = "Rellena todos los campos"
+                        !emailRegex.matches(email.trim()) ->
+                            localError = "El formato del correo no es válido"
+                        password.length < 6 ->
+                            localError = "La contraseña debe tener al menos 6 caracteres"
+                        password != confirmPassword ->
+                            localError = "Las contraseñas no coinciden"
+                        else -> authViewModel.register(email.trim(), username.trim(), password)
+                    }
+                },
+                enabled = state !is AuthViewModel.AuthUiState.Loading,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = TurquoisePrimary),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                if (state is AuthViewModel.AuthUiState.Loading) {
+                    CircularProgressIndicator(color = NavyDeep, strokeWidth = 2.dp)
+                } else {
+                    Text("Registrarse", color = NavyDeep, fontWeight = FontWeight.Bold)
+                }
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            TextButton(onClick = onNavigateToLogin) {
+                Text("¿Ya tienes cuenta? Inicia sesión", color = GrayMid)
+            }
         }
     }
 }

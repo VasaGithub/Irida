@@ -27,11 +27,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.travelplanner.irida.ui.theme.ErrorRed
 import com.travelplanner.irida.ui.theme.GrayMid
 import com.travelplanner.irida.ui.theme.NavyDeep
 import com.travelplanner.irida.ui.theme.NavyLight
@@ -115,7 +115,7 @@ fun ForgotPasswordScreen(
             if (state is AuthViewModel.AuthUiState.Error) {
                 Text(
                     text = (state as AuthViewModel.AuthUiState.Error).message,
-                    color = Color.Red,
+                    color = ErrorRed,
                     style = MaterialTheme.typography.bodySmall,
                     modifier = Modifier.fillMaxWidth()
                 )
