@@ -38,13 +38,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.travelplanner.irida.ui.theme.ErrorRed
 import com.travelplanner.irida.ui.theme.GrayMid
 import com.travelplanner.irida.ui.theme.NavyDeep
 import com.travelplanner.irida.ui.theme.NavyLight
-import com.travelplanner.irida.ui.theme.SuccessGreen
 import com.travelplanner.irida.ui.theme.TurquoisePrimary
 import com.travelplanner.irida.ui.theme.White
 import com.travelplanner.irida.ui.viewmodels.AuthViewModel
@@ -54,7 +52,7 @@ private val emailRegex = Regex("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$
 @Composable
 fun RegisterScreen(
     authViewModel: AuthViewModel,
-    onRegisterSuccess: () -> Unit,
+    onRegisterSuccess: (email: String) -> Unit,
     onNavigateToLogin: () -> Unit
 ) {
     var email by remember { mutableStateOf("") }
@@ -64,14 +62,13 @@ fun RegisterScreen(
     var passwordVisible by remember { mutableStateOf(false) }
     var confirmPasswordVisible by remember { mutableStateOf(false) }
     var localError by remember { mutableStateOf("") }
-    var registrationDone by remember { mutableStateOf(false) }
 
     val state by authViewModel.state.collectAsState()
 
     LaunchedEffect(state) {
         if (state is AuthViewModel.AuthUiState.Success) {
             authViewModel.resetState()
-            registrationDone = true
+            onRegisterSuccess(email.trim())
         }
     }
 
@@ -109,34 +106,7 @@ fun RegisterScreen(
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        if (registrationDone) {
-            Text(
-                text = "✓ Cuenta creada correctamente.",
-                color = SuccessGreen,
-                style = MaterialTheme.typography.bodyLarge,
-                fontWeight = FontWeight.SemiBold,
-                textAlign = TextAlign.Center
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = "Hemos enviado un email de verificación a $email. Verifícalo antes de iniciar sesión.",
-                color = GrayMid,
-                style = MaterialTheme.typography.bodyMedium,
-                textAlign = TextAlign.Center
-            )
-            Spacer(modifier = Modifier.height(24.dp))
-            Button(
-                onClick = onRegisterSuccess,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(50.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = TurquoisePrimary),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Text("Ir al inicio de sesión", color = NavyDeep, fontWeight = FontWeight.Bold)
-            }
-        } else {
-            OutlinedTextField(
+        OutlinedTextField(
                 value = email,
                 onValueChange = {
                     email = it
@@ -267,6 +237,5 @@ fun RegisterScreen(
             TextButton(onClick = onNavigateToLogin) {
                 Text("¿Ya tienes cuenta? Inicia sesión", color = GrayMid)
             }
-        }
     }
 }

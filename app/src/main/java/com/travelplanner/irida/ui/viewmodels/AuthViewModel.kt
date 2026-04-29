@@ -5,7 +5,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.travelplanner.irida.data.local.dao.AccessLogDao
 import com.travelplanner.irida.data.local.entity.AccessLogEntity
+import com.travelplanner.irida.data.local.entity.UserEntity
 import com.travelplanner.irida.domain.AuthRepository
+import com.travelplanner.irida.domain.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -13,9 +15,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import javax.inject.Inject
-import com.travelplanner.irida.domain.UserRepository
-import com.travelplanner.irida.data.local.entity.UserEntity
-
 
 @HiltViewModel
 class AuthViewModel @Inject constructor(
@@ -23,6 +22,8 @@ class AuthViewModel @Inject constructor(
     private val userRepository: UserRepository,
     private val accessLogDao: AccessLogDao
 ) : ViewModel() {
+
+    // ── Estado general de autenticación ───────────────────────────────────
     sealed class AuthUiState {
         object Idle : AuthUiState()
         object Loading : AuthUiState()
@@ -30,8 +31,20 @@ class AuthViewModel @Inject constructor(
         data class Error(val message: String) : AuthUiState()
     }
 
+    // ── Estado dedicado para el flujo de verificación de email ───────────
+    sealed class VerifyUiState {
+        object Idle : VerifyUiState()
+        object Loading : VerifyUiState()
+        object Verified : VerifyUiState()
+        object ResendSuccess : VerifyUiState()
+        data class Error(val message: String) : VerifyUiState()
+    }
+
     private val _state = MutableStateFlow<AuthUiState>(AuthUiState.Idle)
     val state: StateFlow<AuthUiState> = _state.asStateFlow()
+
+    private val _verifyState = MutableStateFlow<VerifyUiState>(VerifyUiState.Idle)
+    val verifyState: StateFlow<VerifyUiState> = _verifyState.asStateFlow()
 
     private val _currentUsername = MutableStateFlow("")
     val currentUsername: StateFlow<String> = _currentUsername.asStateFlow()
@@ -47,6 +60,7 @@ class AuthViewModel @Inject constructor(
         }
     }
 
+    // ── Login ─────────────────────────────────────────────────────────────
     fun login(email: String, password: String) {
         viewModelScope.launch {
             _state.value = AuthUiState.Loading
@@ -67,6 +81,7 @@ class AuthViewModel @Inject constructor(
         }
     }
 
+    // ── Registro ──────────────────────────────────────────────────────────
     fun register(email: String, username: String, password: String) {
         viewModelScope.launch {
             _state.value = AuthUiState.Loading
@@ -93,7 +108,46 @@ class AuthViewModel @Inject constructor(
         }
     }
 
+    // ── Verificación de email ─────────────────────────────────────────────
+    /** Recarga el usuario de Firebase y comprueba si ya verificó el email. */
+    fun checkEmailVerified() {
+        viewModelScope.launch {
+            _verifyState.value = VerifyUiState.Loading
+            authRepository.reloadUser()
+                .onSuccess {
+                    if (authRepository.isEmailVerified) {
+                        Log.i("AuthVM", "Email verificado correctamente")
+                        _verifyState.value = VerifyUiState.Verified
+                    } else {
+                        _verifyState.value = VerifyUiState.Error("Todavía no hemos recibido la verificación. Revisa tu bandeja de entrada.")
+                    }
+                }
+                .onFailure {
+                    _verifyState.value = VerifyUiState.Error(it.message ?: "Error al comprobar la verificación")
+                }
+        }
+    }
 
+    /** Reenvía el email de verificación al usuario actual. */
+    fun resendVerificationEmail() {
+        viewModelScope.launch {
+            _verifyState.value = VerifyUiState.Loading
+            authRepository.sendVerificationEmail()
+                .onSuccess {
+                    Log.i("AuthVM", "Email de verificación reenviado")
+                    _verifyState.value = VerifyUiState.ResendSuccess
+                }
+                .onFailure {
+                    _verifyState.value = VerifyUiState.Error(it.message ?: "Error al reenviar el email")
+                }
+        }
+    }
+
+    fun resetVerifyState() {
+        _verifyState.value = VerifyUiState.Idle
+    }
+
+    // ── Recuperación de contraseña ─────────────────────────────────────────
     fun sendPasswordReset(email: String) {
         viewModelScope.launch {
             _state.value = AuthUiState.Loading
@@ -103,6 +157,7 @@ class AuthViewModel @Inject constructor(
         }
     }
 
+    // ── Logout ────────────────────────────────────────────────────────────
     fun logout() {
         viewModelScope.launch {
             val uid = authRepository.currentUser?.uid
