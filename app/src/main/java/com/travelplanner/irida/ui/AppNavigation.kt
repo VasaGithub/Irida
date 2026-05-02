@@ -1,6 +1,8 @@
 package com.travelplanner.irida.ui
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -12,6 +14,7 @@ import com.travelplanner.irida.ui.screens.AboutScreen
 import com.travelplanner.irida.ui.screens.AddActivityScreen
 import com.travelplanner.irida.ui.screens.AddTripScreen
 import com.travelplanner.irida.ui.screens.EditTripScreen
+import com.travelplanner.irida.ui.screens.EmailVerificationScreen
 import com.travelplanner.irida.ui.screens.ForgotPasswordScreen
 import com.travelplanner.irida.ui.screens.HomeScreen
 import com.travelplanner.irida.ui.screens.LoginScreen
@@ -24,24 +27,33 @@ import com.travelplanner.irida.ui.screens.TripGalleryScreen
 import com.travelplanner.irida.ui.viewmodels.AuthViewModel
 import com.travelplanner.irida.ui.viewmodels.TripDetailViewModel
 import com.travelplanner.irida.ui.viewmodels.TripListViewModel
+import java.net.URLDecoder
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 
 object Routes {
-    const val SPLASH          = "splash"
-    const val TERMS           = "terms"
-    const val HOME            = "home"
-    const val LOGIN           = "login"
-    const val REGISTER        = "register"
-    const val FORGOT_PASSWORD = "forgot_password"
-    const val ACTIVITIES      = "activities"
-    const val TRIP_DETAIL     = "trip_detail"
-    const val ADD_TRIP        = "add_trip"
-    const val EDIT_TRIP       = "edit_trip"
-    const val GALLERY         = "gallery"
-    const val PREFERENCES     = "preferences"
-    const val ABOUT           = "about"
+    const val SPLASH              = "splash"
+    const val TERMS               = "terms"
+    const val HOME                = "home"
+    const val LOGIN               = "login"
+    const val REGISTER            = "register"
+    const val FORGOT_PASSWORD     = "forgot_password"
+    const val EMAIL_VERIFICATION  = "email_verification"
+    const val ACTIVITIES          = "activities"
+    const val TRIP_DETAIL         = "trip_detail"
+    const val ADD_TRIP            = "add_trip"
+    const val EDIT_TRIP           = "edit_trip"
+    const val GALLERY             = "gallery"
+    const val PREFERENCES         = "preferences"
+    const val ABOUT               = "about"
 
     fun tripDetail(tripId: String) = "$TRIP_DETAIL/$tripId"
     fun editTrip(tripId: String)   = "$EDIT_TRIP/$tripId"
+
+    fun emailVerification(email: String): String {
+        val encoded = URLEncoder.encode(email, StandardCharsets.UTF_8.toString())
+        return "$EMAIL_VERIFICATION/$encoded"
+    }
 
     fun activities(tripId: String? = null, activityId: String? = null): String {
         var route = ACTIVITIES
@@ -59,6 +71,7 @@ fun AppNavigation(navController: NavHostController = rememberNavController()) {
     val tripListViewModel: TripListViewModel = hiltViewModel()
     val tripDetailViewModel: TripDetailViewModel = hiltViewModel()
     val authViewModel: AuthViewModel = hiltViewModel()
+    val currentUsername by authViewModel.currentUsername.collectAsState()
 
     NavHost(navController = navController, startDestination = Routes.SPLASH) {
 
@@ -88,8 +101,10 @@ fun AppNavigation(navController: NavHostController = rememberNavController()) {
         composable(Routes.REGISTER) {
             RegisterScreen(
                 authViewModel = authViewModel,
-                onRegisterSuccess = {
-                    navController.navigate(Routes.LOGIN) { popUpTo(Routes.REGISTER) { inclusive = true } }
+                onRegisterSuccess = { email ->
+                    navController.navigate(Routes.emailVerification(email)) {
+                        popUpTo(Routes.REGISTER) { inclusive = true }
+                    }
                 },
                 onNavigateToLogin = { navController.popBackStack() }
             )
@@ -99,6 +114,24 @@ fun AppNavigation(navController: NavHostController = rememberNavController()) {
             ForgotPasswordScreen(
                 authViewModel = authViewModel,
                 onNavigateToLogin = { navController.popBackStack() }
+            )
+        }
+
+        composable(
+            route = "${Routes.EMAIL_VERIFICATION}/{email}",
+            arguments = listOf(navArgument("email") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val encodedEmail = backStackEntry.arguments?.getString("email") ?: ""
+            val email = URLDecoder.decode(encodedEmail, StandardCharsets.UTF_8.toString())
+            EmailVerificationScreen(
+                email = email,
+                authViewModel = authViewModel,
+                onVerifiedSuccess = {
+                    navController.navigate(Routes.LOGIN) { popUpTo(0) { inclusive = true } }
+                },
+                onNavigateToLogin = {
+                    navController.navigate(Routes.LOGIN) { popUpTo(0) { inclusive = true } }
+                }
             )
         }
 
@@ -112,6 +145,7 @@ fun AppNavigation(navController: NavHostController = rememberNavController()) {
 
         composable(Routes.HOME) {
             HomeScreen(
+                username = currentUsername,
                 onTripClick = { trip -> navController.navigate(Routes.tripDetail(trip.id)) },
                 onAddTripClick = { navController.navigate(Routes.ADD_TRIP) },
                 onEditTripClick = { trip -> navController.navigate(Routes.editTrip(trip.id)) },

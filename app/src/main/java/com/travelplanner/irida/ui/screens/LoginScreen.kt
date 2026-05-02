@@ -10,9 +10,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -30,13 +35,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import com.travelplanner.irida.ui.theme.ErrorRed
 import com.travelplanner.irida.ui.theme.GrayMid
 import com.travelplanner.irida.ui.theme.NavyDeep
 import com.travelplanner.irida.ui.theme.NavyLight
 import com.travelplanner.irida.ui.theme.TurquoisePrimary
 import com.travelplanner.irida.ui.theme.White
 import com.travelplanner.irida.ui.viewmodels.AuthViewModel
+
+private val emailRegex = Regex("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")
 
 @Composable
 fun LoginScreen(
@@ -47,6 +56,8 @@ fun LoginScreen(
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var passwordVisible by remember { mutableStateOf(false) }
+    var localError by remember { mutableStateOf("") }
 
     val state by authViewModel.state.collectAsState()
 
@@ -56,6 +67,17 @@ fun LoginScreen(
             onLoginSuccess()
         }
     }
+
+    val fieldColors = OutlinedTextFieldDefaults.colors(
+        focusedBorderColor = TurquoisePrimary,
+        unfocusedBorderColor = GrayMid,
+        focusedTextColor = White,
+        unfocusedTextColor = White,
+        cursorColor = TurquoisePrimary,
+        focusedContainerColor = NavyLight,
+        unfocusedContainerColor = NavyLight
+    )
+    val fieldShape = RoundedCornerShape(12.dp)
 
     Column(
         modifier = Modifier
@@ -81,51 +103,53 @@ fun LoginScreen(
 
         OutlinedTextField(
             value = email,
-            onValueChange = { email = it },
+            onValueChange = {
+                email = it
+                localError = ""
+            },
             label = { Text("Correo electrónico", color = GrayMid) },
             singleLine = true,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
             modifier = Modifier.fillMaxWidth(),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = TurquoisePrimary,
-                unfocusedBorderColor = GrayMid,
-                focusedTextColor = White,
-                unfocusedTextColor = White,
-                cursorColor = TurquoisePrimary,
-                focusedContainerColor = NavyLight,
-                unfocusedContainerColor = NavyLight
-            ),
-            shape = RoundedCornerShape(12.dp)
+            colors = fieldColors,
+            shape = fieldShape
         )
 
         Spacer(modifier = Modifier.height(12.dp))
 
         OutlinedTextField(
             value = password,
-            onValueChange = { password = it },
+            onValueChange = {
+                password = it
+                localError = ""
+            },
             label = { Text("Contraseña", color = GrayMid) },
             singleLine = true,
-            visualTransformation = PasswordVisualTransformation(),
+            visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+            trailingIcon = {
+                IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                    Icon(
+                        imageVector = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
+                        contentDescription = if (passwordVisible) "Ocultar contraseña" else "Mostrar contraseña",
+                        tint = GrayMid
+                    )
+                }
+            },
             modifier = Modifier.fillMaxWidth(),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = TurquoisePrimary,
-                unfocusedBorderColor = GrayMid,
-                focusedTextColor = White,
-                unfocusedTextColor = White,
-                cursorColor = TurquoisePrimary,
-                focusedContainerColor = NavyLight,
-                unfocusedContainerColor = NavyLight
-            ),
-            shape = RoundedCornerShape(12.dp)
+            colors = fieldColors,
+            shape = fieldShape
         )
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        if (state is AuthViewModel.AuthUiState.Error) {
+        val errorMsg = localError.ifEmpty {
+            (state as? AuthViewModel.AuthUiState.Error)?.message ?: ""
+        }
+        if (errorMsg.isNotEmpty()) {
             Text(
-                text = (state as AuthViewModel.AuthUiState.Error).message,
-                color = androidx.compose.ui.graphics.Color.Red,
+                text = errorMsg,
+                color = ErrorRed,
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.fillMaxWidth()
             )
@@ -134,9 +158,20 @@ fun LoginScreen(
         Spacer(modifier = Modifier.height(20.dp))
 
         Button(
-            onClick = { authViewModel.login(email.trim(), password) },
+            onClick = {
+                localError = ""
+                when {
+                    email.isBlank() || password.isBlank() ->
+                        localError = "Rellena todos los campos"
+                    !emailRegex.matches(email.trim()) ->
+                        localError = "El formato del correo no es válido"
+                    else -> authViewModel.login(email.trim(), password)
+                }
+            },
             enabled = state !is AuthViewModel.AuthUiState.Loading,
-            modifier = Modifier.fillMaxWidth().height(50.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(50.dp),
             colors = ButtonDefaults.buttonColors(containerColor = TurquoisePrimary),
             shape = RoundedCornerShape(12.dp)
         ) {

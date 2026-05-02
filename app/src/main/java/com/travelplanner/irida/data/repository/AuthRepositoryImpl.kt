@@ -50,5 +50,13 @@ class AuthRepositoryImpl @Inject constructor(
             }
         }
 
+    override suspend fun reloadUser(): Result<Unit> =
+        withContext(Dispatchers.IO) {
+            runCatching {
+                auth.currentUser?.reload()?.await()
+                Unit
+            }
+        }
+
     override fun logout() = auth.signOut()
 }

@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.travelplanner.irida.R
 import com.travelplanner.irida.data.PreferencesManager
+import com.travelplanner.irida.ui.theme.ErrorRed
 import com.travelplanner.irida.ui.theme.GrayDark
 import com.travelplanner.irida.ui.theme.GrayMid
 import com.travelplanner.irida.ui.theme.IridaTheme
@@ -367,7 +368,7 @@ fun PreferencesScreen(
                         Text(
                             text = "Cerrar sesión",
                             style = MaterialTheme.typography.titleMedium,
-                            color = androidx.compose.ui.graphics.Color.Red,
+                            color = ErrorRed,
                             fontWeight = FontWeight.Medium
                         )
                     }

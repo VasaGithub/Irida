@@ -56,6 +56,7 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.compose.material.icons.extended)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.core.ktx)
     testImplementation(libs.junit)
@@ -80,7 +81,7 @@ dependencies {
     testImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(libs.room.testing)
     androidTestImplementation(libs.androidx.arch.core.testing)
-    //Firebase
-    implementation(platform("com.google.firebase:firebase-bom:34.12.0"))
+    // Firebase
+    implementation(platform(libs.firebase.bom))
     implementation("com.google.firebase:firebase-auth")
 }
