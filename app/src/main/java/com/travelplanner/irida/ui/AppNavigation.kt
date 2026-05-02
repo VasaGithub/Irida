@@ -11,6 +11,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.travelplanner.irida.ui.screens.AboutScreen
+import com.travelplanner.irida.ui.screens.AccessLogScreen
 import com.travelplanner.irida.ui.screens.AddActivityScreen
 import com.travelplanner.irida.ui.screens.AddTripScreen
 import com.travelplanner.irida.ui.screens.EditTripScreen
@@ -24,6 +25,7 @@ import com.travelplanner.irida.ui.screens.SplashScreen
 import com.travelplanner.irida.ui.screens.TermsAndConditionsScreen
 import com.travelplanner.irida.ui.screens.TripDetailScreen
 import com.travelplanner.irida.ui.screens.TripGalleryScreen
+import com.travelplanner.irida.ui.screens.UserProfileScreen
 import com.travelplanner.irida.ui.viewmodels.AuthViewModel
 import com.travelplanner.irida.ui.viewmodels.TripDetailViewModel
 import com.travelplanner.irida.ui.viewmodels.TripListViewModel
@@ -46,6 +48,8 @@ object Routes {
     const val GALLERY             = "gallery"
     const val PREFERENCES         = "preferences"
     const val ABOUT               = "about"
+    const val PROFILE             = "profile"
+    const val ACCESS_LOG          = "access_log"
 
     fun tripDetail(tripId: String) = "$TRIP_DETAIL/$tripId"
     fun editTrip(tripId: String)   = "$EDIT_TRIP/$tripId"
@@ -216,10 +220,24 @@ fun AppNavigation(navController: NavHostController = rememberNavController()) {
         composable(Routes.PREFERENCES) {
             PreferencesScreen(
                 onNavigate = { route -> handleBottomNav(route, navController) },
+                onNavigateToProfile = { navController.navigate(Routes.PROFILE) },
+                onNavigateToAccessLog = { navController.navigate(Routes.ACCESS_LOG) },
                 onLogout = {
                     authViewModel.logout()
                     navController.navigate(Routes.LOGIN) { popUpTo(0) { inclusive = true } }
                 }
+            )
+        }
+
+        composable(Routes.PROFILE) {
+            UserProfileScreen(
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+
+        composable(Routes.ACCESS_LOG) {
+            AccessLogScreen(
+                onNavigateBack = { navController.popBackStack() }
             )
         }
 

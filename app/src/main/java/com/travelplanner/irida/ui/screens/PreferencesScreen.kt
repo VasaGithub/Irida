@@ -55,6 +55,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 @Composable
 fun PreferencesScreen(
         onNavigate: (String) -> Unit = {},
+        onNavigateToProfile: () -> Unit = {},
+        onNavigateToAccessLog: () -> Unit = {},
         onLogout: () -> Unit = {}
 ) {
     val context = androidx.compose.ui.platform.LocalContext.current
@@ -356,6 +358,73 @@ fun PreferencesScreen(
             item { PreferenceSectionHeader(emoji = "🔐", title = "CUENTA") }
             item {
                 PreferenceCard {
+                    // Mi perfil
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { onNavigateToProfile() }
+                            .padding(horizontal = 16.dp, vertical = 14.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Text(text = "👤", fontSize = 20.sp)
+                            Column {
+                                Text(
+                                    text = "Mi perfil",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    color = White,
+                                    fontWeight = FontWeight.Medium
+                                )
+                                Text(
+                                    text = "Nombre, teléfono, dirección y más",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = GrayMid
+                                )
+                            }
+                        }
+                        Text(text = "›", color = GrayMid, fontSize = 20.sp)
+                    }
+
+                    PreferenceDivider()
+
+                    // Historial de accesos
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { onNavigateToAccessLog() }
+                            .padding(horizontal = 16.dp, vertical = 14.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Text(text = "🕐", fontSize = 20.sp)
+                            Column {
+                                Text(
+                                    text = "Historial de accesos",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    color = White,
+                                    fontWeight = FontWeight.Medium
+                                )
+                                Text(
+                                    text = "Registro de inicios y cierres de sesión",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = GrayMid
+                                )
+                            }
+                        }
+                        Text(text = "›", color = GrayMid, fontSize = 20.sp)
+                    }
+
+                    PreferenceDivider()
+
+                    // Cerrar sesión
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
