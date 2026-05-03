@@ -135,7 +135,7 @@
     <string name="splash_subtitle">Travel Planner</string>
     <string name="splash_tagline">Planifica tus aventuras, a tu manera</string>
     <string name="splash_loading">CARGANDO…</string>
-    <string name="splash_version">v2.0.0 · Sprint 02</string>
+    <string name="splash_version">v3.0.0 · Sprint 03</string>
     <string name="splash_footer">Creado con ❤️ en el Campus Igualada</string>
 
     <string name="terms_title_1">Aceptación de los términos</string>

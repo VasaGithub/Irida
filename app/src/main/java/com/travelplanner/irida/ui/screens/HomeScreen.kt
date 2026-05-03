@@ -83,6 +83,7 @@ private val cardDateFormatter = DateTimeFormatter.ofPattern("dd MMM")
 
 @Composable
 fun HomeScreen(
+    username: String = "",
     onTripClick: (Trip) -> Unit = {},
     onAddTripClick: () -> Unit = {},
     onEditTripClick: (Trip) -> Unit = {},
@@ -149,7 +150,7 @@ fun HomeScreen(
                 .padding(paddingValues),
             contentPadding = PaddingValues(bottom = 16.dp)
         ) {
-            item { HomeHeader() }
+            item { HomeHeader(username = username) }
 
             item {
                 Row(
@@ -247,7 +248,15 @@ fun HomeScreen(
 // ── Componentes ────────────────────────────────────────────────────────────
 
 @Composable
-fun HomeHeader() {
+fun HomeHeader(username: String = "") {
+    val displayName = username.ifBlank { "Usuario" }
+    val initials = displayName
+        .trim()
+        .split(" ")
+        .filter { it.isNotEmpty() }
+        .take(2)
+        .joinToString("") { it.first().uppercaseChar().toString() }
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -262,7 +271,7 @@ fun HomeHeader() {
             ) {
                 Column {
                     Text(
-                        text = stringResource(R.string.greeting_user, "Iker"),
+                        text = stringResource(R.string.greeting_user, displayName),
                         style = MaterialTheme.typography.bodyMedium,
                         color = GrayMid
                     )
@@ -282,7 +291,7 @@ fun HomeHeader() {
                         ),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(text = "IV", color = NavyDeep, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                    Text(text = initials, color = NavyDeep, fontWeight = FontWeight.Bold, fontSize = 14.sp)
                 }
             }
         }
