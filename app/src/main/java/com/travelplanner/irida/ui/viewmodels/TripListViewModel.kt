@@ -6,9 +6,13 @@ import com.google.firebase.auth.FirebaseAuth
 import com.travelplanner.irida.domain.Trip
 import com.travelplanner.irida.domain.TripRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.util.UUID
@@ -34,11 +38,18 @@ class TripListViewModel @Inject constructor(
 
     private val currentUserId get() = auth.currentUser?.uid ?: ""
 
+    private val authUidFlow = callbackFlow {
+        val listener = FirebaseAuth.AuthStateListener { trySend(it.currentUser?.uid ?: "") }
+        auth.addAuthStateListener(listener)
+        awaitClose { auth.removeAuthStateListener(listener) }
+    }
+
     init {
         viewModelScope.launch {
-            repository.getTripsStream(currentUserId).collect { trips ->
-                _uiState.value = TripListUiState.Success(trips)
-            }
+            authUidFlow
+                .filter { it.isNotEmpty() }
+                .flatMapLatest { uid -> repository.getTripsStream(uid) }
+                .collect { trips -> _uiState.value = TripListUiState.Success(trips) }
         }
     }
 
