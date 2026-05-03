@@ -3,6 +3,10 @@ package com.travelplanner.irida.ui.viewmodels
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
+import com.google.firebase.auth.FirebaseAuthInvalidUserException
+import com.google.firebase.auth.FirebaseAuthUserCollisionException
+import com.google.firebase.FirebaseTooManyRequestsException
 import com.travelplanner.irida.data.local.dao.AccessLogDao
 import com.travelplanner.irida.data.local.entity.AccessLogEntity
 import com.travelplanner.irida.data.local.entity.UserEntity
@@ -77,7 +81,7 @@ class AuthViewModel @Inject constructor(
                     Log.i("AuthVM", "LOGIN uid=${user.uid}")
                     _state.value = AuthUiState.Success
                 }
-                .onFailure { _state.value = AuthUiState.Error(it.message ?: "Error de login") }
+                .onFailure { _state.value = AuthUiState.Error(it.toSpanishMessage()) }
         }
     }
 
@@ -104,7 +108,7 @@ class AuthViewModel @Inject constructor(
                     Log.i("AuthVM", "REGISTER uid=${user.uid}")
                     _state.value = AuthUiState.Success
                 }
-                .onFailure { _state.value = AuthUiState.Error(it.message ?: "Error de registro") }
+                .onFailure { _state.value = AuthUiState.Error(it.toSpanishMessage()) }
         }
     }
 
@@ -153,7 +157,7 @@ class AuthViewModel @Inject constructor(
             _state.value = AuthUiState.Loading
             authRepository.sendPasswordReset(email)
                 .onSuccess { _state.value = AuthUiState.Success }
-                .onFailure { _state.value = AuthUiState.Error(it.message ?: "Error al enviar email") }
+                .onFailure { _state.value = AuthUiState.Error(it.toSpanishMessage()) }
         }
     }
 
@@ -180,4 +184,12 @@ class AuthViewModel @Inject constructor(
     fun resetState() {
         _state.value = AuthUiState.Idle
     }
+}
+
+private fun Throwable.toSpanishMessage(): String = when (this) {
+    is FirebaseAuthInvalidCredentialsException -> "Correo o contraseña incorrectos"
+    is FirebaseAuthInvalidUserException        -> "No existe ninguna cuenta con este correo"
+    is FirebaseAuthUserCollisionException      -> "Ya existe una cuenta con este correo"
+    is FirebaseTooManyRequestsException        -> "Demasiados intentos fallidos. Inténtalo más tarde"
+    else -> "Error de autenticación. Inténtalo de nuevo"
 }
