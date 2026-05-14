@@ -2,6 +2,7 @@ package com.travelplanner.irida.data.local.entity
 
 import com.travelplanner.irida.domain.Activity
 import com.travelplanner.irida.domain.Trip
+import com.travelplanner.irida.domain.User
 
 fun TripEntity.toDomain(): Trip = Trip(
     id = id,
@@ -46,4 +47,26 @@ fun Activity.toEntity(): ActivityEntity = ActivityEntity(
     description = description,
     date = date,
     time = time
+)
+
+fun UserEntity.toDomain(): User = User(
+    uid = uid,
+    email = email,
+    username = username,
+    birthdate = birthdate,
+    address = address,
+    country = country,
+    phone = phone,
+    acceptEmails = acceptEmails
+)
+
+fun User.toEntity(): UserEntity = UserEntity(
+    uid = uid,
+    email = email,
+    username = username,
+    birthdate = birthdate,
+    address = address,
+    country = country,
+    phone = phone,
+    acceptEmails = acceptEmails
 )
