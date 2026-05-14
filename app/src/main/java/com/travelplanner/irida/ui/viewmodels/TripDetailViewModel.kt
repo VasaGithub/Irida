@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.travelplanner.irida.domain.Activity
 import com.travelplanner.irida.domain.Trip
 import com.travelplanner.irida.domain.TripRepository
+import com.travelplanner.irida.domain.validation.ActivityValidator
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -89,15 +90,7 @@ class TripDetailViewModel @Inject constructor(
     }
 
     private fun validateActivity(title: String, description: String, date: LocalDate?, time: LocalTime?, trip: Trip): Boolean {
-        val errors = mutableMapOf<String, String>()
-        if (title.isBlank()) errors["title"] = "El título no puede estar vacío"
-        if (description.isBlank()) errors["description"] = "La descripción no puede estar vacía"
-        if (date == null) {
-            errors["date"] = "Selecciona una fecha para la actividad"
-        } else if (!trip.isDateInRange(date)) {
-            errors["date"] = "La fecha debe estar entre ${trip.startDate} y ${trip.endDate}"
-        }
-        if (time == null) errors["time"] = "Selecciona una hora para la actividad"
+        val errors = ActivityValidator.validate(title, description, date, time, trip)
         _validationErrors.value = errors
         return errors.isEmpty()
     }

@@ -1,7 +1,19 @@
 package com.travelplanner.irida.data.repository
 
+import com.google.firebase.auth.FirebaseAuth
+import com.travelplanner.irida.data.local.dao.ActivityDao
+import com.travelplanner.irida.data.local.dao.TripDao
+import com.travelplanner.irida.data.local.entity.ActivityEntity
+import com.travelplanner.irida.data.local.entity.TripEntity
 import com.travelplanner.irida.domain.Activity
 import com.travelplanner.irida.domain.Trip
+import io.mockk.Runs
+import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.every
+import io.mockk.just
+import io.mockk.mockk
+import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -15,113 +27,128 @@ import java.util.UUID
 
 class TripRepositoryImplTest {
 
-    // Usamos la instancia Singleton de tu repositorio
+    private lateinit var tripDao: TripDao
+    private lateinit var activityDao: ActivityDao
+    private lateinit var auth: FirebaseAuth
     private lateinit var repository: TripRepositoryImpl
 
     @Before
     fun setUp() {
-        repository = TripRepositoryImpl.instance
+        tripDao = mockk(relaxed = true)
+        activityDao = mockk(relaxed = true)
+        auth = mockk(relaxed = true)
+        every { auth.currentUser } returns null
+        repository = TripRepositoryImpl(tripDao, activityDao, auth)
     }
 
-    // ── TESTS DE VIAJES (TRIPS) ────────────────────────────────────────────
+    private fun sampleTrip(id: String = "trip-${UUID.randomUUID()}") = Trip(
+        id = id,
+        title = "Viaje de Prueba",
+        description = "Descripción de prueba",
+        startDate = LocalDate.now(),
+        endDate = LocalDate.now().plusDays(3),
+        userId = "user-1"
+    )
+
+    private fun sampleActivity(tripId: String, id: String = "act-${UUID.randomUUID()}") = Activity(
+        id = id,
+        tripId = tripId,
+        title = "Visita al Museo",
+        description = "Entrada a las 10",
+        date = LocalDate.now(),
+        time = LocalTime.of(10, 0)
+    )
 
     @Test
-    fun `addTrip inserta un viaje correctamente en el repositorio`() {
-        // 1. Arrange (Preparación)
-        val testTripId = "trip-add-${UUID.randomUUID()}"
-        val newTrip = Trip(
-            id = testTripId,
-            title = "Viaje de Prueba",
-            description = "Descripción de prueba",
-            startDate = LocalDate.now(),
-            endDate = LocalDate.now().plusDays(3)
-        )
+    fun `addTrip delega en TripDao insert con la entidad correcta`() = runTest {
+        val trip = sampleTrip()
+        coEvery { tripDao.insert(any()) } just Runs
 
-        // 2. Act (Acción)
-        repository.addTrip(newTrip)
-        val savedTrip = repository.getTripById(testTripId)
-
-        // 3. Assert (Comprobación)
-        assertNotNull("El viaje no debería ser nulo tras guardarse", savedTrip)
-        assertEquals("El título debe coincidir", "Viaje de Prueba", savedTrip?.title)
-    }
-
-    @Test
-    fun `updateTrip modifica los datos de un viaje existente`() {
-        // 1. Arrange
-        val testTripId = "trip-update-${UUID.randomUUID()}"
-        val trip = Trip(testTripId, "Viaje Original", "Desc", LocalDate.now(), LocalDate.now().plusDays(1))
         repository.addTrip(trip)
 
-        // 2. Act
-        val modifiedTrip = trip.copy(title = "Viaje Modificado", description = "Nueva desc")
-        repository.updateTrip(modifiedTrip)
-
-        val updatedTrip = repository.getTripById(testTripId)
-
-        // 3. Assert
-        assertNotNull(updatedTrip)
-        assertEquals("El título debería haberse actualizado", "Viaje Modificado", updatedTrip?.title)
-        assertEquals("La descripción debería haberse actualizado", "Nueva desc", updatedTrip?.description)
+        coVerify(exactly = 1) { tripDao.insert(match<TripEntity> { it.id == trip.id && it.title == trip.title }) }
     }
 
     @Test
-    fun `deleteTrip elimina el viaje del repositorio`() {
-        // 1. Arrange
-        val testTripId = "trip-delete-${UUID.randomUUID()}"
-        val trip = Trip(testTripId, "Viaje a Borrar", "Desc", LocalDate.now(), LocalDate.now())
-        repository.addTrip(trip)
-
-        // 2. Act
-        repository.deleteTrip(testTripId)
-        val deletedTrip = repository.getTripById(testTripId)
-
-        // 3. Assert
-        assertNull("El viaje debería ser nulo tras haber sido eliminado", deletedTrip)
-    }
-
-    // ── TESTS DE ACTIVIDADES (ACTIVITIES) ──────────────────────────────────
-
-    @Test
-    fun `addActivity asigna correctamente una actividad a un viaje`() {
-        // 1. Arrange
-        val tripId = "trip-act-${UUID.randomUUID()}"
-        val activityId = "act-${UUID.randomUUID()}"
-        repository.addTrip(Trip(tripId, "Viaje", "Desc", LocalDate.now(), LocalDate.now()))
-
-        val newActivity = Activity(
-            id = activityId,
-            tripId = tripId,
-            title = "Visita al Museo",
-            description = "Entrada a las 10",
-            date = LocalDate.now(),
-            time = LocalTime.of(10, 0)
+    fun `getTripById devuelve el dominio mapeado desde el DAO`() = runTest {
+        val tripId = "trip-1"
+        val entity = TripEntity(
+            id = tripId, userId = "user-1", title = "Tokio", description = "Desc",
+            startDate = LocalDate.now(), endDate = LocalDate.now().plusDays(2),
+            destination = "Tokio", nights = 2, budget = 0.0, budgetSpent = 0.0, emoji = "✈️"
         )
+        coEvery { tripDao.getTripById(tripId) } returns entity
 
-        // 2. Act
-        repository.addActivity(newActivity)
-        val activities = repository.getActivities(tripId)
+        val result = repository.getTripById(tripId)
 
-        // 3. Assert
-        assertTrue("La lista de actividades debería contener la nueva actividad", activities.any { it.id == activityId })
-        assertEquals("El título de la actividad debe coincidir", "Visita al Museo", activities.find { it.id == activityId }?.title)
+        assertNotNull(result)
+        assertEquals("Tokio", result?.title)
     }
 
     @Test
-    fun `deleteActivity elimina la actividad de la lista del viaje`() {
-        // 1. Arrange
-        val tripId = "trip-del-act-${UUID.randomUUID()}"
-        val activityId = "act-del-${UUID.randomUUID()}"
-        repository.addTrip(Trip(tripId, "Viaje", "Desc", LocalDate.now(), LocalDate.now()))
+    fun `getTripById devuelve null si el DAO no encuentra el viaje`() = runTest {
+        coEvery { tripDao.getTripById("missing") } returns null
 
-        val activity = Activity(activityId, tripId, "Cena", "", LocalDate.now(), LocalTime.of(20, 0))
+        val result = repository.getTripById("missing")
+
+        assertNull(result)
+    }
+
+    @Test
+    fun `updateTrip delega en TripDao update con la entidad mapeada`() = runTest {
+        val trip = sampleTrip().copy(title = "Viaje Modificado")
+        coEvery { tripDao.update(any()) } just Runs
+
+        repository.updateTrip(trip)
+
+        coVerify(exactly = 1) { tripDao.update(match<TripEntity> { it.id == trip.id && it.title == "Viaje Modificado" }) }
+    }
+
+    @Test
+    fun `deleteTrip delega en TripDao delete con el id`() = runTest {
+        coEvery { tripDao.delete(any()) } just Runs
+
+        repository.deleteTrip("trip-x")
+
+        coVerify(exactly = 1) { tripDao.delete("trip-x") }
+    }
+
+    @Test
+    fun `isTitleDuplicate devuelve true cuando el conteo es mayor que cero`() = runTest {
+        coEvery { tripDao.countByTitle("Tokio", "user-1", "") } returns 1
+
+        val duplicated = repository.isTitleDuplicate("Tokio", "user-1")
+
+        assertTrue(duplicated)
+    }
+
+    @Test
+    fun `isTitleDuplicate devuelve false cuando el conteo es cero`() = runTest {
+        coEvery { tripDao.countByTitle("Tokio", "user-1", "") } returns 0
+
+        val duplicated = repository.isTitleDuplicate("Tokio", "user-1")
+
+        assertFalse(duplicated)
+    }
+
+    @Test
+    fun `addActivity delega en ActivityDao insert con la entidad correcta`() = runTest {
+        val activity = sampleActivity("trip-1")
+        coEvery { activityDao.insert(any()) } just Runs
+
         repository.addActivity(activity)
 
-        // 2. Act
-        repository.deleteActivity(activityId)
-        val activitiesAfterDelete = repository.getActivities(tripId)
+        coVerify(exactly = 1) {
+            activityDao.insert(match<ActivityEntity> { it.id == activity.id && it.tripId == "trip-1" })
+        }
+    }
 
-        // 3. Assert
-        assertFalse("La actividad eliminada ya no debería estar en la lista", activitiesAfterDelete.any { it.id == activityId })
+    @Test
+    fun `deleteActivity delega en ActivityDao delete con el id`() = runTest {
+        coEvery { activityDao.delete(any()) } just Runs
+
+        repository.deleteActivity("act-x")
+
+        coVerify(exactly = 1) { activityDao.delete("act-x") }
     }
 }

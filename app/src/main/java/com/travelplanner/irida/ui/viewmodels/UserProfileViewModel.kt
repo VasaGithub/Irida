@@ -2,6 +2,7 @@ package com.travelplanner.irida.ui.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.travelplanner.irida.data.PreferencesManager
 import com.travelplanner.irida.data.local.entity.UserEntity
 import com.travelplanner.irida.domain.AuthRepository
 import com.travelplanner.irida.domain.UserRepository
@@ -15,7 +16,8 @@ import javax.inject.Inject
 @HiltViewModel
 class UserProfileViewModel @Inject constructor(
     private val userRepository: UserRepository,
-    private val authRepository: AuthRepository
+    private val authRepository: AuthRepository,
+    private val preferencesManager: PreferencesManager
 ) : ViewModel() {
 
     sealed class ProfileUiState {
@@ -86,6 +88,8 @@ class UserProfileViewModel @Inject constructor(
                     acceptEmails = acceptEmails
                 )
             )
+            preferencesManager.saveUsername(username.trim())
+            preferencesManager.saveBirthdate(birthdate.trim())
             _uiState.value = ProfileUiState.SaveSuccess
         }
     }

@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.travelplanner.irida.domain.Trip
 import com.travelplanner.irida.domain.TripRepository
+import com.travelplanner.irida.domain.validation.TripValidator
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -117,13 +118,7 @@ class TripListViewModel @Inject constructor(
     }
 
     private fun validate(title: String, description: String, startDate: LocalDate?, endDate: LocalDate?): Boolean {
-        val errors = mutableMapOf<String, String>()
-        if (title.isBlank()) errors["title"] = "El título no puede estar vacío"
-        if (description.isBlank()) errors["description"] = "La descripción no puede estar vacía"
-        if (startDate == null) errors["startDate"] = "Selecciona una fecha de inicio"
-        if (endDate == null) errors["endDate"] = "Selecciona una fecha de fin"
-        if (startDate != null && endDate != null && !startDate.isBefore(endDate))
-            errors["endDate"] = "La fecha de fin debe ser posterior a la de inicio"
+        val errors = TripValidator.validate(title, description, startDate, endDate)
         _validationErrors.value = errors
         return errors.isEmpty()
     }

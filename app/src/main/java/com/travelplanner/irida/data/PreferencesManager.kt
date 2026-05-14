@@ -75,4 +75,20 @@ class PreferencesManager(private val context: Context) {
     fun getAiSuggestions(): Boolean {
         return preferences.getBoolean("ai_suggestions", true)
     }
+
+    // ─── PERFIL DE USUARIO ──────────────────────────────────────────────────
+
+    fun saveUsername(username: String) {
+        preferences.edit { putString("username", username) }
+    }
+    fun getUsername(): String {
+        return preferences.getString("username", "") ?: ""
+    }
+
+    fun saveBirthdate(birthdate: String) {
+        preferences.edit { putString("birthdate", birthdate) }
+    }
+    fun getBirthdate(): String {
+        return preferences.getString("birthdate", "") ?: ""
+    }
 }

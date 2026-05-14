@@ -7,6 +7,7 @@ import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.FirebaseTooManyRequestsException
+import com.travelplanner.irida.data.PreferencesManager
 import com.travelplanner.irida.data.local.dao.AccessLogDao
 import com.travelplanner.irida.data.local.entity.AccessLogEntity
 import com.travelplanner.irida.data.local.entity.UserEntity
@@ -24,7 +25,8 @@ import javax.inject.Inject
 class AuthViewModel @Inject constructor(
     private val authRepository: AuthRepository,
     private val userRepository: UserRepository,
-    private val accessLogDao: AccessLogDao
+    private val accessLogDao: AccessLogDao,
+    private val preferencesManager: PreferencesManager
 ) : ViewModel() {
 
     // ── Estado general de autenticación ───────────────────────────────────
@@ -103,6 +105,7 @@ class AuthViewModel @Inject constructor(
                             acceptEmails = false
                         )
                     )
+                    preferencesManager.saveUsername(username)
                     authRepository.sendVerificationEmail()
                     _currentUsername.value = username
                     Log.i("AuthVM", "REGISTER uid=${user.uid}")
