@@ -83,6 +83,8 @@ dependencies {
     implementation(libs.kotlinx.coroutines.android)
     // Tests
     testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.mockk)
+    testImplementation(libs.junit)
     androidTestImplementation(libs.room.testing)
     androidTestImplementation(libs.androidx.arch.core.testing)
     // Firebase
