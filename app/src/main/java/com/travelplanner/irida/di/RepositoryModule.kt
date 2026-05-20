@@ -1,9 +1,11 @@
 package com.travelplanner.irida.di
 
 import com.travelplanner.irida.data.repository.AuthRepositoryImpl
+import com.travelplanner.irida.data.repository.HotelRepositoryImpl
 import com.travelplanner.irida.data.repository.TripRepositoryImpl
 import com.travelplanner.irida.data.repository.UserRepositoryImpl
 import com.travelplanner.irida.domain.AuthRepository
+import com.travelplanner.irida.domain.HotelRepository
 import com.travelplanner.irida.domain.TripRepository
 import com.travelplanner.irida.domain.UserRepository
 import dagger.Binds
@@ -24,4 +26,7 @@ abstract class RepositoryModule {
 
     @Binds @Singleton
     abstract fun bindUserRepository(impl: UserRepositoryImpl): UserRepository
+
+    @Binds @Singleton
+    abstract fun bindHotelRepository(impl: HotelRepositoryImpl): HotelRepository
 }
