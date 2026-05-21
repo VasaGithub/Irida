@@ -4,6 +4,7 @@ import com.travelplanner.irida.domain.Hotel
 import com.travelplanner.irida.domain.HotelRepository
 import com.travelplanner.irida.ui.viewmodels.HotelSearchViewModel
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -14,6 +15,7 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -49,11 +51,10 @@ class HotelSearchViewModelTest {
         } returns hotelesFake
 
         // Act
-        viewModel.search(
-            start = LocalDate.of(2026, 5, 22),
-            end   = LocalDate.of(2026, 5, 24),
-            city  = "BCN"
-        )
+        viewModel.onStartDateSelected(LocalDate.of(2026, 5, 22))
+        viewModel.onEndDateSelected(LocalDate.of(2026, 5, 24))
+        viewModel.onCitySelected("BCN")
+        viewModel.search()
         advanceUntilIdle()
 
         // Assert
@@ -71,16 +72,41 @@ class HotelSearchViewModelTest {
         } throws RuntimeException("Sin conexion")
 
         // Act
-        viewModel.search(
-            start = LocalDate.of(2026, 5, 22),
-            end   = LocalDate.of(2026, 5, 24),
-            city  = "BCN"
-        )
+        viewModel.onStartDateSelected(LocalDate.of(2026, 5, 22))
+        viewModel.onEndDateSelected(LocalDate.of(2026, 5, 24))
+        viewModel.onCitySelected("BCN")
+        viewModel.search()
         advanceUntilIdle()
 
         // Assert
         val state = viewModel.uiState.value
         assertTrue(state is HotelSearchViewModel.UiState.Error)
         assertEquals("Sin conexion", (state as HotelSearchViewModel.UiState.Error).message)
+    }
+
+    @Test
+    fun `search no hace nada si las fechas son nulas`() = runTest {
+        // Act — search sin haber seteado fechas ni ciudad
+        viewModel.search()
+        advanceUntilIdle()
+
+        // Assert
+        assertTrue(viewModel.uiState.value is HotelSearchViewModel.UiState.Idle)
+        coVerify { hotelRepository wasNot io.mockk.Called }
+    }
+
+    @Test
+    fun `canSearch es true solo cuando ambas fechas y ciudad estan rellenas`() = runTest {
+        assertFalse(viewModel.canSearch.value)
+
+        viewModel.onStartDateSelected(LocalDate.of(2026, 5, 22))
+        assertFalse(viewModel.canSearch.value)
+
+        viewModel.onEndDateSelected(LocalDate.of(2026, 5, 24))
+        assertFalse(viewModel.canSearch.value)
+
+        viewModel.onCitySelected("BCN")
+        advanceUntilIdle()
+        assertTrue(viewModel.canSearch.value)
     }
 }
