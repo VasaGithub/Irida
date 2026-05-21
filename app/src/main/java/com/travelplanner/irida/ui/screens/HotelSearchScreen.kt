@@ -112,6 +112,7 @@ private fun roomTypeIcon(type: String) = when (type.lowercase()) {
 @Composable
 fun HotelSearchScreen(
     onNavigateBack: () -> Unit,
+    onHotelClick: (Hotel) -> Unit = {},
     viewModel: HotelSearchViewModel = hiltViewModel()
 ) {
     val uiState    by viewModel.uiState.collectAsState()
@@ -495,7 +496,7 @@ fun HotelSearchScreen(
                             }
                         }
                         items(state.hotels, key = { it.id }) { hotel ->
-                            HotelCard(hotel = hotel)
+                            HotelCard(hotel = hotel, onClick = { onHotelClick(hotel) })
                         }
                     }
                 }
@@ -506,12 +507,14 @@ fun HotelSearchScreen(
 
 // ── HotelCard ─────────────────────────────────────────────────────────────────
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun HotelCard(hotel: Hotel) {
+private fun HotelCard(hotel: Hotel, onClick: () -> Unit = {}) {
     val visibleRooms = hotel.rooms.take(3)
     val extraRooms   = hotel.rooms.size - visibleRooms.size
 
     Card(
+        onClick = onClick,
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = NavyLight),
         modifier = Modifier.fillMaxWidth()

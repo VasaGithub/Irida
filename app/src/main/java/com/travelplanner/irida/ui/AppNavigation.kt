@@ -12,6 +12,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.travelplanner.irida.ui.screens.AboutScreen
 import com.travelplanner.irida.ui.screens.AccessLogScreen
+import com.travelplanner.irida.ui.screens.HotelDetailScreen
 import com.travelplanner.irida.ui.screens.HotelSearchScreen
 import com.travelplanner.irida.ui.screens.AddActivityScreen
 import com.travelplanner.irida.ui.screens.AddTripScreen
@@ -28,6 +29,7 @@ import com.travelplanner.irida.ui.screens.TripDetailScreen
 import com.travelplanner.irida.ui.screens.TripGalleryScreen
 import com.travelplanner.irida.ui.screens.UserProfileScreen
 import com.travelplanner.irida.ui.viewmodels.AuthViewModel
+import com.travelplanner.irida.ui.viewmodels.HotelSearchViewModel
 import com.travelplanner.irida.ui.viewmodels.TripDetailViewModel
 import com.travelplanner.irida.ui.viewmodels.TripListViewModel
 import java.net.URLDecoder
@@ -52,6 +54,7 @@ object Routes {
     const val PROFILE             = "profile"
     const val ACCESS_LOG          = "access_log"
     const val HOTEL_SEARCH        = "hotel_search"
+    const val HOTEL_DETAIL        = "hotel_detail"
 
     fun tripDetail(tripId: String) = "$TRIP_DETAIL/$tripId"
     fun editTrip(tripId: String)   = "$EDIT_TRIP/$tripId"
@@ -77,6 +80,7 @@ fun AppNavigation(navController: NavHostController = rememberNavController()) {
     val tripListViewModel: TripListViewModel = hiltViewModel()
     val tripDetailViewModel: TripDetailViewModel = hiltViewModel()
     val authViewModel: AuthViewModel = hiltViewModel()
+    val hotelSearchViewModel: HotelSearchViewModel = hiltViewModel()
     val currentUsername by authViewModel.currentUsername.collectAsState()
 
     NavHost(navController = navController, startDestination = Routes.SPLASH) {
@@ -250,7 +254,19 @@ fun AppNavigation(navController: NavHostController = rememberNavController()) {
 
         composable(Routes.HOTEL_SEARCH) {
             HotelSearchScreen(
-                onNavigateBack = { navController.popBackStack() }
+                onNavigateBack = { navController.popBackStack() },
+                onHotelClick = { hotel ->
+                    hotelSearchViewModel.selectHotel(hotel)
+                    navController.navigate(Routes.HOTEL_DETAIL)
+                },
+                viewModel = hotelSearchViewModel
+            )
+        }
+
+        composable(Routes.HOTEL_DETAIL) {
+            HotelDetailScreen(
+                onNavigateBack = { navController.popBackStack() },
+                viewModel = hotelSearchViewModel
             )
         }
     }
