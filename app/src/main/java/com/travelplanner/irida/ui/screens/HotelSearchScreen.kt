@@ -21,7 +21,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Hotel
+import androidx.compose.material.icons.filled.KingBed
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.SingleBed
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -61,6 +63,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.travelplanner.irida.domain.Hotel
+import com.travelplanner.irida.domain.Room
 import com.travelplanner.irida.ui.theme.ErrorRed
 import com.travelplanner.irida.ui.theme.GoldAccent
 import com.travelplanner.irida.ui.theme.GrayDark
@@ -80,6 +83,30 @@ private val dateDisplayFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
 
 private fun millisToLocalDate(millis: Long): LocalDate =
     Instant.ofEpochMilli(millis).atZone(ZoneId.of("UTC")).toLocalDate()
+
+// ── Room type helpers ─────────────────────────────────────────────────────────
+
+private fun roomTypeLabel(type: String): String = when (type.lowercase()) {
+    "single"       -> "Individual"
+    "double"       -> "Doble"
+    "suite"        -> "Suite"
+    "twin"         -> "Twin"
+    "triple"       -> "Triple"
+    "family"       -> "Familiar"
+    "deluxe"       -> "Deluxe"
+    else           -> type.replaceFirstChar { it.uppercase() }
+}
+
+private fun roomTypeColor(type: String) = when (type.lowercase()) {
+    "suite", "deluxe" -> GoldAccent
+    "double", "twin"  -> TurquoisePrimary
+    else              -> GrayMid
+}
+
+private fun roomTypeIcon(type: String) = when (type.lowercase()) {
+    "single" -> Icons.Filled.SingleBed
+    else     -> Icons.Filled.KingBed
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -481,18 +508,22 @@ fun HotelSearchScreen(
 
 @Composable
 private fun HotelCard(hotel: Hotel) {
+    val visibleRooms = hotel.rooms.take(3)
+    val extraRooms   = hotel.rooms.size - visibleRooms.size
+
     Card(
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = NavyLight),
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
+
+            // ── Cabecera del hotel ────────────────────────────────────────
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.Top
             ) {
-                // Icono + nombre
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.weight(1f)
@@ -532,39 +563,105 @@ private fun HotelCard(hotel: Hotel) {
                         )
                     }
                 }
-                // Rating
                 RatingBadge(rating = hotel.rating)
             }
 
-            // Habitaciones disponibles
-            if (hotel.rooms.isNotEmpty()) {
+            // ── Lista de habitaciones ─────────────────────────────────────
+            if (visibleRooms.isNotEmpty()) {
                 Spacer(Modifier.height(12.dp))
                 HorizontalDivider(color = GrayDark.copy(alpha = 0.4f))
                 Spacer(Modifier.height(8.dp))
-                val minPrice = hotel.rooms.minOfOrNull { it.price }
+
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "${hotel.rooms.size} tipo${if (hotel.rooms.size == 1) "" else "s"} de habitación",
+                        "Habitaciones disponibles",
                         color = GrayMid,
-                        style = MaterialTheme.typography.bodySmall
+                        style = MaterialTheme.typography.labelSmall,
+                        fontWeight = FontWeight.SemiBold
                     )
-                    if (minPrice != null) {
-                        Text(
-                            text = "desde %.0f €/noche".format(minPrice),
-                            color = TurquoisePrimary,
-                            style = MaterialTheme.typography.labelMedium,
-                            fontWeight = FontWeight.SemiBold
-                        )
+                    Text(
+                        "${hotel.rooms.size} tipo${if (hotel.rooms.size == 1) "" else "s"}",
+                        color = GrayMid,
+                        style = MaterialTheme.typography.labelSmall
+                    )
+                }
+                Spacer(Modifier.height(6.dp))
+
+                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    visibleRooms.forEach { room ->
+                        RoomRow(room = room)
                     }
+                }
+
+                if (extraRooms > 0) {
+                    Spacer(Modifier.height(6.dp))
+                    Text(
+                        "+$extraRooms habitación${if (extraRooms == 1) "" else "es"} más",
+                        color = TurquoisePrimary,
+                        style = MaterialTheme.typography.labelSmall,
+                        fontWeight = FontWeight.Medium
+                    )
                 }
             }
         }
     }
 }
+
+// ── RoomRow ───────────────────────────────────────────────────────────────────
+
+@Composable
+private fun RoomRow(room: Room) {
+    val label = roomTypeLabel(room.roomType)
+    val color = roomTypeColor(room.roomType)
+    val icon  = roomTypeIcon(room.roomType)
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(
+                color = NavyDeep.copy(alpha = 0.6f),
+                shape = RoundedCornerShape(10.dp)
+            )
+            .padding(horizontal = 12.dp, vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Box(
+                modifier = Modifier
+                    .size(32.dp)
+                    .background(color.copy(alpha = 0.15f), RoundedCornerShape(8.dp)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = label,
+                    tint = color,
+                    modifier = Modifier.size(18.dp)
+                )
+            }
+            Spacer(Modifier.width(10.dp))
+            Text(
+                text = label,
+                color = White,
+                style = MaterialTheme.typography.bodySmall,
+                fontWeight = FontWeight.Medium
+            )
+        }
+        Text(
+            text = "%.0f €/noche".format(room.price),
+            color = color,
+            style = MaterialTheme.typography.labelMedium,
+            fontWeight = FontWeight.SemiBold
+        )
+    }
+}
+
+// ── RatingBadge ───────────────────────────────────────────────────────────────
 
 @Composable
 private fun RatingBadge(rating: Int) {
