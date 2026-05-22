@@ -16,5 +16,11 @@ data class TripEntity(
     val nights: Int,
     val budget: Double,
     val budgetSpent: Double,
-    val emoji: String
+    val emoji: String,
+    val reservationId: String? = null,
+    val hotelId: String? = null,
+    val roomId: String? = null,
+    val reservationPrice: Double? = null,
+    val reservationStart: String? = null,
+    val reservationEnd: String? = null
 )

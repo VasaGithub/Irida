@@ -14,7 +14,13 @@ fun TripEntity.toDomain(): Trip = Trip(
     nights = nights,
     budget = budget,
     budgetSpent = budgetSpent,
-    emoji = emoji
+    emoji = emoji,
+    reservationId = reservationId,
+    hotelId = hotelId,
+    roomId = roomId,
+    reservationPrice = reservationPrice,
+    reservationStart = reservationStart,
+    reservationEnd = reservationEnd
 )
 
 fun Trip.toEntity(userId: String): TripEntity = TripEntity(
@@ -28,7 +34,13 @@ fun Trip.toEntity(userId: String): TripEntity = TripEntity(
     nights = nights,
     budget = budget,
     budgetSpent = budgetSpent,
-    emoji = emoji
+    emoji = emoji,
+    reservationId = reservationId,
+    hotelId = hotelId,
+    roomId = roomId,
+    reservationPrice = reservationPrice,
+    reservationStart = reservationStart,
+    reservationEnd = reservationEnd
 )
 
 fun ActivityEntity.toDomain(): Activity = Activity(
