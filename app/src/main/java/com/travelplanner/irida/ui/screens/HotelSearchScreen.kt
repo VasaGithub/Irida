@@ -17,10 +17,11 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.Hotel
 import androidx.compose.material.icons.filled.KingBed
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.SingleBed
@@ -64,6 +65,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.travelplanner.irida.domain.Hotel
 import com.travelplanner.irida.domain.Room
+import com.travelplanner.irida.ui.components.HotelAsyncImage
 import com.travelplanner.irida.ui.theme.ErrorRed
 import com.travelplanner.irida.ui.theme.GoldAccent
 import com.travelplanner.irida.ui.theme.GrayDark
@@ -519,55 +521,61 @@ private fun HotelCard(hotel: Hotel, onClick: () -> Unit = {}) {
         colors = CardDefaults.cardColors(containerColor = NavyLight),
         modifier = Modifier.fillMaxWidth()
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
+        Column {
+
+            // ── Imagen del hotel ──────────────────────────────────────────
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(130.dp)
+                    .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
+            ) {
+                HotelAsyncImage(
+                    url = hotel.imageUrl,
+                    contentDescription = hotel.name,
+                    modifier = Modifier.fillMaxSize()
+                )
+                // Gradient fade into card background
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp)
+                        .align(Alignment.BottomCenter)
+                        .background(
+                            Brush.verticalGradient(
+                                listOf(NavyLight.copy(alpha = 0f), NavyLight)
+                            )
+                        )
+                )
+                // Rating badge overlaid on the image
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(8.dp)
+                ) {
+                    RatingBadge(rating = hotel.rating)
+                }
+            }
 
             // ── Cabecera del hotel ────────────────────────────────────────
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.Top
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .size(44.dp)
-                            .background(
-                                color = TurquoisePrimary.copy(alpha = 0.15f),
-                                shape = RoundedCornerShape(12.dp)
-                            ),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.Hotel,
-                            contentDescription = null,
-                            tint = TurquoisePrimary,
-                            modifier = Modifier.size(24.dp)
-                        )
-                    }
-                    Spacer(Modifier.width(12.dp))
-                    Column {
-                        Text(
-                            text = hotel.name,
-                            color = White,
-                            style = MaterialTheme.typography.titleSmall,
-                            fontWeight = FontWeight.Bold,
-                            maxLines = 2,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                        Text(
-                            text = hotel.address,
-                            color = GrayMid,
-                            style = MaterialTheme.typography.bodySmall,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    }
-                }
-                RatingBadge(rating = hotel.rating)
+            Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp)) {
+                Text(
+                    text = hotel.name,
+                    color = White,
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Text(
+                    text = hotel.address,
+                    color = GrayMid,
+                    style = MaterialTheme.typography.bodySmall,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
             }
+            Column(modifier = Modifier.padding(horizontal = 16.dp).padding(bottom = 16.dp)) {
 
             // ── Lista de habitaciones ─────────────────────────────────────
             if (visibleRooms.isNotEmpty()) {
@@ -609,6 +617,7 @@ private fun HotelCard(hotel: Hotel, onClick: () -> Unit = {}) {
                         fontWeight = FontWeight.Medium
                     )
                 }
+            }
             }
         }
     }

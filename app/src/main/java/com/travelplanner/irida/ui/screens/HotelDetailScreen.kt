@@ -24,7 +24,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Hotel
 import androidx.compose.material.icons.filled.KingBed
 import androidx.compose.material.icons.filled.SingleBed
 import androidx.compose.material.icons.filled.Star
@@ -33,13 +32,11 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
@@ -58,8 +55,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -67,10 +62,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import coil.compose.AsyncImage
-import coil.compose.SubcomposeAsyncImage
-import coil.request.ImageRequest
 import com.travelplanner.irida.domain.Hotel
+import com.travelplanner.irida.ui.components.HotelAsyncImage
 import com.travelplanner.irida.domain.Room
 import com.travelplanner.irida.ui.theme.ErrorRed
 import com.travelplanner.irida.ui.theme.GoldAccent
@@ -236,8 +229,9 @@ private fun ImageGallery(images: List<String>) {
             state = pagerState,
             modifier = Modifier.fillMaxSize()
         ) { page ->
-            HotelImage(
+            HotelAsyncImage(
                 url = images[page],
+                contentDescription = "Imagen del hotel",
                 modifier = Modifier.fillMaxSize()
             )
         }
@@ -277,44 +271,6 @@ private fun ImageGallery(images: List<String>) {
             }
         }
     }
-}
-
-@Composable
-private fun HotelImage(url: String, modifier: Modifier = Modifier) {
-    SubcomposeAsyncImage(
-        model = ImageRequest.Builder(LocalContext.current)
-            .data(url)
-            .crossfade(true)
-            .build(),
-        contentDescription = "Imagen del hotel",
-        contentScale = ContentScale.Crop,
-        modifier = modifier,
-        loading = {
-            Box(
-                modifier = Modifier.fillMaxSize().background(NavyLight),
-                contentAlignment = Alignment.Center
-            ) { CircularProgressIndicator(color = TurquoisePrimary, modifier = Modifier.size(32.dp)) }
-        },
-        error = {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(
-                        Brush.linearGradient(
-                            listOf(NavyMid, NavyLight)
-                        )
-                    ),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    Icons.Filled.Hotel,
-                    contentDescription = null,
-                    tint = TurquoisePrimary.copy(alpha = 0.5f),
-                    modifier = Modifier.size(64.dp)
-                )
-            }
-        }
-    )
 }
 
 // ── HotelInfoCard ─────────────────────────────────────────────────────────────
@@ -431,7 +387,7 @@ private fun RoomDetailCard(
                     .height(160.dp)
                     .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
             ) {
-                HotelImage(url = roomImage, modifier = Modifier.fillMaxSize())
+                HotelAsyncImage(url = roomImage, contentDescription = "Imagen de la habitación", modifier = Modifier.fillMaxSize())
 
                 // Tipo badge
                 Box(
