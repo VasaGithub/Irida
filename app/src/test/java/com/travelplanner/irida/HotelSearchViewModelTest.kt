@@ -29,6 +29,7 @@ class HotelSearchViewModelTest {
     private val testDispatcher = StandardTestDispatcher()
     private lateinit var hotelRepository: HotelRepository
     private lateinit var authRepository: AuthRepository
+    private lateinit var tripRepository: com.travelplanner.irida.domain.TripRepository
     private lateinit var viewModel: HotelSearchViewModel
 
     @Before
@@ -38,7 +39,8 @@ class HotelSearchViewModelTest {
         authRepository = mockk {
             every { currentUser } returns null
         }
-        viewModel = HotelSearchViewModel(hotelRepository, authRepository)
+        tripRepository = mockk(relaxed = true)
+        viewModel = HotelSearchViewModel(hotelRepository, authRepository, tripRepository)
     }
 
     @After
