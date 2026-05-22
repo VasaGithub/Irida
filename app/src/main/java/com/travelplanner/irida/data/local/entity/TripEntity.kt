@@ -22,5 +22,7 @@ data class TripEntity(
     val roomId: String? = null,
     val reservationPrice: Double? = null,
     val reservationStart: String? = null,
-    val reservationEnd: String? = null
+    val reservationEnd: String? = null,
+    val reservationGuestName: String? = null,
+    val reservationGuestEmail: String? = null
 )

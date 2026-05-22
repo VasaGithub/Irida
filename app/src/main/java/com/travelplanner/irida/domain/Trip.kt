@@ -20,7 +20,9 @@ data class Trip(
     val roomId: String? = null,
     val reservationPrice: Double? = null,
     val reservationStart: String? = null,
-    val reservationEnd: String? = null
+    val reservationEnd: String? = null,
+    val reservationGuestName: String? = null,
+    val reservationGuestEmail: String? = null
 ) {
     /** Calcula el presupuesto restante. */
     fun getRemainingBudget(): Double = budget - budgetSpent

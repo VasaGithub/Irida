@@ -91,6 +91,7 @@ fun HomeScreen(
     onEditTripClick: (Trip) -> Unit = {},
     onNavigate: (String) -> Unit = {},
     onSearchHotels: () -> Unit = {},
+    onNavigateToReservations: () -> Unit = {},
     viewModel: TripListViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -156,6 +157,7 @@ fun HomeScreen(
             item { HomeHeader(username = username) }
 
             item { HotelSearchBanner(onSearchHotels = onSearchHotels) }
+            item { ReservationsBanner(onNavigateToReservations = onNavigateToReservations) }
 
             item {
                 Row(
@@ -352,6 +354,24 @@ fun TripCard(
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = GrayMid
                             )
+                            if (trip.reservationId != null) {
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(
+                                        Icons.Filled.Hotel,
+                                        contentDescription = null,
+                                        tint = TurquoisePrimary,
+                                        modifier = Modifier.size(12.dp)
+                                    )
+                                    Spacer(Modifier.width(4.dp))
+                                    Text(
+                                        "Reserva activa",
+                                        color = TurquoisePrimary,
+                                        fontSize = 11.sp,
+                                        fontWeight = FontWeight.Medium
+                                    )
+                                }
+                            }
                         }
                     }
                     Row {
@@ -492,6 +512,51 @@ private fun HotelSearchBanner(onSearchHotels: () -> Unit) {
                 tint = TurquoisePrimary,
                 modifier = Modifier.size(22.dp)
             )
+        }
+    }
+}
+
+@Composable
+private fun ReservationsBanner(onNavigateToReservations: () -> Unit) {
+    Card(
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = NavyLight),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp, vertical = 4.dp)
+            .clickable { onNavigateToReservations() }
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 14.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(44.dp)
+                    .background(
+                        color = GoldAccent.copy(alpha = 0.15f),
+                        shape = RoundedCornerShape(12.dp)
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Text("🏨", fontSize = 20.sp)
+            }
+            Spacer(Modifier.width(14.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    "Mis reservas",
+                    color = White,
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.SemiBold
+                )
+                Text(
+                    "Ver y gestionar tus reservas activas",
+                    color = GrayMid,
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
         }
     }
 }

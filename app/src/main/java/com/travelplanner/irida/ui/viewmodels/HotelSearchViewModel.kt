@@ -6,6 +6,8 @@ import com.travelplanner.irida.domain.AuthRepository
 import com.travelplanner.irida.domain.Hotel
 import com.travelplanner.irida.domain.HotelRepository
 import com.travelplanner.irida.domain.Reservation
+import com.travelplanner.irida.domain.Trip
+import com.travelplanner.irida.domain.TripRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -15,12 +17,15 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.LocalDate
+import java.time.temporal.ChronoUnit
+import java.util.UUID
 import javax.inject.Inject
 
 @HiltViewModel
 class HotelSearchViewModel @Inject constructor(
     private val hotelRepository: HotelRepository,
-    private val authRepository: AuthRepository
+    private val authRepository: AuthRepository,
+    private val tripRepository: TripRepository
 ) : ViewModel() {
 
     // ── Search UI state ───────────────────────────────────────────────────
@@ -73,7 +78,7 @@ class HotelSearchViewModel @Inject constructor(
     fun search() {
         val start = _startDate.value ?: return
         val end   = _endDate.value   ?: return
-        val c     = _city.value.takeIf { it.isNotBlank() } ?: return
+        val c     = _city.value.toCityCode().takeIf { it.isNotBlank() } ?: return
         viewModelScope.launch {
             _uiState.value = UiState.Loading
             try {
@@ -92,6 +97,7 @@ class HotelSearchViewModel @Inject constructor(
         val hotel = _selectedHotel.value ?: return
         val start = _startDate.value    ?: return
         val end   = _endDate.value      ?: return
+        val room  = hotel.rooms.firstOrNull { it.id == roomId }
         viewModelScope.launch {
             _reserveUiState.value = ReserveUiState.Loading
             try {
@@ -103,6 +109,29 @@ class HotelSearchViewModel @Inject constructor(
                     guestName = guestName,
                     guestEmail = guestEmail
                 )
+                val nights     = ChronoUnit.DAYS.between(start, end)
+                val totalPrice = (room?.price ?: 0.0) * nights
+                tripRepository.addTrip(
+                    Trip(
+                        id                    = UUID.randomUUID().toString(),
+                        title                 = "${hotel.name} – ${room?.roomType ?: "Habitación"}",
+                        description           = "Reserva en ${hotel.name}, ${hotel.address}",
+                        destination           = hotel.address,
+                        startDate             = start,
+                        endDate               = end,
+                        nights                = nights.toInt(),
+                        budget                = totalPrice,
+                        emoji                 = "🏨",
+                        reservationId         = reservation.id,
+                        hotelId               = hotel.id,
+                        roomId                = roomId,
+                        reservationPrice      = totalPrice,
+                        reservationStart      = start.toString(),
+                        reservationEnd        = end.toString(),
+                        reservationGuestName  = guestName,
+                        reservationGuestEmail = guestEmail
+                    )
+                )
                 _reserveUiState.value = ReserveUiState.Success(reservation)
             } catch (e: Exception) {
                 _reserveUiState.value = ReserveUiState.Error(
@@ -113,4 +142,11 @@ class HotelSearchViewModel @Inject constructor(
     }
 
     fun resetReserveState() { _reserveUiState.value = ReserveUiState.Idle }
+
+    private fun String.toCityCode(): String = when (trim()) {
+        "Barcelona" -> "BCN"
+        "Londres"   -> "LON"
+        "París"     -> "PAR"
+        else        -> this
+    }
 }

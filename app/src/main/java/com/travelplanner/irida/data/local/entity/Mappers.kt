@@ -20,7 +20,9 @@ fun TripEntity.toDomain(): Trip = Trip(
     roomId = roomId,
     reservationPrice = reservationPrice,
     reservationStart = reservationStart,
-    reservationEnd = reservationEnd
+    reservationEnd = reservationEnd,
+    reservationGuestName = reservationGuestName,
+    reservationGuestEmail = reservationGuestEmail
 )
 
 fun Trip.toEntity(userId: String): TripEntity = TripEntity(
@@ -40,7 +42,9 @@ fun Trip.toEntity(userId: String): TripEntity = TripEntity(
     roomId = roomId,
     reservationPrice = reservationPrice,
     reservationStart = reservationStart,
-    reservationEnd = reservationEnd
+    reservationEnd = reservationEnd,
+    reservationGuestName = reservationGuestName,
+    reservationGuestEmail = reservationGuestEmail
 )
 
 fun ActivityEntity.toDomain(): Activity = Activity(
