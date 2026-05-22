@@ -7,12 +7,14 @@ import androidx.room.PrimaryKey
 
 @Entity(
     tableName = "trip_images",
-    foreignKeys = [ForeignKey(
-        entity = TripEntity::class,
-        parentColumns = ["id"],
-        childColumns = ["tripId"],
-        onDelete = ForeignKey.CASCADE
-    )],
+    foreignKeys = [
+        ForeignKey(
+            entity        = TripEntity::class,
+            parentColumns = ["id"],
+            childColumns  = ["tripId"],
+            onDelete      = ForeignKey.CASCADE
+        )
+    ],
     indices = [Index("tripId")]
 )
 data class TripImageEntity(
