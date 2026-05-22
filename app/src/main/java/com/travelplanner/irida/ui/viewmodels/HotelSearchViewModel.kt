@@ -23,6 +23,7 @@ class HotelSearchViewModel @Inject constructor(
     private val authRepository: AuthRepository
 ) : ViewModel() {
 
+    // ── Search UI state ───────────────────────────────────────────────────
     sealed interface UiState {
         data object Idle : UiState
         data object Loading : UiState
@@ -30,6 +31,7 @@ class HotelSearchViewModel @Inject constructor(
         data class Error(val message: String) : UiState
     }
 
+    // ── Reserve UI state ──────────────────────────────────────────────────
     sealed interface ReserveUiState {
         data object Idle : ReserveUiState
         data object Loading : ReserveUiState
@@ -59,9 +61,11 @@ class HotelSearchViewModel @Inject constructor(
         s != null && e != null && c.isNotBlank()
     }.stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
+    /** Email of the currently authenticated user, for pre-filling the reservation form. */
     val currentGuestEmail: String
         get() = authRepository.currentUser?.email ?: ""
 
+    // ── Search ────────────────────────────────────────────────────────────
     fun onStartDateSelected(date: LocalDate) { _startDate.value = date }
     fun onEndDateSelected(date: LocalDate)   { _endDate.value   = date }
     fun onCitySelected(c: String)            { _city.value      = c    }
@@ -81,6 +85,7 @@ class HotelSearchViewModel @Inject constructor(
         }
     }
 
+    // ── Detail / Reservation ──────────────────────────────────────────────
     fun selectHotel(hotel: Hotel) { _selectedHotel.value = hotel }
 
     fun reserve(roomId: String, guestName: String, guestEmail: String) {
