@@ -14,6 +14,7 @@ import com.travelplanner.irida.ui.screens.AboutScreen
 import com.travelplanner.irida.ui.screens.AccessLogScreen
 import com.travelplanner.irida.ui.screens.HotelDetailScreen
 import com.travelplanner.irida.ui.screens.HotelSearchScreen
+import com.travelplanner.irida.ui.screens.ReservationsScreen
 import com.travelplanner.irida.ui.screens.AddActivityScreen
 import com.travelplanner.irida.ui.screens.AddTripScreen
 import com.travelplanner.irida.ui.screens.EditTripScreen
@@ -55,6 +56,7 @@ object Routes {
     const val ACCESS_LOG          = "access_log"
     const val HOTEL_SEARCH        = "hotel_search"
     const val HOTEL_DETAIL        = "hotel_detail"
+    const val RESERVATIONS        = "reservations"
 
     fun tripDetail(tripId: String) = "$TRIP_DETAIL/$tripId"
     fun editTrip(tripId: String)   = "$EDIT_TRIP/$tripId"
@@ -161,6 +163,7 @@ fun AppNavigation(navController: NavHostController = rememberNavController()) {
                 onEditTripClick = { trip -> navController.navigate(Routes.editTrip(trip.id)) },
                 onNavigate = { route -> handleBottomNav(route, navController) },
                 onSearchHotels = { navController.navigate(Routes.HOTEL_SEARCH) },
+                onNavigateToReservations = { navController.navigate(Routes.RESERVATIONS) },
                 viewModel = tripListViewModel
             )
         }
@@ -268,6 +271,10 @@ fun AppNavigation(navController: NavHostController = rememberNavController()) {
                 onNavigateBack = { navController.popBackStack() },
                 viewModel = hotelSearchViewModel
             )
+        }
+
+        composable(Routes.RESERVATIONS) {
+            ReservationsScreen(onBack = { navController.popBackStack() })
         }
     }
 }

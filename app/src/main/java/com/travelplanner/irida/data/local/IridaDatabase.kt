@@ -25,7 +25,7 @@ import com.travelplanner.irida.data.local.entity.UserEntity
         AccessLogEntity::class,
         TripImageEntity::class
     ],
-    version = 2,
+    version = 3,
     exportSchema = false
 )
 @TypeConverters(DateConverters::class)
@@ -62,5 +62,12 @@ val MIGRATION_1_2 = object : Migration(1, 2) {
         db.execSQL(
             "CREATE INDEX IF NOT EXISTS `index_trip_images_tripId` ON `trip_images` (`tripId`)"
         )
+    }
+}
+
+val MIGRATION_2_3 = object : Migration(2, 3) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("ALTER TABLE trips ADD COLUMN reservationGuestName TEXT")
+        db.execSQL("ALTER TABLE trips ADD COLUMN reservationGuestEmail TEXT")
     }
 }

@@ -5,6 +5,7 @@ import androidx.room.Room
 import com.travelplanner.irida.data.PreferencesManager
 import com.travelplanner.irida.data.local.IridaDatabase
 import com.travelplanner.irida.data.local.MIGRATION_1_2
+import com.travelplanner.irida.data.local.MIGRATION_2_3
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -20,7 +21,7 @@ object DatabaseModule {
     @Singleton
     fun provideDatabase(@ApplicationContext ctx: Context): IridaDatabase =
         Room.databaseBuilder(ctx, IridaDatabase::class.java, "irida_db")
-            .addMigrations(MIGRATION_1_2)
+            .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
             .build()
 
     @Provides
