@@ -2,6 +2,7 @@ package com.travelplanner.irida.data.local.entity
 
 import com.travelplanner.irida.domain.Activity
 import com.travelplanner.irida.domain.Trip
+import com.travelplanner.irida.domain.TripImage
 
 fun TripEntity.toDomain(): Trip = Trip(
     id = id,
@@ -46,4 +47,20 @@ fun Activity.toEntity(): ActivityEntity = ActivityEntity(
     description = description,
     date = date,
     time = time
+)
+
+// ── TripImage ────────────────────────────────────────────────────────────────
+
+fun TripImageEntity.toDomain(): TripImage = TripImage(
+    id       = id,
+    tripId   = tripId,
+    filePath = filePath,
+    addedAt  = addedAt
+)
+
+fun TripImage.toEntity(): TripImageEntity = TripImageEntity(
+    id       = id,
+    tripId   = tripId,
+    filePath = filePath,
+    addedAt  = addedAt
 )
