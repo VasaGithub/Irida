@@ -14,7 +14,13 @@ data class Trip(
     val budgetSpent: Double = 0.0,
     val emoji: String = "✈️",
     val activities: List<Activity> = emptyList(),
-    val userId: String = ""
+    val userId: String = "",
+    val reservationId: String? = null,
+    val hotelId: String? = null,
+    val roomId: String? = null,
+    val reservationPrice: Double? = null,
+    val reservationStart: String? = null,
+    val reservationEnd: String? = null
 ) {
     /** Calcula el presupuesto restante. */
     fun getRemainingBudget(): Double = budget - budgetSpent
