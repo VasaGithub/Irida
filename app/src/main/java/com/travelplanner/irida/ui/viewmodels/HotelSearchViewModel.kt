@@ -1,5 +1,6 @@
 package com.travelplanner.irida.ui.viewmodels
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.travelplanner.irida.domain.AuthRepository
@@ -66,6 +67,10 @@ class HotelSearchViewModel @Inject constructor(
         s != null && e != null && c.isNotBlank()
     }.stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
+    companion object {
+        private const val TAG = "HotelSearchViewModel"
+    }
+
     /** Email of the currently authenticated user, for pre-filling the reservation form. */
     val currentGuestEmail: String
         get() = authRepository.currentUser?.email ?: ""
@@ -79,12 +84,15 @@ class HotelSearchViewModel @Inject constructor(
         val start = _startDate.value ?: return
         val end   = _endDate.value   ?: return
         val c     = _city.value.toCityCode().takeIf { it.isNotBlank() } ?: return
+        Log.d(TAG, "search() iniciada → ciudad=$c start=$start end=$end")
         viewModelScope.launch {
             _uiState.value = UiState.Loading
             try {
                 val hotels = hotelRepository.getAvailability(start, end, c)
+                Log.i(TAG, "search() completada → ${hotels.size} hoteles encontrados")
                 _uiState.value = UiState.Success(hotels)
             } catch (e: Exception) {
+                Log.e(TAG, "search() error: ${e.message}", e)
                 _uiState.value = UiState.Error(e.message ?: "Error desconocido")
             }
         }
@@ -98,6 +106,7 @@ class HotelSearchViewModel @Inject constructor(
         val start = _startDate.value    ?: return
         val end   = _endDate.value      ?: return
         val room  = hotel.rooms.firstOrNull { it.id == roomId }
+        Log.d(TAG, "reserve() iniciada → hotel=${hotel.name} roomId=$roomId guest=$guestEmail")
         viewModelScope.launch {
             _reserveUiState.value = ReserveUiState.Loading
             try {
@@ -132,8 +141,10 @@ class HotelSearchViewModel @Inject constructor(
                         reservationGuestEmail = guestEmail
                     )
                 )
+                Log.i(TAG, "reserve() completada → reservaId=${reservation.id}")
                 _reserveUiState.value = ReserveUiState.Success(reservation)
             } catch (e: Exception) {
+                Log.e(TAG, "reserve() error: ${e.message}", e)
                 _reserveUiState.value = ReserveUiState.Error(
                     e.message ?: "Error al realizar la reserva"
                 )
