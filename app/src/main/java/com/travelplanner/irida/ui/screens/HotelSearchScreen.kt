@@ -627,9 +627,10 @@ private fun HotelCard(hotel: Hotel, onClick: () -> Unit = {}) {
 
 @Composable
 private fun RoomRow(room: Room) {
-    val label = roomTypeLabel(room.roomType)
-    val color = roomTypeColor(room.roomType)
-    val icon  = roomTypeIcon(room.roomType)
+    val label     = roomTypeLabel(room.roomType)
+    val color     = roomTypeColor(room.roomType)
+    val icon      = roomTypeIcon(room.roomType)
+    val thumbUrl  = room.images.firstOrNull() ?: ""
 
     Row(
         modifier = Modifier
@@ -638,32 +639,48 @@ private fun RoomRow(room: Room) {
                 color = NavyDeep.copy(alpha = 0.6f),
                 shape = RoundedCornerShape(10.dp)
             )
-            .padding(horizontal = 12.dp, vertical = 10.dp),
+            .padding(horizontal = 10.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.weight(1f)
+        ) {
+            // Thumbnail: imagen real si existe, icono de fallback si no
             Box(
                 modifier = Modifier
-                    .size(32.dp)
-                    .background(color.copy(alpha = 0.15f), RoundedCornerShape(8.dp)),
+                    .size(48.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(color.copy(alpha = 0.12f)),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(
-                    imageVector = icon,
-                    contentDescription = label,
-                    tint = color,
-                    modifier = Modifier.size(18.dp)
-                )
+                if (thumbUrl.isNotBlank()) {
+                    HotelAsyncImage(
+                        url = thumbUrl,
+                        contentDescription = label,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                } else {
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = label,
+                        tint = color,
+                        modifier = Modifier.size(22.dp)
+                    )
+                }
             }
             Spacer(Modifier.width(10.dp))
             Text(
                 text = label,
                 color = White,
                 style = MaterialTheme.typography.bodySmall,
-                fontWeight = FontWeight.Medium
+                fontWeight = FontWeight.Medium,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
         }
+        Spacer(Modifier.width(8.dp))
         Text(
             text = "%.0f €/noche".format(room.price),
             color = color,
