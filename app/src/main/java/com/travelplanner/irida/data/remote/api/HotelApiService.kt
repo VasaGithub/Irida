@@ -1,6 +1,7 @@
 package com.travelplanner.irida.data.remote.api
 
 import com.travelplanner.irida.data.remote.dto.ApiMessageDto
+import com.travelplanner.irida.data.remote.dto.CancelRequestDto
 import com.travelplanner.irida.data.remote.dto.AvailabilityResponseDto
 import com.travelplanner.irida.data.remote.dto.HotelDto
 import com.travelplanner.irida.data.remote.dto.ReservationDto
@@ -37,7 +38,7 @@ interface HotelApiService {
     @POST("hotels/{group_id}/cancel")
     suspend fun cancelReservation(
         @Path("group_id") groupId: String,
-        @Body request: Map<String, String>
+        @Body request: CancelRequestDto
     ): ApiMessageDto
 
     @GET("hotels/{group_id}/reservations")

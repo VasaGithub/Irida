@@ -110,4 +110,68 @@ class HotelRepositoryImplTest {
             city  = "BCN"
         )
     }
+
+    @Test
+    fun `cancel devuelve el mensaje cuando la API responde 200`() = runTest {
+        // Arrange
+        val json = javaClass.classLoader!!
+            .getResourceAsStream("cancel_ok.json")!!
+            .bufferedReader().readText()
+
+        server.enqueue(MockResponse().setResponseCode(200).setBody(json))
+
+        // Act
+        val message = repository.cancel(
+            hotelId    = "BCN01",
+            roomId     = "R1",
+            startDate  = "2026-05-22",
+            endDate    = "2026-05-24",
+            guestName  = "Iker",
+            guestEmail = "iker@test.com"
+        )
+
+        // Assert
+        assertEquals("Reserva cancelada", message)
+
+        val request = server.takeRequest()
+        assertEquals("POST", request.method)
+        assert(request.path!!.contains("cancel"))
+        assert(request.body.readUtf8().contains("\"hotel_id\":\"BCN01\""))
+    }
+
+    @Test(expected = HttpException::class)
+    fun `cancel lanza HttpException cuando la API responde 500`() = runTest {
+        // Arrange
+        server.enqueue(MockResponse().setResponseCode(500))
+
+        // Act — debe lanzar HttpException
+        repository.cancel(
+            hotelId    = "BCN01",
+            roomId     = "R1",
+            startDate  = "2026-05-22",
+            endDate    = "2026-05-24",
+            guestName  = "Iker",
+            guestEmail = "iker@test.com"
+        )
+    }
+
+    @Test(expected = HttpException::class)
+    fun `reserve lanza HttpException cuando la API responde 400`() = runTest {
+        // Arrange
+        val json = javaClass.classLoader!!
+            .getResourceAsStream("error_400.json")!!
+            .bufferedReader().readText()
+
+        server.enqueue(MockResponse().setResponseCode(400).setBody(json))
+
+        // Act — debe lanzar HttpException
+        repository.reserve(
+            hotelId    = "BCN01",
+            roomId     = "R1",
+            start      = LocalDate.of(2025, 1, 1),
+            end        = LocalDate.of(2025, 1, 5),
+            guestName  = "Iker",
+            guestEmail = "iker@test.com"
+        )
+    }
 }

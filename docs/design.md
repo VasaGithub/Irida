@@ -118,3 +118,15 @@ AuthViewModel.logout() → AccessLogEntity(userId, action="LOGOUT", datetime=now
 
 ## Modelo de Dominio
 ![Modelo de dominio](domain_model.png)
+
+## Estructura de carpetas (mapeo con rúbrica Sprint 04)
+
+| Convención rúbrica | Ubicación en el proyecto                                                |
+|--------------------|-------------------------------------------------------------------------|
+| `view`             | `app/.../ui/screens/` (Compose UI screens)                              |
+| `viewmodel`        | `app/.../ui/viewmodels/` (`@HiltViewModel`)                             |
+| `repo`             | `app/.../data/repository/` (`*RepositoryImpl`) y `domain/` (interfaces) |
+| `di`               | `app/.../di/` (Hilt modules: Database, Network, Repository, Firebase)   |
+| `data`             | `app/.../data/` (local + remote + repository)                           |
+
+La anidación bajo `ui/` y `data/` sigue la convención estándar de Android (Jetpack Compose + MVVM) y permite separar la capa de presentación (`ui`) de la capa de datos (`data`).

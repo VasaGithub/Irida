@@ -22,7 +22,14 @@ interface HotelRepository {
         guestEmail: String
     ): Reservation
 
-    suspend fun cancel(reservationId: String): String
+    suspend fun cancel(
+        hotelId: String,
+        roomId: String,
+        startDate: String,
+        endDate: String,
+        guestName: String,
+        guestEmail: String
+    ): String
 
     suspend fun listReservations(guestEmail: String? = null): List<Reservation>
 }

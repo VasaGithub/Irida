@@ -2,6 +2,7 @@ package com.travelplanner.irida.data.repository
 
 import com.travelplanner.irida.BuildConfig
 import com.travelplanner.irida.data.remote.api.HotelApiService
+import com.travelplanner.irida.data.remote.dto.CancelRequestDto
 import com.travelplanner.irida.data.remote.dto.ReserveRequestDto
 import com.travelplanner.irida.data.remote.mapper.toDomain
 import com.travelplanner.irida.domain.Hotel
@@ -57,10 +58,24 @@ class HotelRepositoryImpl @Inject constructor(
             )
         ).reservation.toDomain()
 
-    override suspend fun cancel(reservationId: String): String =
+    override suspend fun cancel(
+        hotelId: String,
+        roomId: String,
+        startDate: String,
+        endDate: String,
+        guestName: String,
+        guestEmail: String
+    ): String =
         api.cancelReservation(
             groupId = groupId,
-            request = mapOf("reservation_id" to reservationId)
+            request = CancelRequestDto(
+                hotel_id   = hotelId,
+                room_id    = roomId,
+                start_date = startDate,
+                end_date   = endDate,
+                guest_name = guestName,
+                guest_email = guestEmail
+            )
         ).message
 
     override suspend fun listReservations(guestEmail: String?): List<Reservation> =

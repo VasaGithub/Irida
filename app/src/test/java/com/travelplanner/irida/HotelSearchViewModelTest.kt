@@ -1,10 +1,12 @@
 package com.travelplanner.irida
 
+import com.travelplanner.irida.domain.AuthRepository
 import com.travelplanner.irida.domain.Hotel
 import com.travelplanner.irida.domain.HotelRepository
 import com.travelplanner.irida.ui.viewmodels.HotelSearchViewModel
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -26,13 +28,19 @@ class HotelSearchViewModelTest {
 
     private val testDispatcher = StandardTestDispatcher()
     private lateinit var hotelRepository: HotelRepository
+    private lateinit var authRepository: AuthRepository
+    private lateinit var tripRepository: com.travelplanner.irida.domain.TripRepository
     private lateinit var viewModel: HotelSearchViewModel
 
     @Before
     fun setUp() {
         Dispatchers.setMain(testDispatcher)
         hotelRepository = mockk()
-        viewModel = HotelSearchViewModel(hotelRepository)
+        authRepository = mockk {
+            every { currentUser } returns null
+        }
+        tripRepository = mockk(relaxed = true)
+        viewModel = HotelSearchViewModel(hotelRepository, authRepository, tripRepository)
     }
 
     @After
