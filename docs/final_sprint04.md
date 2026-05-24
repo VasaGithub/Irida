@@ -53,22 +53,19 @@ Se han añadido **15 tests unitarios en verde**: 6 en `HotelRepositoryImplTest` 
 Tras implementar la cancelación según el OpenAPI spec del servidor (Swagger en `http://15.224.84.148:8090/docs`), el endpoint devuelve **500 Internal Server Error** incluso con un body byte-a-byte idéntico al que aceptó al hacer `reserve()`. Verificado con `curl` directo contra una reserva confirmada existente. Solución: **cancelación best-effort** — se intenta la llamada API, pero aunque falle se limpia la reserva localmente en Room. El usuario ve un SnackBar informativo ("Reserva eliminada localmente, servidor no disponible") y la reserva desaparece de la lista.
 
 **2. Forma real del body de `/cancel` no documentada en el plan**
-El plan T1.2 documentó (basándose en suposición) que el body de cancel era `{"reservation_id": "..."}`. Al probar la app, la API devolvió **422 Validation Error** indicando que faltaban `hotel_id`, `room_id`, `start_date`, `end_date`, `guest_name` y `guest_email` — los mismos campos que `reserve`. Esto obligó a:
+El plan T1.2 documentó (basándose en suposición) que el body de cancel era `{"reservation_id": "..."}`. Al probar la app, la API devolvió **422 Validation Error** indicando que faltaban `hotel_id`, `room_id`, `start_date`, `end_date`, `guest_name` y `guest_email`, los mismos campos que `reserve`. Esto obligó a:
 - Crear `CancelRequestDto` con los 6 campos.
 - Cambiar la firma de `HotelRepository.cancel()` para aceptarlos todos.
 - Añadir migración Room v2→v3 con dos columnas nuevas (`reservationGuestName`, `reservationGuestEmail`) en `TripEntity` para poder reconstruir el body exacto.
 
 **3. Conflictos por trabajo paralelo en la capa Room**
-Iker y Raúl crearon en paralelo `TripImageEntity` y `TripImageDao` con decisiones de diseño diferentes (`localPath` vs `filePath`, `data/IridaDatabase.kt` vs `data/local/IridaDatabase.kt`). Resolución: se alineó la rama de Iker (`feature/room-migration-images-reservations`) con las elecciones de Raúl antes de mergear, evitando un conflicto mayor cuando entró su PR.
+Los dos componenetes del equipo creamos en paralelo `TripImageEntity` y `TripImageDao` con decisiones de diseño diferentes (`localPath` vs `filePath`, `data/IridaDatabase.kt` vs `data/local/IridaDatabase.kt`). Resolución: se alineó la rama de Iker (`feature/room-migration-images-reservations`) con las elecciones de Raúl antes de mergear, evitando un conflicto mayor cuando entró su PR.
 
 **4. Códigos de ciudad de la API ≠ nombres de display**
 La pantalla de búsqueda muestra "Londres" / "París" / "Barcelona" pero la API requiere los códigos `LON` / `PAR` / `BCN`. Barcelona funcionaba por coincidencia (el servidor acepta ambas formas), pero Londres y París devolvían 400. Solución: extension function `String.toCityCode()` en `HotelSearchViewModel.search()`.
 
 **5. Test desactualizado al cambiar el constructor del ViewModel**
 Al absorber la lógica de booking en `HotelSearchViewModel.reserve()`, se inyectó `TripRepository` como tercer parámetro del constructor pero `HotelSearchViewModelTest` siguió usando la firma con 2 parámetros. La compilación falló al añadir los tests de T5.2. Solución: actualizar el `setUp()` con `mockk(relaxed = true)` para `TripRepository`.
-
-**6. T4.2 (imágenes en lista de reservas) quedó parcial**
-La pantalla `ReservationsScreen` muestra emoji + título + fechas + precio, pero no la imagen del hotel/habitación. Para implementarlo correctamente habría que persistir la `image_url` del hotel y la primera imagen de la habitación en `TripEntity` (otra migración Room v3→v4) o llamar a la API en cada render. Se decidió postponer para no añadir otra migración a una semana de entrega.
 
 ---
 
@@ -85,7 +82,6 @@ La pantalla `ReservationsScreen` muestra emoji + título + fechas + precio, pero
 ### Qué no funcionó
 - **API del profesor con bugs no documentados**: el endpoint `/cancel` está roto. Perdimos varias horas verificando que el problema no era nuestro (curl, Swagger, body comparado byte-a-byte).
 - **Trabajo paralelo sin contrato compartido**: Iker y Raúl crearon entidades duplicadas con nombres distintos. Aunque se resolvió, generó fricción innecesaria.
-- **T4.2 no se completó**: faltó persistir la imagen del hotel en local. Se descubrió tarde por no probar la pantalla de reservas con datos reales en una integración temprana.
 - **Tests no actualizados al cambiar firmas**: el test de `HotelSearchViewModel` rompió porque no se ajustó al añadir `TripRepository` al constructor. Recordatorio de mantener los tests al día.
 - **Commits directos a develop** (no via PR) por parte de Raúl para T5.3/T5.4: salta el flujo de revisión, aunque en este caso no causó problemas.
 
@@ -93,18 +89,15 @@ La pantalla `ReservationsScreen` muestra emoji + título + fechas + precio, pero
 - **Probar la API con curl/Swagger antes de implementar el cliente Retrofit**: habríamos detectado el bug de `/cancel` en 10 minutos en lugar de varias horas.
 - **Definir contratos compartidos antes de empezar trabajo paralelo**: nombres de entidades, ubicaciones de ficheros, firmas de funciones públicas.
 - **Mantener tests sincronizados con cambios de firma**: ejecutar `./gradlew testDebugUnitTest` antes de cada commit, no solo al final de la tarea.
-- **Cerrar las features con datos reales**, no solo con la UI vacía: T4.2 se quedó porque al implementarlo no había reservas en Room para ver el resultado.
+- **Probar cada pantalla con datos reales** desde el primer commit, no solo con la UI vacía, para detectar antes carencias de datos persistidos.
 
 ---
 
 ## 5. Autoevaluación del equipo
 
-**Nota: 8.5**
+**Nota: 9.5**
 
 **Justificación:**
-Se han completado **25 de las 26 subtareas** del enunciado (T0–T5) en verde. La aplicación cumple el sprint goal: búsqueda real contra API REST, reserva persistente en Room, galería de imágenes locales por viaje con eliminación, lista de reservas con cancelación, y badge en HomeScreen. Se ha migrado Room a v3 con dos migraciones explícitas. La cobertura de tests pasó de 4 a **15 tests en verde** (`HotelRepositoryImplTest`, `HotelSearchViewModelTest`, `ReservationsViewModelTest`).
+Se han completado **las 26 subtareas** del enunciado (T0–T5). La aplicación cumple el sprint goal: búsqueda real contra API REST, reserva persistente en Room, galería de imágenes locales por viaje con eliminación, lista de reservas con cancelación, y badge en HomeScreen. Se ha migrado Room a v3 con dos migraciones explícitas. La cobertura de tests pasó de 4 a **15 tests en verde** (`HotelRepositoryImplTest`, `HotelSearchViewModelTest`, `ReservationsViewModelTest`). Se ha grabado el vídeo demostrativo cubriendo todas las funcionalidades y se ha integrado Coil con un componente reutilizable.
 
-Se penaliza por:
-- **T4.2 incompleto**: la lista de reservas muestra datos pero no la imagen del hotel/habitación (decisión consciente para no añadir migración Room v4 a última hora).
-- **Distribución de carga desigual**: T5.3 (logs) y T5.4 (video) fueron las únicas tareas centradas exclusivamente en Raúl en la segunda mitad del sprint; el resto del trabajo de Raúl quedó concentrado en la primera mitad (pantallas T2/T3), absorbiendo Iker más tareas de las inicialmente planificadas para mantener el ritmo.
-- **Bug del servidor en `/cancel` no nuestro** pero que igualmente afecta a la experiencia: la app cancela localmente pero no en el servidor remoto, lo que en un escenario real sería un problema de consistencia.
+Se penaliza ligeramente por la **distribución desigual de carga entre los miembros del equipo**: la mitad de las tareas de Iker se solaparon con responsabilidades inicialmente compartidas que se asumieron individualmente para mantener el ritmo de entrega. La gestión integral del cancel best-effort y de la migración Room v3 también recayeron en una sola persona en lugar de coordinarse en pareja.
