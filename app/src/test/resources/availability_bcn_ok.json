@@ -1,0 +1,16 @@
+{
+  "available_hotels": [
+    {
+      "id": "BCN01",
+      "name": "Hotel Ramblas",
+      "address": "La Rambla 33, Barcelona",
+      "rating": 4,
+      "image_url": "/images/BCN01.png",
+      "rooms": [
+        { "id": "R1", "room_type": "single", "price": 80.0, "images": ["/images/BCN01R1.png"] },
+        { "id": "R2", "room_type": "double", "price": 120.0, "images": ["/images/BCN01R2.png"] },
+        { "id": "R3", "room_type": "suite",  "price": 200.0, "images": ["/images/BCN01R3.png"] }
+      ]
+    }
+  ]
+}

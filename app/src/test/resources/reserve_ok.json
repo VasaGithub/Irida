@@ -1,0 +1,13 @@
+{
+  "message": "Reserva confirmada",
+  "nights": 2,
+  "reservation": {
+    "id": "ABC123",
+    "hotel_id": "BCN01",
+    "room_id": "R1",
+    "start_date": "2026-05-22",
+    "end_date": "2026-05-24",
+    "guest_name": "Iker",
+    "guest_email": "iker@test.com"
+  }
+}

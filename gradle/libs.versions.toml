@@ -15,6 +15,11 @@ room = "2.6.1"
 coroutines = "1.8.1"
 coreKtxVersion = "1.18.0"
 firebaseBom = "34.12.0"
+retrofit = "2.11.0"
+okhttpLogging = "5.0.0-alpha.14"
+coil = "2.7.0"
+mockwebserver = "5.0.0-alpha.14"
+mockk = "1.13.13"
 
 
 [libraries]
@@ -47,6 +52,12 @@ androidx-arch-core-testing = { group = "androidx.arch.core", name = "core-testin
 core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtxVersion" }
 firebase-bom      = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
 firebase-auth-ktx = { group = "com.google.firebase", name = "firebase-auth-ktx" }
+retrofit                = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
+retrofit-converter-gson = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "retrofit" }
+okhttp-logging          = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "okhttpLogging" }
+okhttp-mockwebserver    = { group = "com.squareup.okhttp3", name = "mockwebserver", version.ref = "mockwebserver" }
+mockk                   = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
+coil-compose            = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
 
 
 [plugins]

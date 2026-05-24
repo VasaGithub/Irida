@@ -20,6 +20,9 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField("String", "HOTELS_API_URL", "\"http://15.224.84.148:8090/\"")
+        buildConfigField("String", "GROUP_ID", "\"G16\"")
     }
 
     buildTypes {
@@ -37,6 +40,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 
     testOptions {
@@ -79,9 +83,19 @@ dependencies {
     implementation(libs.kotlinx.coroutines.android)
     // Tests
     testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.mockk)
+    testImplementation(libs.junit)
     androidTestImplementation(libs.room.testing)
     androidTestImplementation(libs.androidx.arch.core.testing)
     // Firebase
     implementation(platform(libs.firebase.bom))
     implementation("com.google.firebase:firebase-auth")
+    // Retrofit + OkHttp
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.converter.gson)
+    implementation(libs.okhttp.logging)
+    // Coil (carga de imagenes)
+    implementation(libs.coil.compose)
+    // Tests de red
+    testImplementation(libs.okhttp.mockwebserver)
 }
